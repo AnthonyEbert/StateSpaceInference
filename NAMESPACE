@@ -2,6 +2,7 @@
 
 export(Ny)
 export(SMC2_ABC)
+export(dHawkes)
 export(dist_h)
 export(generate_statey)
 export(loss_hawkes)

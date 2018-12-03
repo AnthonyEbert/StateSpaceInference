@@ -5,9 +5,9 @@ sessionInfo()
 
 cl <- makeCluster(parallel::detectCores() - 1)
 
-lfunc <- function(...){parLapply(cl, ...)}
+#lfunc <- function(...){parLapply(cl, ...)}
 #lfunc <- function(...){mclapply(...)}
-#lfunc <- function(...){lapply(...)}
+lfunc <- function(...){lapply(...)}
 
 library(StateSpaceModel)
 
@@ -62,15 +62,14 @@ rstate <- function(n, theta, inp){
 loss = loss_hawkes
 
 control <- list(
-  Ntheta = 50,
+  Ntheta = 100,
   Nx = 200,
-  TT = TT,
-  pacc = 0.01
+  pacc = 0.02
 )
 
-prior_sample <- rgamma(control$Ntheta, 10, 40)
+prior_sample <- matrix(rgamma(control$Ntheta, 10, 40), ncol = 1)
 
-x_list <- SMC2_ABC(prior_sample, rstate, loss, inp, control = control, cl = cl, dt = 10)
+x_list <- SMC2_ABC(prior_sample, dprior = dHawkes, rstate, loss, loss_args = inp, control = control, cl = cl, dt = 10, ESS_threshold = 0.5, TT = TT)
 
 plotrix::weighted.hist(sapply(x_list, function(x){x$theta}), w = sapply(x_list, function(x){x$omega})/sum(sapply(x_list, function(x){x$omega})), breaks = 100)
 
