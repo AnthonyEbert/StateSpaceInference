@@ -1,4 +1,7 @@
-
+#' @export
+dHawkes <- function(theta){
+  dgamma(theta[1], 1*10, 4*10)
+}
 
 #' @export
 loss_hawkes <- function(x, theta, time1, time2, inp){
