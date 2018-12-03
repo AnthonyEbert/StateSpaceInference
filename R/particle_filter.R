@@ -1,0 +1,8 @@
+
+#' @export
+particle_filter <- function(theta, x, w, loss, loss_args, threshold, time1, time2, lfunc){
+  a <- sample(1:length(x), prob = w, replace = TRUE)
+  dist_out <- lapply(x[a], loss, theta = theta, inp = loss_args, time1 = time1, time2 = time2)
+  return(dist_out)
+}
+
