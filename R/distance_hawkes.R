@@ -5,7 +5,7 @@ dHawkes <- function(theta){
 
 #' @export
 loss_hawkes <- function(x, theta, time1, time2, inp){
-  if(is.null(x)){
+  if(gtools::invalid(x)){
     x <- rgamma(1, 10, 10)
   } else {
     x <- generate_state(x, 1, lower = inp$lower, upper = inp$upper, sd = inp$sd, a = inp$a)

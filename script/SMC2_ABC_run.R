@@ -12,7 +12,7 @@ set.seed(3)
 # Prior :
 # sig ~ exp(1)
 # tau ~ exp(1)
-TT <- 20
+TT <- 40
 true_theta <- c(0.25, 0.5)
 #y <- data_simulator(true_theta, TT)
 
@@ -48,29 +48,27 @@ inp <- list(
   simulator = simulator
 )
 
-rstate <- function(n, theta, inp){
-  sapply(rep(NA, n), generate_state, n = 1, lower = inp$lower, upper = inp$upper, sd = inp$sd_t, a = inp$a_logit)
-}
-
 loss = loss_hawkes
 
-control <- list(
-  Ntheta = 100,
-  Nx = 200,
-  pacc = 0.02
-)
+
+Ntheta = 100
+Nx = 100
+pacc = 0.05
+
 
 prior_sample <- matrix(rgamma(control$Ntheta, 10, 40), ncol = 1)
 
-x_list <- SMC2_ABC(prior_sample, dprior = dHawkes, rstate, loss, loss_args = inp, control = control, cl = cl, dt = 10, ESS_threshold = 0.5, TT = TT)
+x_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.1, TT = TT)
 
 plotrix::weighted.hist(sapply(x_list, function(x){x$theta}), w = sapply(x_list, function(x){x$omega})/sum(sapply(x_list, function(x){x$omega})), breaks = 100)
 
-q_mat <- array(unlist(x_list$q_l, recursive = FALSE), dim = c(3, 20))
+q_mat <- array(unlist(attr(x_list, "q_l"), recursive = FALSE), dim = c(3, 20))
 
-q_df <- data.frame(time = seq(1, 20), lower = q_mat[1,], med = q_mat[2,], upper = q_mat[3,], state = true_states)
+q_df <- data.frame(time = seq(1, TT), lower = q_mat[1,], med = q_mat[2,], upper = q_mat[3,], state = true_states)
 
 library(ggalt)
 
 ggplot(q_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
+
+save.image()
 

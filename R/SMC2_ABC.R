@@ -1,6 +1,6 @@
 
 #' @export
-SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, lfunc = NULL, TT){
+SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, lfunc = NULL, TT){
 
   if(is.null(lfunc)){
     parallel <- ifelse(is.null(cl), 1,
@@ -14,9 +14,6 @@ SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt 
 
   n_params <- ifelse(gtools::invalid(dim(prior_sample)[2]), 1, dim(prior_sample)[2])
 
-  Ntheta <- control$Ntheta
-  Nx <- control$Nx
-
   x_list <- as.list(rep(NA, Ntheta))
   x_list <- lapply(x_list, function(i){list()})
 
@@ -26,7 +23,7 @@ SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt 
 
   for(m in 1:Ntheta){
     x_list[[m]]$theta <- prior_sample[m,, drop = FALSE]
-    x_list[[m]]$x <- rstate(Nx, prior_sample[m,], loss_args)
+    x_list[[m]]$x <- rep(NA, Nx)
     x_list[[m]]$w <- rep(1, Nx)
     x_list[[m]]$p <- NULL
     x_list[[m]]$omega <- 1
@@ -39,7 +36,7 @@ SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt 
     x_list <- lfunc(x_list, theta_filter, time1 = t*dt - dt, time2 = t*dt, loss = loss, loss_args = loss_args)
 
     distances <- sapply(x_list, function(x){x$distance})
-    eps[t] <- quantile(as.numeric(distances), probs = control$pacc)
+    eps[t] <- quantile(as.numeric(distances), probs = pacc)
 
     for(m in 1:Ntheta){
       x_list[[m]]$w <- (x_list[[m]]$distance <= eps[t])*1
@@ -72,7 +69,7 @@ SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt 
     thetas <- matrix(sapply(x_list, function(x){x$theta}), ncol = n_params)
 
     ESS <- sum(omegas) ^ 2 / sum(omegas^2)
-    ifelse(ESS_threshold > 0, print(ESS), print(paste("SMC: ", ESS)))
+    ifelse(ESS_threshold > 0, print(paste0(t, ". ", ESS)), print(paste("SMC: ", ESS)))
 
     if(ESS < Ntheta * ESS_threshold){
       print("resample")
@@ -82,7 +79,7 @@ SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt 
       proposed_log_theta <- log(thetas) + mvtnorm::rmvnorm(Ntheta, sigma = post_cov)
       proposed_thetas <- exp(proposed_log_theta)
 
-      x_list_prop <- SMC2_ABC(proposed_thetas, dprior = dprior, rstate = rstate, loss = loss, loss_args = loss_args, control = control, lfunc = lfunc, dt = dt, ESS_threshold = 0, eps = eps[1:t], TT = t)
+      x_list_prop <- SMC2_ABC(proposed_thetas, dprior = dprior, loss = loss, loss_args = loss_args, Ntheta = Ntheta, Nx = Nx, pacc = pacc, lfunc = lfunc, dt = dt, ESS_threshold = 0, eps = eps[1:t], TT = t)
 
       for(m in 1:Ntheta){
         proposed_Z_hat <- prod(x_list_prop[[m]]$p)
@@ -109,7 +106,7 @@ SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt 
 
   }
 
-  x_list$q_l <- q_l
+  attr(x_list, "q_l") <- q_l
 
   return(x_list)
 }
