@@ -16,12 +16,12 @@ loss_hawkes <- function(x, theta, time1, time2, inp){
 #' @export
 dist_h <- function(x, theta, history, time1, time2, simulator){
 
-  if(gtools::invalid(which(history <= 0))){
+  if(gtools::invalid(which(history <= time1))){
     history <- NULL
   }
 
 
-  sim_out <- simulator(x, c(theta, 0.5), history[which(history <= time1)], time1, time2, Ni = 100)
+  sim_out <- simulator(x, c(theta, 0.5), history[which(history <= time1)], time1, time2, Ni = Inf)
 
   dist_out <- (sim_out$n - length(which(history > time1 & history < time2)))^2 / max(1, length(which(history > time1 & history < time2)))
 
