@@ -1,8 +1,8 @@
 
 #' @export
-theta_filter <- function(input_list, time1, time2, loss_args){
+theta_filter <- function(input_list, time1, time2, loss = loss, loss_args){
 
-  output <- particle_filter(input_list$theta, input_list$x, input_list$w, loss = loss_hawkes, loss_args = loss_args, time1 = time1, time2 = time2)
+  output <- particle_filter(input_list$theta, input_list$x, input_list$w, loss = loss, loss_args = loss_args, time1 = time1, time2 = time2)
 
   output_list <- input_list
 
