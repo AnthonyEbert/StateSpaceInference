@@ -8,7 +8,7 @@ loss_hawkes <- function(x, theta, time1, time2, inp){
   if(is.null(x)){
     x <- rgamma(1, 10, 10)
   } else {
-    x <- generate_statey(x, 1, lower = inp$lower, upper = inp$upper, sd = inp$sd, a = inp$a)
+    x <- generate_state(x, 1, lower = inp$lower, upper = inp$upper, sd = inp$sd, a = inp$a)
   }
 
   output <- dist_h(x, theta, inp$history, time1 = time1, time2 = time2, simulator = inp$simulator)
@@ -43,7 +43,7 @@ dist_h <- function(x, theta, history, time1, time2, simulator){
 #' @examples
 #' init <- 2.5
 #' x <- generate_state(init, 10, 0, 3.5, 1, 0.9)
-generate_statey <- function(init, n, lower, upper, sd, a = 1){
+generate_state <- function(init, n, lower, upper, sd, a = 1){
 
   if(gtools::invalid(init)){
     init <- rgamma(1, 10, 10)

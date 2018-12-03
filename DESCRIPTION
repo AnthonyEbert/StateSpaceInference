@@ -4,6 +4,10 @@ Version: 0.1.0
 Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
 Description: Performs likelihood-free state space inference
 Depends: R (>= 3.5.1)
+Imports:
+  dplyr,
+  mvtnorm,
+  gtools
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true

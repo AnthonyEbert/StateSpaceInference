@@ -9,7 +9,7 @@ SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt 
                                      ifelse(cl == "test", 4, 5)))
     )
 
-    lfunc <- StateSpaceInference:::make_listfunc(parallel, cl)
+    lfunc <- make_listfunc(parallel, cl)
   }
 
   n_params <- ifelse(gtools::invalid(dim(prior_sample)[2]), 1, dim(prior_sample)[2])
@@ -28,9 +28,11 @@ SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt 
     x_list[[m]]$theta <- prior_sample[m,, drop = FALSE]
     x_list[[m]]$x <- rstate(Nx, prior_sample[m,], loss_args)
     x_list[[m]]$w <- rep(1, Nx)
-    x_list[[m]]$p <- 1
+    x_list[[m]]$p <- NULL
     x_list[[m]]$omega <- 1
   }
+
+  q_l <- list()
 
 
   for(t in 1:TT){
@@ -44,15 +46,23 @@ SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt 
       x_list[[m]]$p <- c(x_list[[m]]$p, mean(x_list[[m]]$w))
     }
 
-    # x_mat <- sapply(x_list, function(x){x$x})
-    # w_mat <- sapply(x_list, function(x){x$w})
+    size_x <- ifelse(gtools::invalid(dim(x_list[[1]]$x)[2]), 1, dim(x_list[[1]]$x)[2])
+
+    x_mat <- array(as.numeric(unlist(lapply(x_list, function(x){x$x}))), dim = c(Nx, Ntheta, size_x))
+    w_mat <- array(as.numeric(unlist(lapply(x_list, function(x){x$w}))), dim = c(Nx, Ntheta))
+    w_mat <- array(w_mat, dim = c(dim(w_mat), size_x))
+
+    x_l <- lapply(1:size_x, function(i){x_mat[,,i]})
+    w_l <- lapply(1:size_x, function(i){w_mat[,,i]})
+
+    q_l[[t]] <- mapply(Hmisc::wtd.quantile, x_l, w_l, MoreArgs = list(probs = c(0.025, 0.5, 0.975), normwt = TRUE))
 
     for(m in 1:Ntheta){
-      if (x_list[[m]]$p == 0) {
+      if (x_list[[m]]$p[t] == 0) {
         x_list[[m]]$w <- rep(1, Nx)
       }
       x_list[[m]]$w <- x_list[[m]]$w / sum(x_list[[m]]$w)
-      x_list[[m]]$omega <- x_list[[m]]$omega * x_list[[m]]$p
+      x_list[[m]]$omega <- x_list[[m]]$omega * x_list[[m]]$p[t]
     }
 
     omegas <- sapply(x_list, function(x){x$omega})
@@ -73,12 +83,10 @@ SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt 
 
       for(m in 1:Ntheta){
         proposed_Z_hat <- prod(x_list_prop[[m]]$p)
-        old_Z_hat      <- prod(x_list[[m]]$p)
+        old_Z_hat      <- prod(x_list[[aa[m]]]$p)
 
         MH_ratio <- dprior(proposed_thetas[m,])  * proposed_Z_hat /
-          (dprior(thetas[m,]) * old_Z_hat)
-
-        print(MH_ratio)
+          (dprior(thetas[aa[m],]) * old_Z_hat)
 
         un <- runif(1)
 
@@ -97,6 +105,8 @@ SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt 
     }
 
   }
+
+  x_list$q_l <- q_l
 
   return(x_list)
 }
