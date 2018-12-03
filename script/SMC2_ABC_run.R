@@ -5,19 +5,13 @@ sessionInfo()
 
 cl <- makeCluster(parallel::detectCores() - 1)
 
-#lfunc <- function(...){parLapply(cl, ...)}
-#lfunc <- function(...){mclapply(...)}
-lfunc <- function(...){lapply(...)}
-
-library(StateSpaceModel)
-
 # IBIS Algorithm
 set.seed(3)
 
 # Prior :
 # sig ~ exp(1)
 # tau ~ exp(1)
-TT <- 30
+TT <- 40
 true_theta <- c(0.25, 0.5)
 #y <- data_simulator(true_theta, TT)
 
@@ -62,12 +56,20 @@ rstate <- function(n, theta, inp){
 loss = loss_hawkes
 
 control <- list(
-  Ntheta = 100,
+  Ntheta = 200,
   Nx = 200,
   pacc = 0.02
 )
 
 prior_sample <- matrix(rgamma(control$Ntheta, 10, 40), ncol = 1)
+
+# parallel <- ifelse(is.null(cl), 1,
+#                    ifelse("cluster" %in% class(cl), 2,
+#                           ifelse(cl == "mclapply", 3,
+#                                  ifelse(cl == "test", 4, 5)))
+# )
+#
+# lfunc <- StateSpaceInference:::make_listfunc(parallel, cl)
 
 x_list <- SMC2_ABC(prior_sample, dprior = dHawkes, rstate, loss, loss_args = inp, control = control, cl = cl, dt = 10, ESS_threshold = 0.5, TT = TT)
 

@@ -1,16 +1,18 @@
 
 #' @export
-SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, TT){
+SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, lfunc = NULL, TT){
+
+  if(is.null(lfunc)){
+    parallel <- ifelse(is.null(cl), 1,
+                       ifelse("cluster" %in% class(cl), 2,
+                              ifelse(cl == "mclapply", 3,
+                                     ifelse(cl == "test", 4, 5)))
+    )
+
+    lfunc <- StateSpaceInference:::make_listfunc(parallel, cl)
+  }
 
   n_params <- ifelse(gtools::invalid(dim(prior_sample)[2]), 1, dim(prior_sample)[2])
-
-  parallel <- ifelse(is.null(cl), 1,
-                     ifelse("cluster" %in% class(cl), 2,
-                            ifelse(cl == "mclapply", 3,
-                                   ifelse(cl == "test", 4, 5)))
-  )
-
-  lfunc <- make_listfunc(parallel, cl)
 
   Ntheta <- control$Ntheta
   Nx <- control$Nx
@@ -39,7 +41,7 @@ SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt 
 
     for(m in 1:Ntheta){
       x_list[[m]]$w <- (x_list[[m]]$distance <= eps[t])*1
-      x_list[[m]]$p <- mean(x_list[[m]]$w)
+      x_list[[m]]$p <- c(x_list[[m]]$p, mean(x_list[[m]]$w))
     }
 
     # x_mat <- sapply(x_list, function(x){x$x})
@@ -67,14 +69,16 @@ SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt 
       proposed_log_theta <- log(thetas) + mvtnorm::rmvnorm(Ntheta, sigma = post_cov)
       proposed_thetas <- exp(proposed_log_theta)
 
-      x_list_prop <- SMC2_ABC(proposed_thetas, dprior = dprior, rstate = rstate, loss = loss, loss_args = loss_args, control = control, cl = cl, dt = dt, ESS_threshold = 0, eps = eps[1:t], TT = t)
+      x_list_prop <- SMC2_ABC(proposed_thetas, dprior = dprior, rstate = rstate, loss = loss, loss_args = loss_args, control = control, lfunc = lfunc, dt = dt, ESS_threshold = 0, eps = eps[1:t], TT = t)
 
       for(m in 1:Ntheta){
-        proposed_Z_hat <- x_list_prop[[m]]$p
-        old_Z_hat      <- x_list[[m]]$p
+        proposed_Z_hat <- prod(x_list_prop[[m]]$p)
+        old_Z_hat      <- prod(x_list[[m]]$p)
 
         MH_ratio <- dprior(proposed_thetas[m,])  * proposed_Z_hat /
-          dprior(thetas[m,]) * old_Z_hat
+          (dprior(thetas[m,]) * old_Z_hat)
+
+        print(MH_ratio)
 
         un <- runif(1)
 
