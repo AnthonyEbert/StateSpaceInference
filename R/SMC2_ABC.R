@@ -46,6 +46,7 @@ SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt 
       x_list[[m]]$p <- c(x_list[[m]]$p, mean(x_list[[m]]$w))
     }
 
+    # Saving quantiles of x for plotting only -------
     size_x <- ifelse(gtools::invalid(dim(x_list[[1]]$x)[2]), 1, dim(x_list[[1]]$x)[2])
 
     x_mat <- array(as.numeric(unlist(lapply(x_list, function(x){x$x}))), dim = c(Nx, Ntheta, size_x))
@@ -56,6 +57,8 @@ SMC2_ABC <- function(prior_sample, dprior, rstate, loss, loss_args, control, dt 
     w_l <- lapply(1:size_x, function(i){w_mat[,,i]})
 
     q_l[[t]] <- mapply(Hmisc::wtd.quantile, x_l, w_l, MoreArgs = list(probs = c(0.025, 0.5, 0.975), normwt = TRUE))
+
+    # End state quantile saving ------------
 
     for(m in 1:Ntheta){
       if (x_list[[m]]$p[t] == 0) {
