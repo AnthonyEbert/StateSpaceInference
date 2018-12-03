@@ -1,3 +1,4 @@
+
 library(parallel)
 library(StateSpaceModel)
 sessionInfo()
@@ -16,7 +17,7 @@ set.seed(3)
 # Prior :
 # sig ~ exp(1)
 # tau ~ exp(1)
-TT <- 40
+TT <- 30
 true_theta <- c(0.25, 0.5)
 #y <- data_simulator(true_theta, TT)
 
@@ -54,37 +55,22 @@ inp <- list(
 
 library(StateSpaceInference)
 
-Ntheta <- 20
-Nx <- 50
-acceptance_threshold <- 0.2
-x_list <- as.list(rep(NA, Ntheta))
-x_list <- lapply(x_list, function(i){list()})
-
-eps <- rep(NA, 40)
-
-for(m in 1:Ntheta){
-  x_list[[m]]$theta <- rgamma(1, 1*10, 4*10)
-  x_list[[m]]$x <- sapply(rep(NA, Nx), generate_statey, n = 1, lower = lower, upper = upper, sd = sd_t, a = a_logit)
-  x_list[[m]]$w <- rep(1, Nx)
-  x_list[[m]]$p <- 1
-  x_list[[m]]$omega <- 1
+rstate <- function(n, theta, inp){
+  sapply(rep(NA, n), generate_statey, n = 1, lower = inp$lower, upper = inp$upper, sd = inp$sd_t, a = inp$a_logit)
 }
 
+loss = loss_hawkes
 
-for(t in 2:40){
-  x_list <- lfunc(x_list, theta_filter, time1 = t*10 - 10, time2 = t*10, loss_args = inp, loss = loss_hawkes)
+control <- list(
+  Ntheta = 50,
+  Nx = 200,
+  TT = TT,
+  pacc = 0.01
+)
 
-  distances <- sapply(x_list, function(x){x$distance})
-  eps[t] <- quantile(as.numeric(distances), probs = acceptance_threshold)
+prior_sample <- rgamma(control$Ntheta, 10, 40)
 
-  for(m in 1:Ntheta){
-    x_list[[m]]$w <- (x_list[[m]]$distance <= eps[t])*1
-    x_list[[m]]$p <- mean(x_list[[m]]$w)
-    if (x_list[[m]]$p == 0) {
-      x_list[[m]]$w <- rep(1, Nx)
-    }
-    x_list[[m]]$w <- x_list[[m]]$w / sum(x_list[[m]]$w)
-    x_list[[m]]$omega <- x_list[[m]]$omega * x_list[[m]]$p
-  }
-}
+x_list <- SMC2_ABC(prior_sample, rstate, loss, inp, control = control, cl = cl, dt = 10)
+
+plotrix::weighted.hist(sapply(x_list, function(x){x$theta}), w = sapply(x_list, function(x){x$omega})/sum(sapply(x_list, function(x){x$omega})), breaks = 100)
 
