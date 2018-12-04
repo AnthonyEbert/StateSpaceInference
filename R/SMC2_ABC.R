@@ -1,6 +1,6 @@
 
 #' @export
-SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, lfunc = NULL, TT){
+SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, lfunc = NULL, TT, trans = I, invtrans = I){
 
 
   parallel <- ifelse(is.null(cl), 1,
@@ -21,7 +21,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
   }
 
   for(m in 1:Ntheta){
-    x_list[[m]]$theta <- prior_sample[m,, drop = FALSE]
+    x_list[[m]]$theta <- prior_sample[m, drop = FALSE]
     x_list[[m]]$x <- rep(NA, Nx)
     x_list[[m]]$w <- rep(1, Nx)
     x_list[[m]]$p <- NULL
@@ -72,14 +72,14 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
     if(ESS < Ntheta * ESS_threshold){
       print("resample")
-      post_cov <- cov.wt(log(thetas), wt=omegas)$cov
+      post_cov <- cov.wt(trans(thetas), wt=omegas)$cov
       nb <- 0
       aa <- sample(1:Ntheta, Ntheta, prob = omegas/sum(omegas), replace = TRUE)
-      proposed_log_theta <- log(thetas) + mvtnorm::rmvnorm(Ntheta, sigma = post_cov)
-      probs <- apply(exp(proposed_log_theta), 1, dprior)
+      proposed_log_theta <- trans(thetas) + mvtnorm::rmvnorm(Ntheta, sigma = post_cov)
+      probs <- apply(invtrans(proposed_log_theta), 1, dprior)
       probs[is.na(probs)] <- 0
       bb <- sample(1:Ntheta, Ntheta, replace = TRUE, prob = probs)
-      proposed_thetas <- exp(proposed_log_theta[bb,])
+      proposed_thetas <- invtrans(proposed_log_theta[bb,])
       print(length(proposed_thetas))
 
       x_list_prop <- SMC2_ABC(proposed_thetas, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp, ESS_threshold = 0, eps = eps[1:tp], cl,  TT = tp)
