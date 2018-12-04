@@ -1,8 +1,4 @@
 
-#' @export
-dprior <- function(theta){
-  dgamma(theta[1], 1*10, 4*10)
-}
 
 #' @export
 data_simulator <- function(theta, TT){
