@@ -52,9 +52,9 @@ inp <- list(
 loss = loss_hawkes
 
 
-Ntheta = 100
-Nx = 100
-pacc = 0.05
+Ntheta = 200
+Nx = 400
+pacc = 0.02
 
 prior_sample <- data.frame(theta1 = rgamma(Ntheta, 10, 40), theta2 = rgamma(Ntheta, 10, 20))
 
@@ -63,6 +63,12 @@ prior_sample <- as.matrix(prior_sample, ncol = 2)
 x_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.1, TT = TT, trans = log, invtrans = exp)
 
 plotrix::weighted.hist(sapply(x_list, function(x){x$theta[,1]}), w = sapply(x_list, function(x){x$omega})/sum(sapply(x_list, function(x){x$omega})), breaks = 100)
+
+plot(density(sapply(x_list, function(x){x$theta[,1]}), weights = sapply(x_list, function(x){x$omega})/sum(sapply(x_list, function(x){x$omega}))))
+
+plot(density(sapply(x_list, function(x){x$theta[,2]}), weights = sapply(x_list, function(x){x$omega})/sum(sapply(x_list, function(x){x$omega}))))
+
+
 
 q_mat <- array(unlist(attr(x_list, "q_l"), recursive = FALSE), dim = c(3, 20))
 
