@@ -1,6 +1,6 @@
 #' @export
 dHawkes <- function(theta){
-  dgamma(theta[1], 1*10, 4*10)
+  dgamma(theta[1], 1*10, 4*10) * dgamma(theta[2], 1*10, 2*10)
 }
 
 #' @export
@@ -24,7 +24,7 @@ dist_h <- function(x, theta, history, time1, time2, simulator){
   }
 
 
-  sim_out <- simulator(x, c(theta, 0.5), history[which(history <= time1)], time1, time2, Ni = Inf)
+  sim_out <- simulator(x, theta, history[which(history <= time1)], time1, time2, Ni = Inf)
 
   dist_out <- (sim_out$n - length(which(history > time1 & history < time2)))^2 / max(1, length(which(history > time1 & history < time2)))
 
