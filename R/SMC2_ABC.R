@@ -21,7 +21,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
   }
 
   for(m in 1:Ntheta){
-    x_list[[m]]$theta <- prior_sample[m, drop = FALSE]
+    x_list[[m]]$theta <- prior_sample[m, , drop = FALSE]
     x_list[[m]]$x <- rep(NA, Nx)
     x_list[[m]]$w <- rep(1, Nx)
     x_list[[m]]$p <- NULL
@@ -82,7 +82,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
       proposed_thetas <- invtrans(proposed_log_theta[bb,])
       print(length(proposed_thetas))
 
-      x_list_prop <- SMC2_ABC(proposed_thetas, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp, ESS_threshold = 0, eps = eps[1:tp], cl,  TT = tp)
+      x_list_prop <- SMC2_ABC(proposed_thetas, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp, ESS_threshold = 0, eps = eps[1:tp], cl,  TT = tp, trans = trans, invtrans = invtrans)
 
       for(m in 1:Ntheta){
         proposed_Z_hat <- prod(x_list_prop[[m]]$p)
