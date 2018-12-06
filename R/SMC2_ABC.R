@@ -1,6 +1,6 @@
 
 #' @export
-SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, TT, trans = I, invtrans = I){
+SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, TT, trans = I, invtrans = I, size_x = 1){
 
 
   parallel <- ifelse(is.null(cl), 1,
@@ -22,7 +22,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
   for(m in 1:Ntheta){
     x_list[[m]]$theta <- prior_sample[m, , drop = FALSE]
-    x_list[[m]]$x <- rep(NA, Nx)
+    x_list[[m]]$x <- matrix(nrow = Nx, ncol = size_x)
     x_list[[m]]$w <- rep(1, Nx)
     x_list[[m]]$p <- NULL
     x_list[[m]]$omega <- 1
@@ -47,12 +47,16 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
     # Saving quantiles of x for plotting only -------
     size_x <- ifelse(gtools::invalid(dim(x_list[[1]]$x)[2]), 1, dim(x_list[[1]]$x)[2])
 
-    x_mat <- array(as.numeric(unlist(lapply(x_list, function(x){x$x}))), dim = c(Nx, Ntheta, size_x))
-    w_mat <- array(as.numeric(unlist(lapply(x_list, function(x){x$w}))), dim = c(Nx, Ntheta))
+    x_mat <- aperm(abind::abind(lapply(x_list, function(x){x$x}), along = 3), c(3,1,2))
+
+    #x_mat <- t(sapply(lapply(x_list, function(x){x$x}), I))
+    w_mat <- t(sapply(lapply(x_list, function(x){x$w}), I))
     w_mat <- array(w_mat, dim = c(dim(w_mat), size_x))
 
-    x_l <- lapply(1:size_x, function(i){x_mat[,,i, drop = FALSE]})
-    w_l <- lapply(1:size_x, function(i){w_mat[,,i, drop = FALSE]})
+    x_l <- lapply(1:Ntheta, function(i){abind::adrop(x_mat[i,,, drop = FALSE], drop = 1)})
+    w_l <- lapply(1:Ntheta, function(i){w_mat[i,]})
+
+    q_mean <- mapply(function(x,y){apply(x, 2, weighted.mean, w = y)}, x_l, w_l)
 
     q_l[[tp]] <- mapply(Hmisc::wtd.quantile, x_l, w_l, MoreArgs = list(probs = c(0.025, 0.5, 0.975), normwt = TRUE))
 

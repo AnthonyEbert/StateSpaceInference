@@ -52,9 +52,9 @@ inp <- list(
 loss = loss_hawkes
 
 
-Ntheta = 200
-Nx = 400
-pacc = 0.02
+Ntheta = 100
+Nx = 20
+pacc = 0.2
 
 prior_sample <- data.frame(theta1 = rgamma(Ntheta, 10, 40), theta2 = rgamma(Ntheta, 10, 20))
 

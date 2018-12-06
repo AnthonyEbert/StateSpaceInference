@@ -5,6 +5,8 @@ dHawkes <- function(theta){
 
 #' @export
 loss_hawkes <- function(x, theta, time1, time2, inp){
+  x <- as.numeric(x[1])
+
   if(gtools::invalid(x)){
     x <- rgamma(1, 10, 10)
   } else {
@@ -13,7 +15,7 @@ loss_hawkes <- function(x, theta, time1, time2, inp){
 
   output <- dist_h(x, theta, inp$history, time1 = time1, time2 = time2, simulator = inp$simulator)
 
-  return(list(distance = output, x = x))
+  return(list(distance = output, x = c(x,x)))
 }
 
 #' @export

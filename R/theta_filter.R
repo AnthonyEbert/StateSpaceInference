@@ -8,7 +8,7 @@ theta_filter <- function(input_list, time1, time2, loss = loss, loss_args){
 
   output_list$distance <- sapply(output, function(x){x$distance})
 
-  output_list$x <- sapply(output, function(x){x$x})
+  output_list$x <- matrix(sapply(output, function(x){x$x}), nrow = dim(input_list$x)[1], byrow = TRUE)
 
   return(output_list)
 }

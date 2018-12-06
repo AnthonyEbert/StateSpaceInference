@@ -29,8 +29,8 @@ inp <- list(
 )
 
 Ntheta <- 50
-Nx <- 100
-pacc = 0.05
+Nx <- 20
+pacc = 0.20
 
 prior_sample <- data.frame(rprior_vol(Ntheta))
 
