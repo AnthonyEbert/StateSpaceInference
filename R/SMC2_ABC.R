@@ -51,8 +51,8 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
     w_mat <- array(as.numeric(unlist(lapply(x_list, function(x){x$w}))), dim = c(Nx, Ntheta))
     w_mat <- array(w_mat, dim = c(dim(w_mat), size_x))
 
-    x_l <- lapply(1:size_x, function(i){x_mat[,,i]})
-    w_l <- lapply(1:size_x, function(i){w_mat[,,i]})
+    x_l <- lapply(1:size_x, function(i){x_mat[,,i, drop = FALSE]})
+    w_l <- lapply(1:size_x, function(i){w_mat[,,i, drop = FALSE]})
 
     q_l[[tp]] <- mapply(Hmisc::wtd.quantile, x_l, w_l, MoreArgs = list(probs = c(0.025, 0.5, 0.975), normwt = TRUE))
 
@@ -77,11 +77,11 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
       post_cov <- cov.wt(trans(thetas), wt=omegas)$cov
       nb <- 0
       aa <- sample(1:Ntheta, Ntheta, prob = omegas/sum(omegas), replace = TRUE)
-      proposed_log_theta <- trans(thetas[aa,]) + mvtnorm::rmvnorm(Ntheta, sigma = post_cov)
+      proposed_log_theta <- trans(thetas[aa, , drop = FALSE]) + mvtnorm::rmvnorm(Ntheta, sigma = post_cov)
       probs <- apply(invtrans(proposed_log_theta), 1, dprior)
       probs[is.na(probs)] <- 0
       bb <- sample(1:Ntheta, Ntheta, replace = TRUE, prob = probs)
-      proposed_thetas <- invtrans(proposed_log_theta[bb,])
+      proposed_thetas <- invtrans(proposed_log_theta[bb, , drop = FALSE])
 
       x_list_prop <- SMC2_ABC(proposed_thetas, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp, ESS_threshold = 0, eps = eps[1:tp], cl,  TT = tp, trans = trans, invtrans = invtrans)
 
