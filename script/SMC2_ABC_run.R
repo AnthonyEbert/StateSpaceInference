@@ -13,7 +13,7 @@ set.seed(3)
 # Prior :
 # sig ~ exp(1)
 # tau ~ exp(1)
-TT <- 40
+TT <- 20
 true_theta <- c(0.25, 0.5)
 #y <- data_simulator(true_theta, TT)
 
@@ -52,31 +52,27 @@ inp <- list(
 loss = loss_hawkes
 
 
-Ntheta = 200
-Nx = 400
+Ntheta = 400
+Nx = 200
 pacc = 0.02
 
 prior_sample <- data.frame(theta1 = rgamma(Ntheta, 10, 40), theta2 = rgamma(Ntheta, 10, 20))
 
 prior_sample <- as.matrix(prior_sample, ncol = 2)
 
-x_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.1, TT = TT, trans = log, invtrans = exp)
+full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.1, TT = TT, trans = log, invtrans = exp)
 
-plotrix::weighted.hist(sapply(x_list, function(x){x$theta[,1]}), w = sapply(x_list, function(x){x$omega})/sum(sapply(x_list, function(x){x$omega})), breaks = 100)
+state_df <- get_state(full_list)
 
-plot(density(sapply(x_list, function(x){x$theta[,1]}), weights = sapply(x_list, function(x){x$omega})/sum(sapply(x_list, function(x){x$omega}))))
+state_df$state <- true_states
 
-plot(density(sapply(x_list, function(x){x$theta[,2]}), weights = sapply(x_list, function(x){x$omega})/sum(sapply(x_list, function(x){x$omega}))))
+ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
 
+theta_df <- get_parameter(full_list)
 
-
-q_mat <- array(unlist(attr(x_list, "q_l"), recursive = FALSE), dim = c(3, 20))
-
-q_df <- data.frame(time = seq(1, TT), lower = q_mat[1,], med = q_mat[2,], upper = q_mat[3,], state = true_states)
+ggplot(theta_df) + aes(x = Value, weights = Weight, col = Time) + geom_density() + facet_wrap(~Parameter)
 
 library(ggalt)
-
-ggplot(q_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
 
 save.image()
 
