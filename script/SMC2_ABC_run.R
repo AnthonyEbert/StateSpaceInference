@@ -53,6 +53,9 @@ prior_sample <- as.matrix(prior_sample, ncol = 2)
 
 full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.1, TT = TT, trans = log, invtrans = exp)
 
+library(ggplot2)
+library(ggalt)
+
 state_df <- get_state(full_list)
 
 state_df$state <- true_states
@@ -62,8 +65,6 @@ ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_s
 theta_df <- get_parameter(full_list)
 
 ggplot(theta_df) + aes(x = Value, weights = Weight, col = Time) + geom_density() + facet_wrap(~Parameter)
-
-library(ggalt)
 
 save.image()
 save(state_df, file = "state_df.RData")
