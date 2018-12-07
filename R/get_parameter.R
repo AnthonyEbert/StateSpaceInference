@@ -18,12 +18,12 @@ get_parameter <- function(full_list){
 
   }
 
-  theta_df <- plyr::adply(theta_array, c(1,2,3), .id = c("Time", "Particle", "Parameter")) %>% rename(Value = V1)
+  theta_df <- plyr::adply(theta_array, c(1,2,3), .id = c("Time", "Particle", "Parameter")) %>% dplyr::rename(Value = V1)
 
   w_df <- plyr::adply(w_mat, c(1,2))
   names(w_df) <- c("Time", "Particle", "Weight")
 
-  theta_df <- left_join(theta_df, w_df, by = c("Time", "Particle"))
+  theta_df <- dplyr::left_join(theta_df, w_df, by = c("Time", "Particle"))
 
   return(theta_df)
 }

@@ -53,20 +53,21 @@ prior_sample <- as.matrix(prior_sample, ncol = 2)
 
 full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.1, TT = TT, trans = log, invtrans = exp)
 
-library(ggplot2)
-library(ggalt)
-
 state_df <- get_state(full_list)
 
 state_df$state <- true_states
 
-ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
-
 theta_df <- get_parameter(full_list)
 
-ggplot(theta_df) + aes(x = Value, weights = Weight, col = Time) + geom_density() + facet_wrap(~Parameter)
+library(ggplot2)
+library(ggalt)
 
 save.image()
 save(state_df, file = "state_df.RData")
 save(theta_df, file = "theta_df.RData")
 
+
+
+ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
+
+ggplot(theta_df) + aes(x = Value, weights = Weight, col = Time) + geom_density() + facet_wrap(~Parameter)
