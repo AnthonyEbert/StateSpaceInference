@@ -40,30 +40,31 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
     }
 
     for(m in 1:Ntheta){
-      x_list[[m]]$w <- (x_list[[m]]$distance <= eps[tp])*1
-      x_list[[m]]$p <- c(x_list[[m]]$p, mean(x_list[[m]]$w))
+      x_list[[m]]$w     <- (x_list[[m]]$distance <= eps[tp])*1
+      x_list[[m]]$pprod <- prod(x_list[[m]]$p, mean(x_list[[m]]$w))
+      x_list[[m]]$p     <- mean(x_list[[m]]$w)
     }
 
-    # Saving quantiles of x for plotting only -------
-    size_x <- ifelse(gtools::invalid(dim(x_list[[1]]$x)[2]), 1, dim(x_list[[1]]$x)[2])
-
-    x_mat <- array(as.numeric(unlist(lapply(x_list, function(x){x$x}))), dim = c(Nx, Ntheta, size_x))
-    w_mat <- array(as.numeric(unlist(lapply(x_list, function(x){x$w}))), dim = c(Nx, Ntheta))
-    w_mat <- array(w_mat, dim = c(dim(w_mat), size_x))
-
-    x_l <- lapply(1:size_x, function(i){x_mat[,,i, drop = FALSE]})
-    w_l <- lapply(1:size_x, function(i){w_mat[,,i, drop = FALSE]})
-
-    q_l[[tp]] <- mapply(Hmisc::wtd.quantile, x_l, w_l, MoreArgs = list(probs = c(0.025, 0.5, 0.975), normwt = TRUE))
+    # # Saving quantiles of x for plotting only -------
+    # size_x <- ifelse(gtools::invalid(dim(x_list[[1]]$x)[2]), 1, dim(x_list[[1]]$x)[2])
+    #
+    # x_mat <- array(as.numeric(unlist(lapply(x_list, function(x){x$x}))), dim = c(Nx, Ntheta, size_x))
+    # w_mat <- array(as.numeric(unlist(lapply(x_list, function(x){x$w}))), dim = c(Nx, Ntheta))
+    # w_mat <- array(w_mat, dim = c(dim(w_mat), size_x))
+    #
+    # x_l <- lapply(1:size_x, function(i){x_mat[,,i, drop = FALSE]})
+    # w_l <- lapply(1:size_x, function(i){w_mat[,,i, drop = FALSE]})
+    #
+    # q_l[[tp]] <- mapply(Hmisc::wtd.quantile, x_l, w_l, MoreArgs = list(probs = c(0.025, 0.5, 0.975), normwt = TRUE))
 
     # End state quantile saving ------------
 
     for(m in 1:Ntheta){
-      if (x_list[[m]]$p[tp] == 0) {
+      if (x_list[[m]]$p == 0) {
         x_list[[m]]$w <- rep(1, Nx)
       }
       x_list[[m]]$w <- x_list[[m]]$w / sum(x_list[[m]]$w)
-      x_list[[m]]$omega <- x_list[[m]]$omega * x_list[[m]]$p[tp]
+      x_list[[m]]$omega <- x_list[[m]]$omega * x_list[[m]]$p
     }
 
     omegas <- sapply(x_list, function(x){x$omega})
@@ -86,8 +87,8 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
       x_list_prop <- SMC2_ABC(proposed_thetas, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp, ESS_threshold = 0, eps = eps[1:tp], cl,  TT = tp, trans = trans, invtrans = invtrans)
 
       for(m in 1:Ntheta){
-        proposed_Z_hat <- prod(x_list_prop[[m]]$p)
-        old_Z_hat      <- prod(x_list[[aa[m]]]$p)
+        proposed_Z_hat <- x_list_prop[[m]]$pprod
+        old_Z_hat      <- x_list[[aa[m]]]$pprod
 
         MH_ratio <- proposed_Z_hat / old_Z_hat
 
