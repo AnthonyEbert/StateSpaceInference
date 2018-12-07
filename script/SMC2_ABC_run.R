@@ -9,7 +9,7 @@ library(StateSpaceInference)
 
 set.seed(3)
 
-TT <- 20
+TT <- 40
 true_theta <- c(0.25, 0.5)
 lower <- 0
 upper <- 3.5
@@ -43,9 +43,9 @@ inp <- list(
 loss = loss_hawkes
 
 
-Ntheta = 400
-Nx = 200
-pacc = 0.02
+Ntheta = 4000
+Nx = 2000
+pacc = 0.01
 
 prior_sample <- data.frame(theta1 = rgamma(Ntheta, 10, 40), theta2 = rgamma(Ntheta, 10, 20))
 
