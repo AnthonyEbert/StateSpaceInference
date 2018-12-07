@@ -5,6 +5,8 @@ dHawkes <- function(theta){
 
 #' @export
 loss_hawkes <- function(x, theta, time1, time2, inp){
+  x <- as.numeric(x[1])
+
   if(gtools::invalid(x)){
     x <- rgamma(1, 10, 10)
   } else {
