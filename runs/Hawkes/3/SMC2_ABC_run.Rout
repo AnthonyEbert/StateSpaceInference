@@ -1,0 +1,263 @@
+
+R version 3.5.1 (2018-07-02) -- "Feather Spray"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> 
+> library(parallel)
+> library(StateSpaceInference)
+> library(ggplot2)
+> library(ggalt)
+> sessionInfo()
+R version 3.5.1 (2018-07-02)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: SUSE Linux Enterprise Server 12 SP2
+
+Matrix products: default
+BLAS/LAPACK: /pkg/suse12/software/openblas/0.2.20-gcc-6.4.0-2.28/lib/libopenblas_sandybridgep-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] ggalt_0.4.0               ggplot2_3.1.0            
+[3] StateSpaceInference_0.3.2
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.0         Rttf2pt1_1.3.7     bindr_0.1.1        magrittr_1.5      
+ [5] maps_3.3.0         MASS_7.3-51.1      tidyselect_0.2.5   munsell_0.5.0     
+ [9] colorspace_1.3-2   R6_2.3.0           rlang_0.3.0.1      plyr_1.8.4        
+[13] dplyr_0.7.8        grid_3.5.1         gtable_0.2.0       ash_1.0-15        
+[17] KernSmooth_2.23-15 extrafontdb_1.0    withr_2.1.2        proj4_1.0-8       
+[21] lazyeval_0.2.1     assertthat_0.2.0   tibble_1.4.2       crayon_1.3.4      
+[25] bindrcpp_0.2.2     RColorBrewer_1.1-2 purrr_0.2.5        glue_1.3.0        
+[29] compiler_3.5.1     pillar_1.3.0       scales_1.0.0       extrafont_0.17    
+[33] pkgconfig_2.0.2   
+> 
+> #cl <- makeCluster(parallel::detectCores() - 1)
+> cl = "mclapply"
+> 
+> 
+> set.seed(3)
+> 
+> TT <- 40
+> true_theta <- c(0.25, 0.5)
+> lower <- 0
+> upper <- 3.5
+> sd_t <- 1
+> init <- min(rgamma(1, 100, 100), upper - 1)
+> a_logit <- 0.9
+> dist_coef <- 0.5
+> true_states <- generate_state(init, TT, lower, upper, sd_t, a = a_logit)
+> 
+> lambda_fun <- stepfun(seq(10, TT*10 - 10, by = 10), y = true_states)
+> kern <- function(x){return(decay_func(x, alpha = true_theta[1], delta = true_theta[2]))}
+> 
+> y_history <- sim_hawkes(lambda_fun, NULL, kern, 0, TT*10, progressBar = FALSE)
+> y <- hist(y_history, breaks = seq(0, TT*10, by = 10), plot = FALSE)$counts
+> 
+> hist(y_history, breaks = TT * 10)
+> 
+> plot(lambda_fun, add = TRUE, col = "red")
+> 
+> simulator <- hawkes_simulator
+> 
+> inp <- list(
++   lower = lower,
++   upper = upper,
++   sd_t = sd_t,
++   a_logit = a_logit,
++   history = y_history,
++   simulator = simulator
++ )
+> 
+> loss = loss_hawkes
+> 
+> 
+> Ntheta = 4000
+> Nx = 500
+> pacc = 0.005
+> 
+> prior_sample <- data.frame(theta1 = rgamma(Ntheta, 10, 40), theta2 = rgamma(Ntheta, 10, 20))
+> 
+> prior_sample <- as.matrix(prior_sample, ncol = 2)
+> 
+> full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.1, TT = TT, trans = log, invtrans = exp, resample_times = 40)
+[1] "1. 3306.8095504333"
+[1] "2. 2783.39018842023"
+[1] "3. 2590.39715012701"
+[1] "4. 2378.52115731949"
+[1] "5. 2162.36516100643"
+[1] "6. 1877.2567068708"
+[1] "7. 1636.62416048188"
+[1] "8. 1402.42012499827"
+[1] "9. 1130.09009075249"
+[1] "10. 957.125564791085"
+[1] "11. 894.091287891416"
+[1] "12. 679.322785630465"
+[1] "13. 592.620106590781"
+[1] "14. 538.067455588204"
+[1] "15. 352.723892019368"
+[1] "resample"
+[1] "SMC:  3273.13971142016"
+[1] "SMC:  2544.18238325503"
+[1] "SMC:  2368.57556155696"
+[1] "SMC:  2189.76303811051"
+[1] "SMC:  1985.5448218378"
+[1] "SMC:  1690.4855208121"
+[1] "SMC:  1466.73834571513"
+[1] "SMC:  1250.39058461729"
+[1] "SMC:  1127.8169696644"
+[1] "SMC:  877.372472176246"
+[1] "SMC:  751.338666188713"
+[1] "SMC:  634.606278018385"
+[1] "SMC:  636.564896008931"
+[1] "SMC:  591.965491891663"
+[1] "SMC:  472.913590656854"
+acceptance rate:  0.197 
+[1] "16. 3585.06237602426"
+[1] "17. 3117.95123085551"
+[1] "18. 2769.94601901739"
+[1] "19. 2087.33887931711"
+[1] "20. 1981.61316915735"
+[1] "21. 1838.13522250567"
+[1] "22. 1632.91218104316"
+[1] "23. 1469.64839502934"
+[1] "24. 1412.83053362574"
+[1] "25. 1232.41148099978"
+[1] "26. 1109.17903238247"
+[1] "27. 988.896248662247"
+[1] "28. 834.196775470422"
+[1] "29. 771.710833516451"
+[1] "30. 658.085109345835"
+[1] "31. 584.04723776723"
+[1] "32. 493.940451987816"
+[1] "33. 391.645098208318"
+[1] "resample"
+[1] "SMC:  3264.54356728567"
+[1] "SMC:  2334.41102962371"
+[1] "SMC:  2162.64477359373"
+[1] "SMC:  2009.68017448405"
+[1] "SMC:  1851.14849895088"
+[1] "SMC:  1671.57713229862"
+[1] "SMC:  1387.78352436551"
+[1] "SMC:  1293.67456623877"
+[1] "SMC:  1149.59951466264"
+[1] "SMC:  773.774126541823"
+[1] "SMC:  704.682015119537"
+[1] "SMC:  584.65686079564"
+[1] "SMC:  574.942623266815"
+[1] "SMC:  540.468540184534"
+[1] "SMC:  466.640863243355"
+[1] "SMC:  458.330992495789"
+[1] "SMC:  434.277199473664"
+[1] "SMC:  370.390511659235"
+[1] "SMC:  311.177602003789"
+[1] "SMC:  250.458248116674"
+[1] "SMC:  184.694377749184"
+[1] "SMC:  137.569180096478"
+[1] "SMC:  150.806792915063"
+[1] "SMC:  159.788770490785"
+[1] "SMC:  168.157935283179"
+[1] "SMC:  197.457442664567"
+[1] "SMC:  203.498960734108"
+[1] "SMC:  168.893318171866"
+[1] "SMC:  142.938412689507"
+[1] "SMC:  152.977725594096"
+[1] "SMC:  126.171049260027"
+[1] "SMC:  60.1179443580549"
+[1] "SMC:  51.1721170209771"
+acceptance rate:  0.0495 
+[1] "34. 3892.90675845965"
+[1] "35. 3617.62399381845"
+[1] "36. 3426.30766156732"
+[1] "37. 3272.85266480872"
+[1] "38. 2386.40990731106"
+[1] "39. 2116.58868164057"
+[1] "40. 1867.90342388246"
+[1] "resample"
+[1] "SMC:  3253.48222640931"
+[1] "SMC:  2255.67267169181"
+[1] "SMC:  2075.144081965"
+[1] "SMC:  1888.07524761351"
+[1] "SMC:  1750.3679646393"
+[1] "SMC:  1554.9537247845"
+[1] "SMC:  1326.96956941955"
+[1] "SMC:  1164.87125566847"
+[1] "SMC:  1000.91616015433"
+[1] "SMC:  657.649927964326"
+[1] "SMC:  562.482413403528"
+[1] "SMC:  489.705419421745"
+[1] "SMC:  431.226835178088"
+[1] "SMC:  386.998783713398"
+[1] "SMC:  313.781755907966"
+[1] "SMC:  258.398338870646"
+[1] "SMC:  268.189123634637"
+[1] "SMC:  253.445982398048"
+[1] "SMC:  169.420104543975"
+[1] "SMC:  144.8434812268"
+[1] "SMC:  107.973282943773"
+[1] "SMC:  117.390958959241"
+[1] "SMC:  145.402660082303"
+[1] "SMC:  146.044372355755"
+[1] "SMC:  117.240006298271"
+[1] "SMC:  109.363394107831"
+[1] "SMC:  78.148371958926"
+[1] "SMC:  58.4489393149278"
+[1] "SMC:  29.389754852507"
+[1] "SMC:  58.6576522768954"
+[1] "SMC:  35.2554387620839"
+[1] "SMC:  97.1421759790658"
+[1] "SMC:  102.121766844417"
+[1] "SMC:  94.9178206119823"
+[1] "SMC:  83.3706883498358"
+[1] "SMC:  97.9476175559509"
+[1] "SMC:  83.9874259651932"
+[1] "SMC:  61.5618070058897"
+[1] "SMC:  44.7321778125706"
+[1] "SMC:  26.300559935222"
+acceptance rate:  0.039 
+> 
+> state_df <- get_state(full_list)
+> 
+> state_df$state <- true_states
+> 
+> theta_df <- get_parameter(full_list)
+> 
+> 
+> save.image()
+> save(state_df, file = "state_df.RData")
+> save(theta_df, file = "theta_df.RData")
+> 
+> 
+> 
+> ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
+> 
+> ggplot(theta_df) + aes(x = Value, weights = Weight, col = Time) + geom_density() + facet_wrap(~Parameter)
+> 
+> proc.time()
+      user     system    elapsed 
+379938.740   3358.549  26553.605 
