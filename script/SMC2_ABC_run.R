@@ -70,4 +70,4 @@ save(theta_df, file = "theta_df.RData")
 
 ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
 
-ggplot(theta_df) + aes(x = Value, weights = Weight, col = Time) + geom_density() + facet_wrap(~Parameter)
+ggplot(theta_df) + aes(x = value, weights = weight, col = time) + geom_density() + facet_wrap(~parameter)
