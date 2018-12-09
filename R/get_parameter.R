@@ -25,7 +25,7 @@ get_parameter <- function(full_list){
 
   theta_df <- dplyr::left_join(theta_df, w_df, by = c("time", "particle")) %>%
     dplyr::group_by(time, parameter, value) %>%
-    summarise(weight = sum(weight))
+    dplyr::summarise(weight = sum(weight))
 
   return(theta_df)
 }
