@@ -1,11 +1,13 @@
 
 library(parallel)
+library(StateSpaceInference)
+library(ggplot2)
+library(ggalt)
 sessionInfo()
 
 #cl <- makeCluster(parallel::detectCores() - 1)
 cl = "mclapply"
 
-library(StateSpaceInference)
 
 set.seed(3)
 
@@ -51,7 +53,7 @@ prior_sample <- data.frame(theta1 = rgamma(Ntheta, 10, 40), theta2 = rgamma(Nthe
 
 prior_sample <- as.matrix(prior_sample, ncol = 2)
 
-full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.1, TT = TT, trans = log, invtrans = exp)
+full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.1, TT = TT, trans = log, invtrans = exp, resample_times = 40)
 
 state_df <- get_state(full_list)
 
@@ -59,8 +61,6 @@ state_df$state <- true_states
 
 theta_df <- get_parameter(full_list)
 
-library(ggplot2)
-library(ggalt)
 
 save.image()
 save(state_df, file = "state_df.RData")
