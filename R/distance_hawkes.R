@@ -26,7 +26,7 @@ dist_h <- function(x, theta, history, time1, time2, simulator){
   }
 
 
-  sim_out <- simulator(x, theta, history[which(history <= time1)], time1, time2, Ni = Inf)
+  sim_out <- simulator(x, theta, history[which(history <= time1 & history >= time1 - 400)], time1, time2, Ni = Inf)
 
   dist_out <- (sim_out$n - length(which(history > time1 & history < time2)))^2 / max(1, length(which(history > time1 & history < time2)))
 
