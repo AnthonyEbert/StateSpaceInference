@@ -49,7 +49,7 @@ Ntheta = 4000
 Nx = 500
 pacc = 0.005
 
-prior_sample <- data.frame(theta1 = rgamma(Ntheta, 10, 40), theta2 = rgamma(Ntheta, 10, 20))
+prior_sample <- data.frame(theta1 = runif(Ntheta, 0.1, 0.5), theta2 = rgamma(Ntheta, 0.2, 1))
 
 prior_sample <- as.matrix(prior_sample, ncol = 2)
 

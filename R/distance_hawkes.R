@@ -1,6 +1,6 @@
 #' @export
 dHawkes <- function(theta){
-  dgamma(theta[1], 1*10, 4*10) * dgamma(theta[2], 1*10, 2*10)
+  dunif(theta[1], 0.1, 0.5) * dunif(theta[2], 0.2, 1)
 }
 
 #' @export
