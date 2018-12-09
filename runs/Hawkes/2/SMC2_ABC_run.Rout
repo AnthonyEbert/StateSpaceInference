@@ -1,0 +1,157 @@
+
+R version 3.5.1 (2018-07-02) -- "Feather Spray"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> 
+> library(parallel)
+> sessionInfo()
+R version 3.5.1 (2018-07-02)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: SUSE Linux Enterprise Server 12 SP2
+
+Matrix products: default
+BLAS/LAPACK: /pkg/suse12/software/openblas/0.2.20-gcc-6.4.0-2.28/lib/libopenblas_sandybridgep-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+loaded via a namespace (and not attached):
+[1] compiler_3.5.1
+> 
+> #cl <- makeCluster(parallel::detectCores() - 1)
+> cl = "mclapply"
+> 
+> library(StateSpaceInference)
+> 
+> set.seed(3)
+> 
+> TT <- 40
+> true_theta <- c(0.25, 0.5)
+> lower <- 0
+> upper <- 3.5
+> sd_t <- 1
+> init <- min(rgamma(1, 100, 100), upper - 1)
+> a_logit <- 0.9
+> dist_coef <- 0.5
+> true_states <- generate_state(init, TT, lower, upper, sd_t, a = a_logit)
+> 
+> lambda_fun <- stepfun(seq(10, TT*10 - 10, by = 10), y = true_states)
+> kern <- function(x){return(decay_func(x, alpha = true_theta[1], delta = true_theta[2]))}
+> 
+> y_history <- sim_hawkes(lambda_fun, NULL, kern, 0, TT*10, progressBar = FALSE)
+> y <- hist(y_history, breaks = seq(0, TT*10, by = 10), plot = FALSE)$counts
+> 
+> hist(y_history, breaks = TT * 10)
+> 
+> plot(lambda_fun, add = TRUE, col = "red")
+> 
+> simulator <- hawkes_simulator
+> 
+> inp <- list(
++   lower = lower,
++   upper = upper,
++   sd_t = sd_t,
++   a_logit = a_logit,
++   history = y_history,
++   simulator = simulator
++ )
+> 
+> loss = loss_hawkes
+> 
+> 
+> Ntheta = 4000
+> Nx = 2000
+> pacc = 0.01
+> 
+> prior_sample <- data.frame(theta1 = rgamma(Ntheta, 10, 40), theta2 = rgamma(Ntheta, 10, 20))
+> 
+> prior_sample <- as.matrix(prior_sample, ncol = 2)
+> 
+> full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.1, TT = TT, trans = log, invtrans = exp)
+[1] "1. 3694.96757900985"
+[1] "2. 3194.20492174772"
+[1] "3. 3086.94255149146"
+[1] "4. 2971.85957357816"
+[1] "5. 2858.66009503777"
+[1] "6. 2641.78795482103"
+[1] "7. 2389.74180109441"
+[1] "8. 2489.86357520717"
+[1] "9. 2353.87265197201"
+[1] "10. 2322.49830283959"
+[1] "11. 2225.43904050163"
+[1] "12. 2164.03876033253"
+[1] "13. 2106.3942017898"
+[1] "14. 2056.26766747409"
+[1] "15. 2008.17827708785"
+[1] "16. 1932.7724180259"
+[1] "17. 1862.55059188567"
+[1] "18. 1826.84911242418"
+[1] "19. 1571.78345336768"
+[1] "20. 1537.59632095377"
+[1] "21. 1510.56526310813"
+[1] "22. 1500.64356991051"
+[1] "23. 1478.37564483456"
+[1] "24. 1472.68720010243"
+[1] "25. 1470.91597748205"
+[1] "26. 1465.90405032965"
+[1] "27. 1224.12966270365"
+[1] "28. 1029.34041100268"
+[1] "29. 958.794874702341"
+[1] "30. 874.729134150168"
+[1] "31. 803.198355461683"
+[1] "32. 800.711005943492"
+[1] "33. 778.531977431986"
+[1] "34. 770.848162915162"
+[1] "35. 764.05055956986"
+[1] "36. 760.055129125826"
+[1] "37. 753.944128551985"
+[1] "38. 737.918619561318"
+[1] "39. 687.588997327637"
+[1] "40. 679.544360663793"
+> 
+> state_df <- get_state(full_list)
+> 
+> state_df$state <- true_states
+> 
+> theta_df <- get_parameter(full_list)
+> 
+> library(ggplot2)
+> library(ggalt)
+> 
+> save.image()
+> save(state_df, file = "state_df.RData")
+> save(theta_df, file = "theta_df.RData")
+> 
+> 
+> 
+> ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
+> 
+> ggplot(theta_df) + aes(x = Value, weights = Weight, col = Time) + geom_density() + facet_wrap(~Parameter)
+> 
+> proc.time()
+      user     system    elapsed 
+489901.470    755.198  41592.598 

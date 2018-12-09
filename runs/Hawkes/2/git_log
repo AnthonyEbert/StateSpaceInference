@@ -1,0 +1,140 @@
+commit 7e90128b2e1e54a8a17fce16e6ed9f6d395eb199
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 7 17:40:20 2018 +1000
+
+    Hawkes_2.
+
+commit ce5775e9061e6dee0ab6bfa03cc17e54854e668e
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Fri Dec 7 17:20:44 2018 +1000
+
+    Import dplyr %>%
+
+commit 09bf0938577f17dd6264ea40576934dbec084fa3
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Fri Dec 7 16:50:04 2018 +1000
+
+    Add libraries to Hawkes_1.
+
+commit 689147f1788c9ab32e8a7110a2d75d6065d8ea0d
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Fri Dec 7 16:40:26 2018 +1000
+
+    Put file in wrong place! Hawkes_1 start
+
+commit f5ffe1c856943082a5958fdcd9dbe64e41a9827d
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Fri Dec 7 16:39:05 2018 +1000
+
+    Hawkes_1 test.
+
+commit 76f509df8b2d680fb8d068de20facbc446f790e3
+Merge: e3c68d8 f276f5f
+Author: Anthony Ebert "Ace <AnthonyEbert@users.noreply.github.com>
+Date:   Fri Dec 7 16:29:43 2018 +1000
+
+    Merge pull request #1 from AnthonyEbert/full_list
+    
+    Switch to saving full_list and added functions for extracting useful …
+
+commit f276f5f655fe81581a22bc553c52e7a161eaadc8
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Fri Dec 7 16:19:33 2018 +1000
+
+    Switch to saving full_list and added functions for extracting useful output.
+
+commit e3c68d8f7c6317e7b2f63f2e8246778401cf8d9d
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Fri Dec 7 12:54:52 2018 +1000
+
+    Switch $p to only record current time, $pprod keeps track of p product.
+
+commit ff7bd15906b2658bf873843bb35cbc9145954346
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Thu Dec 6 14:52:00 2018 +1000
+
+    Fixed comma issue - which caused problems using same code for Hawkes and Econometric model. Just add ", drop = FALSE" to matrix subsetting operations!
+
+commit 98713846a4ac370129b16a5a048f0d2d76c8f9b7
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Wed Dec 5 16:21:43 2018 +1000
+
+    Fixes to replenishment algorithm.
+
+commit 74579387602596b2533045fc5835b87c6bb77d4b
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Wed Dec 5 15:08:01 2018 +1000
+
+    Removed superfluous argument.
+
+commit f3eb5bcbae6cb0e80ab721b097b8e771b1ba2422
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Tue Dec 4 16:57:38 2018 +1000
+
+    Making Hawkes model work again.
+
+commit 2f7092d3cc8511e76f35fe648c3ca5cfd03e9de8
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Tue Dec 4 14:51:36 2018 +1000
+
+    Got volatility model working.
+
+commit fb4650fa25932a95a1b75fec33cf2453e9e2d47d
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Tue Dec 4 13:25:06 2018 +1000
+
+    Fixed parallel issue by preweighted parameter proposals by prior.
+
+commit c3de0ee9de47d4625bf5da3da99d5a0e652ff648
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Tue Dec 4 09:25:07 2018 +1000
+
+    Tested and working.
+
+commit a1235a93b02e30665ef3a068bd76d93e6e1e1f51
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Tue Dec 4 01:45:12 2018 +1000
+
+    Added code comments.
+
+commit adfd37f0f5822e5bc9d081500d4fc5b19dd7e8bb
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Tue Dec 4 01:28:09 2018 +1000
+
+    Working completely.
+
+commit 48c4389475cf3d29f0461fc8d2b5107ba23c18e6
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Tue Dec 4 00:18:37 2018 +1000
+
+    Fixed parallel processing issue.
+
+commit de541f319d9e3aa24767b1f68239b60902cc30e7
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Mon Dec 3 23:17:02 2018 +1000
+
+    Problem with parallel processing of particle filter components. Can't figure it out!
+
+commit 70c14ed5982efdc550a56ede3daecd1f122c5c93
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Mon Dec 3 21:09:58 2018 +1000
+
+    SMC2_ABC function working!
+
+commit 6f3eef255ca14007fda4f6f727246a2dffb60b7a
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Mon Dec 3 19:19:50 2018 +1000
+
+    Working!!
+
+commit 61f860c3162d6ddb87aefd367de8063793ae4a58
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Mon Dec 3 17:25:38 2018 +1000
+
+    Starting things
+
+commit 1868f92165cf24f55652f433267bae78b7cda8f7
+Author: Anthony Ebert "Ace <AnthonyEbert@users.noreply.github.com>
+Date:   Mon Dec 3 14:02:15 2018 +1000
+
+    Initial commit
