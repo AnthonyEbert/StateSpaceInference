@@ -1,6 +1,6 @@
 
 #' @export
-SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, TT, trans = I, invtrans = I){
+SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, TT, trans = I, invtrans = I, resample_times = NA){
 
 
   parallel <- ifelse(is.null(cl), 1,
@@ -61,7 +61,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
     full_list[[tp]] <- x_list
 
-    if(ESS < Ntheta * ESS_threshold){
+    if(ESS < Ntheta * ESS_threshold | tp %in% resample_times){
       print("resample")
       post_cov <- cov.wt(trans(thetas), wt=omegas)$cov
       nb <- 0
