@@ -26,6 +26,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
     x_list[[m]]$x <- matrix(NA, nrow = Nx)
     x_list[[m]]$w <- rep(1, Nx)
     x_list[[m]]$p <- NULL
+    x_list[[m]]$pprod <- NULL
     x_list[[m]]$omega <- 1
   }
 
@@ -42,7 +43,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
     for(m in 1:Ntheta){
       x_list[[m]]$w     <- (x_list[[m]]$distance <= eps[tp])*1
-      x_list[[m]]$pprod <- prod(x_list[[m]]$p, mean(x_list[[m]]$w))
+      x_list[[m]]$pprod <- prod(x_list[[m]]$pprod, mean(x_list[[m]]$w))
       x_list[[m]]$p     <- mean(x_list[[m]]$w)
 
       if (x_list[[m]]$p == 0) {
