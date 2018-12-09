@@ -46,8 +46,8 @@ loss = loss_hawkes
 
 
 Ntheta = 4000
-Nx = 2000
-pacc = 0.01
+Nx = 500
+pacc = 0.005
 
 prior_sample <- data.frame(theta1 = rgamma(Ntheta, 10, 40), theta2 = rgamma(Ntheta, 10, 20))
 
