@@ -1,6 +1,6 @@
 
 #' @export
-SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, TT, trans = I, invtrans = I, resample_times = NA){
+SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, TT, trans = I, invtrans = I, resample_times = NA, trans_args){
 
 
   parallel <- ifelse(is.null(cl), 1,
@@ -54,7 +54,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
     }
 
     omegas <- sapply(x_list, function(x){x$omega})
-    thetas <- matrix(sapply(x_list, function(x){x$theta}), ncol = n_params)
+    thetas <- matrix(t(sapply(x_list, function(x){x$theta})), ncol = n_params)
 
     ESS <- sum(omegas) ^ 2 / sum(omegas^2)
     ifelse(ESS_threshold > 0, print(paste0(tp, ". ", ESS)), print(paste("SMC: ", ESS)))
@@ -63,14 +63,11 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
     if(ESS < Ntheta * ESS_threshold | tp %in% resample_times){
       print("resample")
-      post_cov <- cov.wt(trans(thetas), wt=omegas)$cov
+      post_cov <- cov.wt(trans(thetas, trans_args = trans_args), wt=omegas)$cov
       nb <- 0
       aa <- sample(1:Ntheta, Ntheta, prob = omegas/sum(omegas), replace = TRUE)
-      proposed_log_theta <- trans(thetas[aa, , drop = FALSE]) + mvtnorm::rmvnorm(Ntheta, sigma = post_cov)
-      probs <- apply(invtrans(proposed_log_theta), 1, dprior)
-      probs[is.na(probs)] <- 0
-      bb <- sample(1:Ntheta, Ntheta, replace = TRUE, prob = probs)
-      proposed_thetas <- invtrans(proposed_log_theta[bb, , drop = FALSE])
+      proposed_log_theta <- trans(thetas[aa, , drop = FALSE], trans_args = trans_args) + mvtnorm::rmvnorm(Ntheta, sigma = post_cov)
+      proposed_thetas <- invtrans(proposed_log_theta, trans_args = trans_args)
 
       full_list_prop <- SMC2_ABC(proposed_thetas, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp, ESS_threshold = 0, eps = eps[1:tp], cl,  TT = tp, trans = trans, invtrans = invtrans)
 
@@ -80,7 +77,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
         proposed_Z_hat <- x_list_prop[[m]]$pprod
         old_Z_hat      <- x_list[[aa[m]]]$pprod
 
-        MH_ratio <- proposed_Z_hat / old_Z_hat
+        MH_ratio <- proposed_Z_hat * dprior(proposed_thetas[m,]) / (old_Z_hat * dprior(thetas[aa[m],]))
 
         un <- runif(1)
 

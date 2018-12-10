@@ -49,11 +49,32 @@ Ntheta = 4000
 Nx = 500
 pacc = 0.005
 
-prior_sample <- data.frame(theta1 = runif(Ntheta, 0.1, 0.5), theta2 = rgamma(Ntheta, 0.2, 1))
+lower_theta <- c(0.1, 0.2)
+upper_theta <- c(0.5, 1)
+
+trans_args <- list(
+  lower_theta = lower_theta,
+  upper_theta = upper_theta,
+  a = 0.9
+)
+
+prior_sample <- data.frame(theta1 = runif(Ntheta, lower_theta[1], upper_theta[1]), theta2 = runif(Ntheta, lower_theta[2], upper_theta[2]))
 
 prior_sample <- as.matrix(prior_sample, ncol = 2)
 
-full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.1, TT = TT, trans = log, invtrans = exp, resample_times = 40)
+trans <- function(x, trans_args){
+  theta1 <- gtools::logit(x[,1], min = trans_args$lower[1], max = trans_args$upper[1])
+  theta2 <- gtools::logit(x[,2], min = trans_args$lower[2], max = trans_args$upper[2])
+  return(cbind(theta1, theta2))
+}
+
+invtrans <- function(x, trans_args){
+  theta1 <- gtools::inv.logit(trans_args$a * x[,1], min = trans_args$lower[1], max = trans_args$upper[1])
+  theta2 <- gtools::inv.logit(trans_args$a * x[,2], min = trans_args$lower[2], max = trans_args$upper[2])
+  return(cbind(theta1, theta2))
+}
+
+full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.1, TT = TT, trans = trans, invtrans = invtrans, trans_args = trans_args)
 
 state_df <- get_state(full_list)
 
