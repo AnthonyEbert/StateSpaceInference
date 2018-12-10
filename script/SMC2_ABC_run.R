@@ -11,7 +11,7 @@ cl = "mclapply"
 
 set.seed(3)
 
-TT <- 40
+TT <- 60
 true_theta <- c(0.25, 0.5)
 lower <- 0
 upper <- 3.5
@@ -91,4 +91,4 @@ save(theta_df, file = "theta_df.RData")
 
 ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
 
-ggplot(theta_df) + aes(x = value, weights = weight, col = time) + geom_density() + facet_wrap(~parameter)
+ggplot(theta_df) + aes(x = value, weights = weight, col = factor(time)) + geom_density() + facet_wrap(~parameter)
