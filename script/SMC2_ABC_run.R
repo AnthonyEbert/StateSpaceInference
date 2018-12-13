@@ -45,8 +45,8 @@ inp <- list(
 loss = loss_hawkes
 
 
-Ntheta = 4000
-Nx = 500
+Ntheta = 200
+Nx = 10000
 pacc = 0.005
 
 lower_theta <- c(0.1, 0.2)
@@ -55,7 +55,7 @@ upper_theta <- c(0.5, 1)
 trans_args <- list(
   lower_theta = lower_theta,
   upper_theta = upper_theta,
-  a = 0.9
+  a = 1
 )
 
 prior_sample <- data.frame(theta1 = runif(Ntheta, lower_theta[1], upper_theta[1]), theta2 = runif(Ntheta, lower_theta[2], upper_theta[2]))
@@ -91,4 +91,4 @@ save(theta_df, file = "theta_df.RData")
 
 ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
 
-ggplot(theta_df) + aes(x = value, weights = weight, col = factor(time)) + geom_density() + facet_wrap(~parameter)
+ggplot(theta_df[which(theta_df$time %% 5 == 0),]) + aes(x = value, weights = weight, col = factor(time)) + geom_density() + facet_wrap(~parameter, scales = "free")
