@@ -1,5 +1,5 @@
 #' @export
-get_parameter <- function(full_list){
+get_parameter <- function(full_list, spread = FALSE){
 
   TT <- length(full_list)
 
@@ -23,11 +23,20 @@ get_parameter <- function(full_list){
   w_df <- plyr::adply(w_mat, c(1,2))
   names(w_df) <- c("time", "particle", "weight")
 
+  if(!spread){
   theta_df <- dplyr::left_join(theta_df, w_df, by = c("time", "particle")) %>%
     dplyr::group_by(time, parameter, value) %>%
     dplyr::summarise(weight = sum(weight)) %>%
     dplyr::ungroup() %>%
     dplyr::mutate(time = as.numeric(time))
+  } else {
+  theta_df <- tidyr::spread(theta_df, parameter, value) %>%
+    dplyr::left_join(w_df, by = c("time", "particle")) %>%
+    dplyr::group_by(time, `1`, `2`) %>%
+    dplyr::summarise(weight = sum(weight)) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(time = as.numeric(time))
+  }
 
   return(theta_df)
 }
