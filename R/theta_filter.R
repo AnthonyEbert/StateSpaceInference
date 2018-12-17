@@ -2,7 +2,7 @@
 #' @export
 theta_filter <- function(input_list, time1, time2, loss = loss, loss_args){
 
-  output <- particle_filter(input_list$theta, input_list$x, input_list$w, loss = loss, loss_args = loss_args, time1 = time1, time2 = time2)
+  output <- particle_filter2(input_list$theta, input_list$x, input_list$w, loss = loss, loss_args = loss_args, time1 = time1, time2 = time2)
 
   size_x <- length(output[[1]]$x)
 

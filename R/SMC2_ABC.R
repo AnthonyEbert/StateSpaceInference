@@ -57,6 +57,9 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
     thetas <- matrix(t(sapply(x_list, function(x){x$theta})), ncol = n_params)
 
     ESS <- sum(omegas) ^ 2 / sum(omegas^2)
+    if(is.nan(ESS)){
+      ESS <- 1
+    }
     ifelse(ESS_threshold > 0, print(paste0(tp, ". ", ESS)), print(paste("SMC: ", ESS)))
 
     full_list[[tp]] <- x_list
