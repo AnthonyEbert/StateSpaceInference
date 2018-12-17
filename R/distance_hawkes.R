@@ -8,7 +8,7 @@ loss_hawkes <- function(x, theta, time1, time2, inp){
   x <- as.numeric(x[1])
 
   if(gtools::invalid(x)){
-    x <- rgamma(1, 10, 10)
+    x <- gtools::inv.logit(inp$a * gtools::logit(inp$lower + 0.5 * (inp$upper - inp$lower), min = inp$lower, max = inp$upper) + rnorm(1, sd = inp$sd), min = inp$lower, max = inp$upper)
   } else {
     x <- generate_state(x, 1, lower = inp$lower, upper = inp$upper, sd = inp$sd, a = inp$a)
   }
@@ -25,10 +25,23 @@ dist_h <- function(x, theta, history, time1, time2, simulator){
     history <- NULL
   }
 
+  sim_out <- simulator(x, theta, history[which(history <= time1 & history >= time1 - 100)], time1, time2, Ni = Inf)
 
-  sim_out <- simulator(x, theta, history[which(history <= time1 & history >= time1 - 400)], time1, time2, Ni = Inf)
+  cotemp_history <- history[which(history > time1 & history < time2)]
 
-  dist_out <- (sim_out$n - length(which(history > time1 & history < time2)))^2 / max(1, length(which(history > time1 & history < time2)))
+  n_out <- (sim_out$n - length(cotemp_history))^2 / max(1, length(cotemp_history))
+
+  true_input <- sort(c(cotemp_history, time2, time1))
+  sim_input <- sort(c(sim_out$new_history, time2, time1))
+
+  diff_out <- mean(diff(true_input[which(!is.na(true_input))])) - mean(diff(sim_input[which(!is.na(sim_input))]))
+
+  if(is.nan(diff_out)){
+    kol <- 2+2
+  }
+
+  dist_out <- n_out + abs(diff_out)
+
 
   return(dist_out)
 }
