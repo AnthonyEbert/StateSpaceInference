@@ -45,12 +45,12 @@ inp <- list(
 loss = loss_hawkes
 
 
-Ntheta = 1000
+Ntheta = 20000
 Nx = 1000
-pacc = 0.02
+pacc = 0.01
 
-lower_theta <- c(0.1, 0.2)
-upper_theta <- c(0.5, 0.8)
+lower_theta <- c(0.1, 0.3)
+upper_theta <- c(0.5, 0.7)
 
 trans_args <- list(
   lower_theta = lower_theta,
