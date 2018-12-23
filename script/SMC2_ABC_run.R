@@ -9,7 +9,7 @@ sessionInfo()
 cl = "mclapply"
 #cl <- NULL
 
-set.seed(3)
+set.seed(4)
 
 TT <- 40
 true_theta <- c(0.25, 0.5)
