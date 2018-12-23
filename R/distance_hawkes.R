@@ -1,6 +1,6 @@
 #' @export
 dHawkes <- function(theta){
-  dunif(theta[1], 0.1, 0.5) * dunif(theta[2], 0.45, 0.55)
+  dunif(theta[1], 0.1, 0.5) * dunif(theta[2], 0.2, 0.8)
 }
 
 #' Hawkes loss function
