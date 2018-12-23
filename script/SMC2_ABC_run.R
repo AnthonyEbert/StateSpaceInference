@@ -7,11 +7,11 @@ sessionInfo()
 
 #cl <- makeCluster(parallel::detectCores() - 1)
 cl = "mclapply"
-
+#cl <- NULL
 
 set.seed(3)
 
-TT <- 60
+TT <- 15
 true_theta <- c(0.25, 0.5)
 lower <- 0
 upper <- 3.5
@@ -45,12 +45,12 @@ inp <- list(
 loss = loss_hawkes
 
 
-Ntheta = 200
-Nx = 10000
-pacc = 0.005
+Ntheta = 400
+Nx = 500
+pacc = 0.05
 
-lower_theta <- c(0.1, 0.2)
-upper_theta <- c(0.5, 1)
+lower_theta <- c(0.1, 0.45)
+upper_theta <- c(0.5, 0.55)
 
 trans_args <- list(
   lower_theta = lower_theta,

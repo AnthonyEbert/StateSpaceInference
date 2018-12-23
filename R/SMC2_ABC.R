@@ -63,7 +63,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
     if(ESS < Ntheta * ESS_threshold | tp %in% resample_times){
       print("resample")
-      post_cov <- cov.wt(trans(thetas, trans_args = trans_args), wt=omegas)$cov
+      post_cov <- diag(diag(cov.wt(trans(thetas, trans_args = trans_args), wt=omegas)$cov))
       nb <- 0
       aa <- sample(1:Ntheta, Ntheta, prob = omegas/sum(omegas), replace = TRUE)
       proposed_log_theta <- trans(thetas[aa, , drop = FALSE], trans_args = trans_args) + mvtnorm::rmvnorm(Ntheta, sigma = post_cov)
