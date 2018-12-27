@@ -12,6 +12,8 @@ theta_filter <- function(input_list, time1, time2, loss = loss, loss_args){
 
   output_list$x <- matrix(sapply(output, function(x){x$x}), byrow = TRUE, ncol = size_x)
 
+  output_list$evidence <- output[[1]]$evidence
+
   return(output_list)
 }
 

@@ -42,7 +42,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
     }
 
     for(m in 1:Ntheta){
-      x_list[[m]]$w     <- (x_list[[m]]$distance <= eps[tp])*1
+      x_list[[m]]$w     <- (x_list[[m]]$distance <= eps[tp])*1 * mean(x_list[[m]]$evidence)
       x_list[[m]]$pprod <- prod(x_list[[m]]$pprod, mean(x_list[[m]]$w))
       x_list[[m]]$p     <- mean(x_list[[m]]$w)
 

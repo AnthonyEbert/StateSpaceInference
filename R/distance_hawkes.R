@@ -7,11 +7,13 @@ dHawkes <- function(theta){
 loss_hawkes <- function(x, theta, time1, time2, inp){
   x <- as.numeric(x[1])
 
-  if(gtools::invalid(x)){
-    x <- rgamma(1, 10, 10)
-  } else {
-    x <- generate_state(x, 1, lower = inp$lower, upper = inp$upper, sd = inp$sd, a = inp$a)
-  }
+  # if(gtools::invalid(x)){
+  #   x <- gtools::inv.logit(inp$a * gtools::logit(inp$lower + 0.5 * (inp$upper - inp$lower), min = inp$lower, max = inp$upper) + rnorm(1, sd = inp$sd), min = inp$lower, max = inp$upper)
+  # } else {
+  #   x <- generate_state(x, 1, lower = inp$lower, upper = inp$upper, sd = inp$sd, a = inp$a)
+  # }
+
+  x <- generate_state(x, 1, lower = inp$lower, upper = inp$upper, sd = inp$sd, a = inp$a)
 
   output <- dist_h(x, theta, inp$history, time1 = time1, time2 = time2, simulator = inp$simulator)
 
@@ -48,7 +50,8 @@ dist_h <- function(x, theta, history, time1, time2, simulator){
 generate_state <- function(init, n, lower, upper, sd, a = 1){
 
   if(gtools::invalid(init)){
-    init <- rgamma(1, 10, 10)
+    init <- lower + 0.5 * (upper - lower)
+    init <- gtools::inv.logit(a * gtools::logit(init, min = lower, max = upper) + rnorm(1, sd = sd), min = lower, max = upper)
     if(n == 1){
       return(init)
     }
@@ -73,4 +76,10 @@ generate_state <- function(init, n, lower, upper, sd, a = 1){
   }
 
   return(x)
+}
+
+loss_hawkes_simple <- function(x, theta, time1, time2, inp){
+  output <- dist_h(x, theta, inp$history, time1 = time1, time2 = time2, simulator = inp$simulator)
+
+  return(output)
 }

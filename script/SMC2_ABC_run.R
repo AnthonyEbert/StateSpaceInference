@@ -5,18 +5,18 @@ library(ggplot2)
 library(ggalt)
 sessionInfo()
 
-#cl <- makeCluster(parallel::detectCores() - 1)
-cl = "mclapply"
+cl <- makeCluster(parallel::detectCores() - 1)
+#cl = "mclapply"
+#cl <- NULL
 
+set.seed(2)
 
-set.seed(3)
-
-TT <- 60
+TT <- 30
 true_theta <- c(0.25, 0.5)
 lower <- 0
-upper <- 3.5
+upper <- 2
 sd_t <- 1
-init <- min(rgamma(1, 100, 100), upper - 1)
+init <- 0.5
 a_logit <- 0.9
 dist_coef <- 0.5
 true_states <- generate_state(init, TT, lower, upper, sd_t, a = a_logit)
@@ -46,11 +46,11 @@ loss = loss_hawkes
 
 
 Ntheta = 200
-Nx = 10000
-pacc = 0.005
+Nx = 50
+pacc = 0.1
 
-lower_theta <- c(0.1, 0.2)
-upper_theta <- c(0.5, 1)
+lower_theta <- c(0.1, 0.45)
+upper_theta <- c(0.5, 0.55)
 
 trans_args <- list(
   lower_theta = lower_theta,
