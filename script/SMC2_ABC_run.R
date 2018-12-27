@@ -9,7 +9,7 @@ sessionInfo()
 cl = "mclapply"
 #cl <- NULL
 
-set.seed(4)
+set.seed(3)
 
 TT <- 40
 true_theta <- c(0.25, 0.5)
@@ -45,12 +45,12 @@ inp <- list(
 loss = loss_hawkes
 
 
-Ntheta = 20000
+Ntheta = 1000
 Nx = 1000
-pacc = 0.01
+pacc = 0.02
 
-lower_theta <- c(0.1, 0.3)
-upper_theta <- c(0.5, 0.7)
+lower_theta <- c(0.1, 0.49)
+upper_theta <- c(0.5, 0.51)
 
 trans_args <- list(
   lower_theta = lower_theta,
