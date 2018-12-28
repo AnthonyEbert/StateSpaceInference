@@ -74,7 +74,7 @@ invtrans <- function(x, trans_args){
   return(cbind(theta1, theta2))
 }
 
-full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0, TT = TT, trans = trans, invtrans = invtrans, trans_args = trans_args)
+full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.2, TT = TT, trans = trans, invtrans = invtrans, trans_args = trans_args)
 
 state_df <- get_state(full_list, probs = c(0.25, 0.5, 0.75))
 
