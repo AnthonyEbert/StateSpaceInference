@@ -5,8 +5,8 @@ library(ggplot2)
 library(ggalt)
 sessionInfo()
 
-#cl <- makeCluster(parallel::detectCores() - 1)
-cl = "mclapply"
+cl <- makeCluster(parallel::detectCores() - 1)
+#cl = "mclapply"
 #cl <- NULL
 
 set.seed(3)
@@ -45,12 +45,12 @@ inp <- list(
 loss = loss_hawkes
 
 
-Ntheta = 1000
-Nx = 1000
-pacc = 0.02
+Ntheta = 200
+Nx = 100
+pacc = 0.2
 
-lower_theta <- c(0.1, 0.49)
-upper_theta <- c(0.5, 0.51)
+lower_theta <- c(0.1, 0.2)
+upper_theta <- c(0.5, 0.8)
 
 trans_args <- list(
   lower_theta = lower_theta,
