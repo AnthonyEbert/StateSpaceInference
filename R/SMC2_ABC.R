@@ -26,7 +26,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
     x_list[[m]]$x <- matrix(NA, nrow = Nx)
     x_list[[m]]$w <- rep(1, Nx)
     x_list[[m]]$p <- NULL
-    x_list[[m]]$pprod <- NULL
+    x_list[[m]]$pprod <- 1
     x_list[[m]]$omega <- 1
   }
 
@@ -38,15 +38,15 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
     distances <- sapply(x_list, function(x){x$distance})
     if(is.na(eps[tp])){
-      eps[tp] <- quantile(as.numeric(distances), probs = pacc)
+      eps[tp] <- quantile(as.numeric(distances[which(distances != 0)]), probs = pacc)
     }
 
     for(m in 1:Ntheta){
       x_list[[m]]$w     <- (x_list[[m]]$distance <= eps[tp])*1
-      x_list[[m]]$pprod <- prod(x_list[[m]]$pprod, mean(x_list[[m]]$w))
-      x_list[[m]]$p     <- mean(x_list[[m]]$w)
+      x_list[[m]]$p     <- exp(-quantile(x_list[[m]]$distance, na.rm = TRUE, probs = 0.01)/eps[tp])
+      x_list[[m]]$pprod <- prod(x_list[[m]]$pprod, x_list[[m]]$p)
 
-      if (x_list[[m]]$p == 0) {
+      if (sum(x_list[[m]]$w) == 0) {
         x_list[[m]]$w <- rep(1, Nx)
       }
       x_list[[m]]$w <- x_list[[m]]$w / sum(x_list[[m]]$w)
@@ -83,11 +83,11 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
         if(un < MH_ratio){
           nb <- nb + 1
-          for(time_star in 1:tp){
+          for(time_star in tp:tp){
             full_list[[time_star]][[m]] <- full_list_prop[[time_star]][[m]]
           }
         } else {
-          for(time_star in 1:tp){
+          for(time_star in tp:tp){
             full_list[[time_star]][[m]] <- full_list[[time_star]][[aa[m]]]
           }
         }

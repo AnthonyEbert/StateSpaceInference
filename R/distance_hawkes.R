@@ -30,7 +30,7 @@ loss_hawkes <- function(x, theta, time1, time2, inp){
   if(length(x) == 1){
 
     if(gtools::invalid(x)){
-      x <- gtools::inv.logit(inp$a * gtools::logit(inp$lower + 0.5 * (inp$upper - inp$lower), min = inp$lower, max = inp$upper) + rnorm(1, sd = inp$sd), min = inp$lower, max = inp$upper)
+      x <- min(rgamma(1, 100, 100), 2.5)
     } else {
       x <- generate_state(x, 1, lower = inp$lower, upper = inp$upper, sd = inp$sd, a = inp$a)
     }
@@ -50,10 +50,17 @@ dist_ss <- function(x, theta, history, time1, time2, simulator){
     history <- NULL
   }
 
-  sim_out <- simulator(x, theta, history[which(history <= time1 & history >= time1 - 100)], time1, time2, Ni = Inf)
+  input_history <- history[which(history <= time1 & history >= time1 - 100)]
+
+  sim_out <- simulator(x, theta, input_history, time1, time2, Ni = Inf)
 
   cotemp_sim <- sim_out$new_history
   cotemp_obs <- history[which(history > time1 & history < time2)]
+
+  # print("sim")
+  # print(cotemp_sim)
+  # print("obs")
+  # print(cotemp_obs)
 
   sim_ss <- sum_stat(cotemp_sim, time1, time2)
   obs_ss <- sum_stat(cotemp_obs, time1, time2)
