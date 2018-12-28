@@ -21,11 +21,18 @@ a_logit <- 0.9
 dist_coef <- 0.5
 true_states <- generate_state(init, TT, lower, upper, sd_t, a = a_logit)
 
+y <- hawkes_simulator(true_states[1], true_theta, NULL, 0, 10)
+for(tp in 1:TT){
+  y <- hawkes_simulator(true_states[tp], true_theta, y$history, tp * 10, tp * 10 + 10)
+}
+
+y_history <- y$history
+
 lambda_fun <- stepfun(seq(10, TT*10 - 10, by = 10), y = true_states)
 kern <- function(x){return(decay_func(x, alpha = true_theta[1], delta = true_theta[2]))}
-
-y_history <- sim_hawkes(lambda_fun, NULL, kern, 0, TT*10, progressBar = FALSE)
-y <- hist(y_history, breaks = seq(0, TT*10, by = 10), plot = FALSE)$counts
+#
+#y_history <- sim_hawkes(lambda_fun, NULL, kern, 0, TT*10, progressBar = FALSE)
+#y <- hist(y_history, breaks = seq(0, TT*10, by = 10), plot = FALSE)$counts
 
 hist(y_history, breaks = TT * 10)
 
@@ -45,9 +52,9 @@ inp <- list(
 loss = loss_hawkes
 
 
-Ntheta = 200
-Nx = 100
-pacc = 0.2
+Ntheta = 1000
+Nx = 200
+pacc = 0.1
 
 lower_theta <- c(0.1, 0.2)
 upper_theta <- c(0.5, 0.8)
