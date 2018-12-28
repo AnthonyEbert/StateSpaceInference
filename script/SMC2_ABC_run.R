@@ -11,7 +11,7 @@ cl = "mclapply"
 
 set.seed(3)
 
-TT <- 40
+TT <- 20
 true_theta <- c(0.25, 0.5)
 lower <- 0
 upper <- 3.5
@@ -52,8 +52,8 @@ inp <- list(
 loss = loss_hawkes
 
 
-Ntheta = 200
-Nx = 500
+Ntheta = 20
+Nx = 10000
 pacc = 0.1
 
 lower_theta <- c(0.1, 0.2)
