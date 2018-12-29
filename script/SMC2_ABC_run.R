@@ -52,9 +52,9 @@ inp <- list(
 loss = loss_hawkes
 
 
-Ntheta = 100
-Nx = 100000
-pacc = 5e-5
+Ntheta = 1000
+Nx = 10000
+pacc = 5e-4
 
 lower_theta <- c(0.3, 0.3)
 upper_theta <- c(0.7, 0.7)
