@@ -5,7 +5,7 @@ decay_func <- function(x, alpha, delta){
     return(0)
   }
 
-  out <- alpha * exp(-delta * x)
+  out <- alpha * delta * exp(-delta * x)
   return(out)
 }
 

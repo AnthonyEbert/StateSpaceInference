@@ -57,13 +57,16 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
     thetas <- matrix(t(sapply(x_list, function(x){x$theta})), ncol = n_params)
 
     ESS <- sum(omegas) ^ 2 / sum(omegas^2)
+    for(i in 1:dim(thetas)[2]){
+      print(as.numeric(Hmisc::wtd.quantile(thetas[,i], weights = omegas/sum(omegas), normwt = TRUE)))
+    }
     ifelse(ESS_threshold > 0, print(paste0(tp, ". ", ESS)), print(paste("SMC: ", ESS)))
 
     full_list[[tp]] <- x_list
 
     if(ESS < Ntheta * ESS_threshold | tp %in% resample_times){
       print("resample")
-      post_cov <- diag(diag(cov.wt(trans(thetas, trans_args = trans_args), wt=omegas)$cov))
+      post_cov <- cov.wt(trans(thetas, trans_args = trans_args), wt=omegas)$cov
       nb <- 0
       aa <- sample(1:Ntheta, Ntheta, prob = omegas/sum(omegas), replace = TRUE)
       proposed_log_theta <- trans(thetas[aa, , drop = FALSE], trans_args = trans_args) + mvtnorm::rmvnorm(Ntheta, sigma = post_cov)
@@ -73,18 +76,21 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
       x_list_prop <- full_list_prop[[tp]]
 
+      proposed_omegas <- sapply(x_list_prop, function(x){x$omega})
+      p_aa <- sample(1:Ntheta, Ntheta, prob = proposed_omegas/sum(proposed_omegas), replace = TRUE)
+
       for(m in 1:Ntheta){
-        proposed_Z_hat <- x_list_prop[[m]]$pprod
+        proposed_Z_hat <- x_list_prop[[p_aa[m]]]$pprod
         old_Z_hat      <- x_list[[aa[m]]]$pprod
 
-        MH_ratio <- proposed_Z_hat * dprior(proposed_thetas[m,]) / (old_Z_hat * dprior(thetas[aa[m],]))
+        MH_ratio <- proposed_Z_hat * dprior(proposed_thetas[p_aa[m],]) / (old_Z_hat * dprior(thetas[aa[m],]))
 
         un <- runif(1)
 
         if(un < MH_ratio){
           nb <- nb + 1
           for(time_star in 1:tp){
-            full_list[[time_star]][[m]] <- full_list_prop[[time_star]][[m]]
+            full_list[[time_star]][[m]] <- full_list_prop[[time_star]][[p_aa[m]]]
           }
         } else {
           for(time_star in 1:tp){

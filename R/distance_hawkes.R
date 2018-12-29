@@ -1,6 +1,6 @@
 #' @export
 dHawkes <- function(theta){
-  dunif(theta[1], 0.1, 0.5) * dunif(theta[2], 0.2, 0.8)
+  dunif(theta[1], 0.3, 0.7) * dunif(theta[2], 0.3, 0.7)
 }
 
 #' Hawkes loss function
@@ -30,7 +30,7 @@ loss_hawkes <- function(x, theta, time1, time2, inp){
   if(length(x) == 1){
 
     if(gtools::invalid(x)){
-      x <- gtools::inv.logit(inp$a * gtools::logit(inp$lower + 0.5 * (inp$upper - inp$lower), min = inp$lower, max = inp$upper) + rnorm(1, sd = inp$sd), min = inp$lower, max = inp$upper)
+      x <- min(rgamma(1, 100, 100), inp$upper)
     } else {
       x <- generate_state(x, 1, lower = inp$lower, upper = inp$upper, sd = inp$sd, a = inp$a)
     }
