@@ -69,9 +69,14 @@ dist_ss <- function(x, theta, history, time1, time2, simulator){
   # est2 <- c(0, 1, 0        , 1.72e-01,  1.80e-01, 0        , 0       , -3.33e-04,  2.84e-05, 0)
   # est3 <- c(0, 1, -5.34e-01, 3.23e-01, -1.07e-01, -5.08e-02, 6.09e-02,         0,         0, 0)
 
-  est1 <- c(1.388739e-01, 4.997625e-03, 1.209265e-06, -4.838022e-07, 3.766624e-09, -1.145458e-11, 1.249928e-14, 2.635814e-03, -1.577590e-04, -1.021220e-03)
-  est2 <- c(6.417910e-01, 2.508705e-03, -2.210345e-04, 9.340399e-07, 2.108424e-08, -1.946335e-10, 4.520269e-13, 2.967803e-03, -2.532569e-04, 2.830355e-03)
-  est3 <- c(1.802715e-01, 5.490010e-02, 2.827284e-04, -2.936200e-05, 3.912895e-07, -2.008020e-09, 3.616250e-12,  4.192238e-04, -5.677054e-05, 5.512495e-03)
+  # est1 <- c(1.388739e-01, 4.997625e-03, 1.209265e-06, -4.838022e-07, 3.766624e-09, -1.145458e-11, 1.249928e-14, 2.635814e-03, -1.577590e-04, -1.021220e-03)
+  # est2 <- c(6.417910e-01, 2.508705e-03, -2.210345e-04, 9.340399e-07, 2.108424e-08, -1.946335e-10, 4.520269e-13, 2.967803e-03, -2.532569e-04, 2.830355e-03)
+  # est3 <- c(1.802715e-01, 5.490010e-02, 2.827284e-04, -2.936200e-05, 3.912895e-07, -2.008020e-09, 3.616250e-12,  4.192238e-04, -5.677054e-05, 5.512495e-03)
+
+  est1 <- c(0.1259896, 0.0285896, 0.0329005, -0.0149333, 0.0008993)
+  est2 <- c(0.468566, 0.007368, -0.003195, 0.027762, 0.010943)
+  est3 <- c(3.08127, 0.14105, -1.72108, 0.67549, -0.04788)
+
 
   est_mat <- rbind(est1, est3)
 
@@ -114,18 +119,20 @@ sum_stat <- function(events, time1, time2){
   output <- as.numeric(na.exclude(events))
   n_events <- length(output)
 
+  skew   <- e1071::skewness(output - time1)
+  if(is.nan(skew)){skew <- 0}
   output <- c(time1, output, time2)
   diffs2    <- sum((diff(output))^2)
   diffs3     <- sum((diff(output))^3)
   min_diff <- min(diff(output))
 
-  output <- c(int = 1, n = n_events, n2 = n_events^2, n3 = n_events^3, n4 = n_events^4, n5 = n_events^5, n6 = n_events^6, diffs2 = diffs2, diffs3 = diffs3, min_diff = min_diff)
+  output <- c(int = 1, logn = log(n_events + 1), ldiffs2 = log(diffs2 + 1e-6), ldiffs3 = log(diffs3 + 1e-6), skew = skew)
 
   if(anyNA(output)){
     print(output)
   }
 
-  return(c(int = 1, n = n_events, n2 = n_events^2, n3 = n_events^3, n4 = n_events^4, n5 = n_events^5, n6 = n_events^6, diffs2 = diffs2, diffs3 = diffs3, min_diff = min_diff))
+  return(output)
 }
 
 

@@ -40,10 +40,11 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
     if(is.na(eps[tp])){
       eps[tp] <- quantile(as.numeric(distances[which(distances != 0)]), probs = pacc)
     }
+    info <- quantile(as.numeric(distances), probs = 0.1)
 
     for(m in 1:Ntheta){
       x_list[[m]]$w     <- (x_list[[m]]$distance <= eps[tp])*1
-      x_list[[m]]$p     <- exp(-quantile(x_list[[m]]$distance, na.rm = TRUE, probs = 0.01)/eps[tp])
+      x_list[[m]]$p     <- mean(x_list[[m]]$w)
       x_list[[m]]$pprod <- prod(x_list[[m]]$pprod, x_list[[m]]$p)
 
       if (sum(x_list[[m]]$w) == 0) {

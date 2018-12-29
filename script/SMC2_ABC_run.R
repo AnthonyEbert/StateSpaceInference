@@ -11,7 +11,7 @@ cl <- makeCluster(parallel::detectCores())
 
 set.seed(3)
 
-TT <- 30
+TT <- 4
 true_theta <- c(0.25, 0.5)
 lower <- 0
 upper <- 3.5
@@ -53,8 +53,8 @@ loss = loss_hawkes
 
 
 Ntheta = 50
-Nx = 100
-pacc = 0.1
+Nx = 2000
+pacc = 0.5
 
 lower_theta <- c(0.1, 0.2)
 upper_theta <- c(0.5, 0.8)
@@ -81,7 +81,7 @@ invtrans <- function(x, trans_args){
   return(cbind(theta1, theta2))
 }
 
-full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.25, TT = TT, trans = trans, invtrans = invtrans, trans_args = trans_args)
+full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.5, TT = TT, trans = trans, invtrans = invtrans, trans_args = trans_args)
 
 state_df <- get_state(full_list, probs = c(0.25, 0.5, 0.75))
 
