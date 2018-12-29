@@ -1,0 +1,24 @@
+On branch master
+Your branch and 'origin/master' have diverged,
+and have 1 and 1 different commits each, respectively.
+  (use "git pull" to merge the remote branch into yours)
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	../24/Rplots.pdf
+	../24/SMC2_ABC_run.Rout
+	../24/git_log
+	../24/git_status
+	../25/Rplots.pdf
+	../25/SMC2_ABC_run.Rout
+	../25/git_log
+	../25/git_status
+	../26/Rplots.pdf
+	../26/SMC2_ABC_run.Rout
+	../26/git_log
+	../26/git_status
+	git_log
+	git_status
+	../28/
+
+nothing added to commit but untracked files present (use "git add" to track)
