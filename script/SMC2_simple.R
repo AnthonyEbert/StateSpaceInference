@@ -5,8 +5,8 @@ library(ggplot2)
 library(ggalt)
 sessionInfo()
 
-cl <- makeCluster(parallel::detectCores() - 1)
-#cl = "mclapply"
+#cl <- makeCluster(parallel::detectCores() - 1)
+cl = "mclapply"
 #cl <- NULL
 
 set.seed(2)
@@ -47,9 +47,9 @@ inp <- list(
 loss = loss_simple
 
 
-Ntheta = 50
-Nx = 400
-pacc = 0.05
+Ntheta = 200
+Nx = 4000
+pacc = 5e-3
 
 lower_theta <- c(0.1, 0.2)
 upper_theta <- c(0.5, 1)
@@ -76,7 +76,7 @@ invtrans <- function(x, trans_args){
   return(cbind(theta1, theta2))
 }
 
-full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.1, TT = TT, trans = trans, invtrans = invtrans, trans_args = trans_args)
+full_list <- SMC2_ABC(prior_sample, dprior = function(x){1}, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.2, TT = TT, trans = trans, invtrans = invtrans, trans_args = trans_args)
 
 state_df <- get_state(full_list)
 
