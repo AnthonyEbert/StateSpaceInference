@@ -1,0 +1,528 @@
+commit fe37c7f9fb25878a0696834aeea3093b30bfda37
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sun Dec 30 10:55:43 2018 +1000
+
+    Hawkes_32
+
+commit be13203f303483f1a2cf4f9948c3574bb8926a95
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sun Dec 30 10:53:11 2018 +1000
+
+    Hawkes_31 higher pacc
+
+commit 37e31810f3a9ec60cb75dcb50b98cc429559e0bb
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sun Dec 30 10:50:54 2018 +1000
+
+    Output Gaussian 1 and Hawkes 28-30
+
+commit a9f8bf28b96c190366c51c2f61cad80c3661c4bf
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sun Dec 30 00:15:03 2018 +1000
+
+    Gaussian_1
+
+commit 71a2b9a8e5307671925e00d6afac1394fd58f401
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sat Dec 29 23:40:01 2018 +1000
+
+    Hawkes_30 more parameter samples fewer state proposals.
+
+commit 035dc1cf66d884c8fe6298f1613c192c894390b0
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sat Dec 29 23:36:49 2018 +1000
+
+    Hawkes_29 longer run.
+
+commit f5653a2f4e2d800b0b62873f135494800d6c5628
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sat Dec 29 23:31:19 2018 +1000
+
+    Hawkes_28 first try of 0.5.0
+
+commit 80523ad91d35d4cd80fa38625f46e1231cf2666f
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sun Dec 30 00:25:15 2018 +1100
+
+    Fixed replenishment bug where ancestors were not used for proposal thetas.
+    Reparameterised Hawkes problem to make inference easier.
+
+commit f1ac5c72255e248cd00f243e6685913c1fc4150d
+Merge: 7215b57 0db0bef
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sat Dec 29 22:57:16 2018 +1000
+
+    Merge branch 'master' of https://github.com/AnthonyEbert/StateSpaceInference
+
+commit 7215b57970d697d8d6b55aeb3b1a616b03fe095c
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sat Dec 29 22:45:07 2018 +1000
+
+    Output Hawkes 24-27
+
+commit a3f07c7e34ad975cb41f85a7565e3187ffaf1ad5
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sat Dec 29 03:55:58 2018 +1000
+
+    Hawkes_27
+
+commit 0db0bef139ff691ef4118c866100d0ec9066910e
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sat Dec 29 03:55:58 2018 +1000
+
+    Hawkes_27
+
+commit 1edcfa74f42fe3b0d1e3b41367b511b24f53c76b
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sat Dec 29 03:39:30 2018 +1000
+
+    Hawkes_26
+
+commit 3aac6aae8b791e3e9fa7642e29de262566292c9e
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sat Dec 29 03:15:43 2018 +1000
+
+    Hawkes_25
+
+commit 5a21d9ca6b7ce141f10ca66ce5b486fe6d9ce35c
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sat Dec 29 02:50:38 2018 +1000
+
+    Hawkes_24
+
+commit 53d7ba1bda5e8d10d0faa57c786b410fc4283ac0
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sat Dec 29 02:44:12 2018 +1000
+
+    Output Hawkes_23
+
+commit e27e55a3225e6b98eae1a6aa3401b9148b953b8f
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 28 22:55:32 2018 +1000
+
+    Hawkes_23
+
+commit fc465d3c791a3803df190de05d8dd41f4a8d1ecb
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 28 18:32:27 2018 +1000
+
+    Output Hawkes 18-22
+
+commit b22cb170f126f7cf99bf42c2dfc9eb1c436fa177
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 28 15:18:37 2018 +1000
+
+    Hawkes_22
+
+commit 82eb3d9c738be91a8b74b6d1455aca0b2cd57f39
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 28 15:14:10 2018 +1000
+
+    Hawkes_21
+
+commit 271afd5ee29b2a873690938524af546acb1c3408
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 28 15:10:35 2018 +1000
+
+    Hawkes_20
+
+commit a05ba1669620dbd33ed8c3334267521cdbd2aecd
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 28 15:08:35 2018 +1000
+
+    Hawkes_19
+
+commit 2203c9452bcb33b6d2c71d6770f3492683e5bb1e
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 28 14:59:47 2018 +1000
+
+    Hawkes_18
+
+commit d418f0c2719132a4612288e004df4ab130e7ae6a
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 28 14:13:27 2018 +1000
+
+    Output Hawkes_17.
+
+commit 6ea5f36c9900f6959d45ce6f9f9291aed3b0f98a
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 28 10:25:03 2018 +1000
+
+    Hawkes_17 force resample.
+
+commit e136f69745446fbedf2dc444376956bcef46939c
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 28 10:24:47 2018 +1000
+
+    Output Hawkes_16
+
+commit 11a59eedaab375a0961729bb314642aa73b42e81
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 28 10:20:11 2018 +1000
+
+    Output Hawkes_15
+
+commit f1407e13bb3b0ebd2bda722def238749bb4f1640
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 28 10:19:02 2018 +1000
+
+    Hawkes_16 same as Hawkes_15 with no resampling.
+
+commit 0ed849e65f3415d8d30720ceaa0cc6d1e3893e38
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 28 10:15:37 2018 +1000
+
+    Hawkes_15 same as Hawkes_14 with smaller number of particles.
+
+commit 47b7f8038b44b649ae5cb239aac47784a959764e
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 28 10:12:14 2018 +1000
+
+    Output Hawkes_14
+
+commit 8bfd0761e3865a57f110bd0d41f896394c923263
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Thu Dec 27 19:56:35 2018 +1000
+
+    Hawkes_14 higher acceptance probability.
+
+commit 4bbb8a932ff7a564127f8e0ffb8af866ba949f13
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Thu Dec 27 19:56:11 2018 +1000
+
+    Output Hawkes_13
+
+commit f4c04e482bb07a4b6743005041882c16b8ccb8de
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Thu Dec 27 17:32:32 2018 +1100
+
+    Got example working by raising epsilon threshold!
+
+commit 719a226ec2443ddd324c904d478e79f082542523
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Thu Dec 27 14:12:52 2018 +1100
+
+    Hawkes_13 . Second parameter is too difficult.
+
+commit b9385d82c12fa0402b587ff98481be68387fa515
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Thu Dec 27 11:05:16 2018 +1000
+
+    Output Hawkes_12.
+
+commit 204be57c6d0d89eec39cc8c8b50080d38b7be514
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Mon Dec 24 00:09:26 2018 +1000
+
+    Hawkes_12 much longer run.
+
+commit f581c756319e0c28a9cd540f5dc6b87baa7ce1ba
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sun Dec 23 23:58:25 2018 +1000
+
+    Output Hawkes_10 and 11
+
+commit 67863c8d47e9079661f66c5f01e5f54aa5616011
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sun Dec 23 19:23:31 2018 +1000
+
+    Hawkes_11
+
+commit 7d5bf9f9699c7c139a7f66cd29663dc8bda74697
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sun Dec 23 19:20:52 2018 +1000
+
+    Hawkes_10
+
+commit 2694e690bb6dd181329fcdc1e2b1eae1a1d41a49
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sun Dec 23 18:28:03 2018 +1000
+
+    Quick runs to test summary stat distance.
+
+commit f058265b1d14c479de83797d28215e0971bcc347
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sun Dec 23 17:34:39 2018 +1000
+
+    Added linear regression on summary statistics. Ready for Hawkes_7.
+
+commit 2652c7b5a08385cba2bd5debed6033bf36c98f97
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Mon Dec 17 20:08:19 2018 +1000
+
+    Added extra summary stat according to Pudlo.
+
+commit 6595aa43755b52d941154448bb533de5073f3fcb
+Merge: 71cbf67 957e88b
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Mon Dec 17 20:07:04 2018 +1000
+
+    Merge branch 'master' of https://github.com/AnthonyEbert/StateSpaceInference
+
+commit 71cbf67d528e71bd58c87b798380207c121441ae
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Mon Dec 17 20:06:35 2018 +1000
+
+    Output Hawkes_6.
+
+commit 957e88b578ac1bb386811daf423655a822cf72d6
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Thu Dec 13 15:03:09 2018 +1000
+
+    Added extra option for 2D density plots for get_parameter. Added simple example to test algorithm.
+
+commit d6142a44447483f93b8718895e07576bfefade20
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Thu Dec 13 14:30:01 2018 +1000
+
+    Hawkes_6. Increased Nx by reducing Ntheta. Changed a to 1.
+
+commit 0044e5e0aa73aa4aa2ef583ef578ebd87a3bf9a7
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Tue Dec 11 16:53:39 2018 +1000
+
+    Output Hawkes_5
+
+commit 157511f18366f07eafc70ce83c0ab985ba99f215
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Mon Dec 10 22:17:27 2018 +1000
+
+    Hawkes_5 longer time.
+
+commit c3515e4a1459b4213c97faae81079d26a04be1c8
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Mon Dec 10 21:57:06 2018 +1000
+
+    Output Hawkes_4.
+
+commit 41308f62503635fc68109f2316c7a3bdf677bd83
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Mon Dec 10 13:33:32 2018 +1000
+
+    Hawkes_4.
+
+commit 97e595cc092bd58c4cf6b7d0a225a029fecdecf6
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Mon Dec 10 13:29:31 2018 +1000
+
+    logit transform for resampling. Version 0.4.0
+
+commit 928589b26208fcd0e082b716aa8e2541673c52d6
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Mon Dec 10 09:59:15 2018 +1000
+
+    fix
+
+commit cc78bf18a6503b350c8ea4557bbffbdc1a5c0361
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Mon Dec 10 09:38:47 2018 +1000
+
+    Switch prior.
+
+commit bddf0ed1c9d856810292b11328e6c987d6eccad3
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Mon Dec 10 09:36:48 2018 +1000
+
+    Reduce size of theta_df
+
+commit 707b10fff9a6fa030791fb758a73386171415d71
+Merge: c7e3ab1 819e6d7
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Mon Dec 10 09:15:10 2018 +1000
+
+    Merge remote-tracking branch 'refs/remotes/origin/master'
+
+commit 819e6d768588061860919f73ee34727459bdb417
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Mon Dec 10 09:11:49 2018 +1000
+
+    Output Hawkes_3.
+
+commit ac6e52024edd6df98f80c4f09e566e5e47befe68
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Sun Dec 9 21:41:55 2018 +1000
+
+    Hawkes_3 test resample times at time 40
+
+commit c7e3ab11fb0662ed41f71d5515f56516643e1840
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Sun Dec 9 21:41:55 2018 +1000
+
+    Hawkes_3 test resample times at time 40
+
+commit 2b07279097421daedf4549d56e20cd01ecac9420
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Sun Dec 9 21:39:43 2018 +1000
+
+    speed up simulator
+
+commit 308eed4aaeb9d60f8d2ffa7516b3edba0c78115a
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Sun Dec 9 21:28:34 2018 +1000
+
+    Add forced resampling step.
+
+commit 2dfe7e3158faffe4ad6add5fc2305d8d8d338cbe
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Sun Dec 9 20:53:45 2018 +1000
+
+    Fix pprod
+
+commit e2f0d40fa96859a887fbad4fe4441c4c495ec7f2
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Sun Dec 9 20:51:35 2018 +1000
+
+    Remove dependence on Hmisc.
+
+commit d01b9845396909eb7c61df313f37371d2c75b714
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sun Dec 9 17:23:02 2018 +1000
+
+    Output Hawkes_2.
+
+commit 98a6b160ec05f119bebe733b764f8b3f1f03eaf1
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Sun Dec 9 16:37:25 2018 +1000
+
+    Output from Hawkes_1.
+
+commit 7e90128b2e1e54a8a17fce16e6ed9f6d395eb199
+Author: Anthony Ebert <anthonyebert@gmail.com>
+Date:   Fri Dec 7 17:40:20 2018 +1000
+
+    Hawkes_2.
+
+commit ce5775e9061e6dee0ab6bfa03cc17e54854e668e
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Fri Dec 7 17:20:44 2018 +1000
+
+    Import dplyr %>%
+
+commit 09bf0938577f17dd6264ea40576934dbec084fa3
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Fri Dec 7 16:50:04 2018 +1000
+
+    Add libraries to Hawkes_1.
+
+commit 689147f1788c9ab32e8a7110a2d75d6065d8ea0d
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Fri Dec 7 16:40:26 2018 +1000
+
+    Put file in wrong place! Hawkes_1 start
+
+commit f5ffe1c856943082a5958fdcd9dbe64e41a9827d
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Fri Dec 7 16:39:05 2018 +1000
+
+    Hawkes_1 test.
+
+commit 76f509df8b2d680fb8d068de20facbc446f790e3
+Merge: e3c68d8 f276f5f
+Author: Anthony Ebert "Ace <AnthonyEbert@users.noreply.github.com>
+Date:   Fri Dec 7 16:29:43 2018 +1000
+
+    Merge pull request #1 from AnthonyEbert/full_list
+    
+    Switch to saving full_list and added functions for extracting useful …
+
+commit f276f5f655fe81581a22bc553c52e7a161eaadc8
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Fri Dec 7 16:19:33 2018 +1000
+
+    Switch to saving full_list and added functions for extracting useful output.
+
+commit e3c68d8f7c6317e7b2f63f2e8246778401cf8d9d
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Fri Dec 7 12:54:52 2018 +1000
+
+    Switch $p to only record current time, $pprod keeps track of p product.
+
+commit ff7bd15906b2658bf873843bb35cbc9145954346
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Thu Dec 6 14:52:00 2018 +1000
+
+    Fixed comma issue - which caused problems using same code for Hawkes and Econometric model. Just add ", drop = FALSE" to matrix subsetting operations!
+
+commit 98713846a4ac370129b16a5a048f0d2d76c8f9b7
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Wed Dec 5 16:21:43 2018 +1000
+
+    Fixes to replenishment algorithm.
+
+commit 74579387602596b2533045fc5835b87c6bb77d4b
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Wed Dec 5 15:08:01 2018 +1000
+
+    Removed superfluous argument.
+
+commit f3eb5bcbae6cb0e80ab721b097b8e771b1ba2422
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Tue Dec 4 16:57:38 2018 +1000
+
+    Making Hawkes model work again.
+
+commit 2f7092d3cc8511e76f35fe648c3ca5cfd03e9de8
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Tue Dec 4 14:51:36 2018 +1000
+
+    Got volatility model working.
+
+commit fb4650fa25932a95a1b75fec33cf2453e9e2d47d
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Tue Dec 4 13:25:06 2018 +1000
+
+    Fixed parallel issue by preweighted parameter proposals by prior.
+
+commit c3de0ee9de47d4625bf5da3da99d5a0e652ff648
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Tue Dec 4 09:25:07 2018 +1000
+
+    Tested and working.
+
+commit a1235a93b02e30665ef3a068bd76d93e6e1e1f51
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Tue Dec 4 01:45:12 2018 +1000
+
+    Added code comments.
+
+commit adfd37f0f5822e5bc9d081500d4fc5b19dd7e8bb
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Tue Dec 4 01:28:09 2018 +1000
+
+    Working completely.
+
+commit 48c4389475cf3d29f0461fc8d2b5107ba23c18e6
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Tue Dec 4 00:18:37 2018 +1000
+
+    Fixed parallel processing issue.
+
+commit de541f319d9e3aa24767b1f68239b60902cc30e7
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Mon Dec 3 23:17:02 2018 +1000
+
+    Problem with parallel processing of particle filter components. Can't figure it out!
+
+commit 70c14ed5982efdc550a56ede3daecd1f122c5c93
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Mon Dec 3 21:09:58 2018 +1000
+
+    SMC2_ABC function working!
+
+commit 6f3eef255ca14007fda4f6f727246a2dffb60b7a
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Mon Dec 3 19:19:50 2018 +1000
+
+    Working!!
+
+commit 61f860c3162d6ddb87aefd367de8063793ae4a58
+Author: Anthony <anthonyebert@gmail.com>
+Date:   Mon Dec 3 17:25:38 2018 +1000
+
+    Starting things
+
+commit 1868f92165cf24f55652f433267bae78b7cda8f7
+Author: Anthony Ebert "Ace <AnthonyEbert@users.noreply.github.com>
+Date:   Mon Dec 3 14:02:15 2018 +1000
+
+    Initial commit
