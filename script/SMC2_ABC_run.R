@@ -52,7 +52,7 @@ inp <- list(
 loss = loss_hawkes
 
 
-Ntheta = 200
+Ntheta = 500
 Nx = 1e4
 pacc = 5e-4
 
