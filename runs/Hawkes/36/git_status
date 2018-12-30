@@ -1,0 +1,28 @@
+On branch master
+Your branch is ahead of 'origin/master' by 4 commits.
+  (use "git push" to publish your local commits)
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	../../Gaussian/3/Gaussian_3.o3840531
+	../../Gaussian/3/Rplots.pdf
+	../../Gaussian/3/SMC2_simple.Rout
+	../../Gaussian/3/git_log
+	../../Gaussian/3/git_status
+	../../Gaussian/3/state_df.RData
+	../../Gaussian/3/theta_df.RData
+	../34/Hawkes_34.o3840524
+	../34/Rplots.pdf
+	../34/SMC2_ABC_run.Rout
+	../34/git_log
+	../34/git_status
+	../34/state_df.RData
+	../34/theta_df.RData
+	../35/Rplots.pdf
+	../35/SMC2_ABC_run.Rout
+	../35/git_log
+	../35/git_status
+	git_log
+	git_status
+
+nothing added to commit but untracked files present (use "git add" to track)
