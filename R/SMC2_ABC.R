@@ -37,8 +37,15 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
     x_list <- lfunc(x_list, theta_filter, time1 = tp*dtp - dtp, time2 = tp*dtp, loss = loss, loss_args = loss_args)
 
     distances <- sapply(x_list, function(x){x$distance})
+    if(tp > 1){
+      d_weights <- sapply(full_list[[tp - 1]], function(x){rep(x$omega, Nx)})
+    } else {
+      d_weights <- rep(1, length(distances))
+    }
+
     if(is.na(eps[tp])){
-      eps[tp] <- quantile(as.numeric(distances), probs = pacc)
+      eps[tp] <- Hmisc::wtd.quantile(distances, weights = d_weights/sum(d_weights), probs = pacc, normwt = TRUE)
+      #eps[tp] <- quantile(as.numeric(distances), probs = pacc)
     }
 
     for(m in 1:Ntheta){
