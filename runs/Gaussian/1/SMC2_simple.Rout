@@ -1,0 +1,290 @@
+
+R version 3.5.1 (2018-07-02) -- "Feather Spray"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> 
+> library(parallel)
+> library(StateSpaceInference)
+> library(ggplot2)
+> library(ggalt)
+> sessionInfo()
+R version 3.5.1 (2018-07-02)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: SUSE Linux Enterprise Server 12 SP2
+
+Matrix products: default
+BLAS/LAPACK: /pkg/suse12/software/openblas/0.2.20-gcc-6.4.0-2.28/lib/libopenblas_sandybridgep-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] ggalt_0.4.0               ggplot2_3.1.0            
+[3] StateSpaceInference_0.5.0
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.0         Rttf2pt1_1.3.7     bindr_0.1.1        magrittr_1.5      
+ [5] maps_3.3.0         MASS_7.3-51.1      tidyselect_0.2.5   munsell_0.5.0     
+ [9] colorspace_1.3-2   R6_2.3.0           rlang_0.3.0.1      plyr_1.8.4        
+[13] dplyr_0.7.8        grid_3.5.1         gtable_0.2.0       ash_1.0-15        
+[17] KernSmooth_2.23-15 extrafontdb_1.0    withr_2.1.2        proj4_1.0-8       
+[21] lazyeval_0.2.1     assertthat_0.2.0   tibble_1.4.2       crayon_1.3.4      
+[25] bindrcpp_0.2.2     RColorBrewer_1.1-2 purrr_0.2.5        glue_1.3.0        
+[29] compiler_3.5.1     pillar_1.3.0       scales_1.0.0       extrafont_0.17    
+[33] pkgconfig_2.0.2   
+> 
+> #cl <- makeCluster(parallel::detectCores() - 1)
+> cl = "mclapply"
+> #cl <- NULL
+> 
+> set.seed(2)
+> 
+> TT <- 20
+> true_theta <- c(0.25, 0.5)
+> lower <- 0
+> upper <- 3.5
+> sd_t <- 1
+> init <- min(rgamma(1, 100, 100), upper - 1)
+> a_logit <- 0.9
+> dist_coef <- 0.5
+> true_states <- generate_state(init, TT, lower, upper, sd_t, a = a_logit)
+> 
+> lambda_fun <- stepfun(seq(1, TT - 1, by = 1), y = true_states)
+> # kern <- function(x){return(decay_func(x, alpha = true_theta[1], delta = true_theta[2]))}
+> #
+> # y_history <- sim_hawkes(lambda_fun, NULL, kern, 0, TT*10, progressBar = FALSE)
+> # y <- hist(y_history, breaks = seq(0, TT*10, by = 10), plot = FALSE)$counts
+> 
+> y <- generate_simple(TT, true_states, true_theta[1])
+> 
+> plot(seq(0, TT, length.out = TT * 1000), unlist(y))
+> 
+> plot(lambda_fun, add = TRUE, col = "red")
+> 
+> simulator <- hawkes_simulator
+> 
+> inp <- list(
++   lower = lower,
++   upper = upper,
++   sd_t = sd_t,
++   a_logit = a_logit,
++   y = y,
++   simulator = simulator
++ )
+> 
+> loss = loss_simple
+> 
+> 
+> Ntheta = 200
+> Nx = 4000
+> pacc = 5e-3
+> 
+> lower_theta <- c(0.1, 0.2)
+> upper_theta <- c(0.5, 1)
+> 
+> trans_args <- list(
++   lower_theta = lower_theta,
++   upper_theta = upper_theta,
++   a = 0.9
++ )
+> 
+> prior_sample <- data.frame(theta1 = runif(Ntheta, lower_theta[1], upper_theta[1]), theta2 = runif(Ntheta, lower_theta[2], upper_theta[2]))
+> 
+> prior_sample <- as.matrix(prior_sample, ncol = 2)
+> 
+> trans <- function(x, trans_args){
++   theta1 <- gtools::logit(x[,1], min = trans_args$lower[1], max = trans_args$upper[1])
++   theta2 <- gtools::logit(x[,2], min = trans_args$lower[2], max = trans_args$upper[2])
++   return(cbind(theta1, theta2))
++ }
+> 
+> invtrans <- function(x, trans_args){
++   theta1 <- gtools::inv.logit(trans_args$a * x[,1], min = trans_args$lower[1], max = trans_args$upper[1])
++   theta2 <- gtools::inv.logit(trans_args$a * x[,2], min = trans_args$lower[2], max = trans_args$upper[2])
++   return(cbind(theta1, theta2))
++ }
+> 
+> full_list <- SMC2_ABC(prior_sample, dprior = function(x){1}, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.2, TT = TT, trans = trans, invtrans = invtrans, trans_args = trans_args)
+[1] 0.2449964 0.2567643 0.2643019 0.2727826 0.2887492
+[1] 0.2054020 0.4726046 0.6660436 0.8125857 0.9990160
+[1] "1. 15.6139909165608"
+[1] "resample"
+[1] 0.2464861 0.2584861 0.2644074 0.2700157 0.2920219
+[1] 0.2007156 0.4091175 0.6672456 0.8937313 0.9997718
+[1] "SMC:  133.774741865747"
+acceptance rate:  0.895 
+[1] 0.2516556 0.2537836 0.2564036 0.2599108 0.2723834
+[1] 0.2010986 0.3631264 0.4790519 0.8962912 0.9997718
+[1] "2. 72.6856436768033"
+[1] 0.2516556 0.2537417 0.2559030 0.2590522 0.2723834
+[1] 0.2010986 0.3324434 0.4530307 0.8962912 0.9997718
+[1] "3. 58.3863427900915"
+[1] 0.2516556 0.2531229 0.2549468 0.2566575 0.2723834
+[1] 0.2010986 0.2399435 0.4530307 0.7778108 0.9997718
+[1] "4. 37.8929785680354"
+[1] "resample"
+[1] 0.2516598 0.2577149 0.2598061 0.2624575 0.2697870
+[1] 0.2000599 0.2245903 0.4910469 0.9189152 0.9999896
+[1] "SMC:  194.175728952513"
+[1] 0.2516529 0.2550993 0.2572621 0.2592904 0.2679596
+[1] 0.2000338 0.2161470 0.3093401 0.8598106 0.9999896
+[1] "SMC:  149.556084635801"
+[1] 0.2516529 0.2549405 0.2566942 0.2589247 0.2679596
+[1] 0.2000338 0.2121869 0.2915041 0.8311667 0.9999896
+[1] "SMC:  132.680777756539"
+[1] 0.2516529 0.2540356 0.2558773 0.2579468 0.2679596
+[1] 0.2000338 0.2105406 0.2669487 0.7836229 0.9999896
+[1] "SMC:  99.0564228444205"
+acceptance rate:  0.75 
+[1] 0.2516529 0.2533222 0.2546868 0.2562868 0.2609418
+[1] 0.2000599 0.2073977 0.2660607 0.6884628 0.9999896
+[1] "5. 186.955200859994"
+[1] 0.2516529 0.2545597 0.2558901 0.2576352 0.2609418
+[1] 0.2000599 0.2087253 0.3269706 0.6906941 0.9999896
+[1] "6. 165.117343001719"
+[1] 0.2516529 0.2544230 0.2558473 0.2569997 0.2609418
+[1] 0.2000599 0.2073977 0.3269706 0.6884628 0.9999896
+[1] "7. 156.917407389703"
+[1] 0.2516529 0.2539986 0.2555626 0.2569240 0.2609418
+[1] 0.2000599 0.2087253 0.3269706 0.6884628 0.9999896
+[1] "8. 154.9609484698"
+[1] 0.2516529 0.2536543 0.2549378 0.2562868 0.2609418
+[1] 0.2000599 0.2064028 0.2669487 0.6197330 0.9999896
+[1] "9. 148.942013632345"
+[1] 0.2516529 0.2545651 0.2558095 0.2569240 0.2609418
+[1] 0.2000599 0.2073977 0.2867582 0.6197330 0.9999896
+[1] "10. 136.805165245688"
+[1] 0.2516529 0.2537836 0.2550993 0.2562994 0.2609418
+[1] 0.2000599 0.2064028 0.2669487 0.6197330 0.9999896
+[1] "11. 132.572175688781"
+[1] 0.2516529 0.2530704 0.2545651 0.2556077 0.2609418
+[1] 0.2000599 0.2064028 0.2591182 0.6197330 0.9999896
+[1] "12. 117.685452888363"
+[1] 0.2516529 0.2528617 0.2537836 0.2550993 0.2609418
+[1] 0.2000599 0.2064028 0.2557017 0.6369154 0.9999896
+[1] "13. 100.279727435598"
+[1] 0.2516529 0.2519648 0.2530704 0.2540612 0.2609418
+[1] 0.2000599 0.2044107 0.2399435 0.6884628 0.9999896
+[1] "14. 66.7534735876009"
+[1] 0.2516529 0.2519648 0.2528617 0.2537836 0.2609418
+[1] 0.2000599 0.2044107 0.2399435 0.6884628 0.9999896
+[1] "15. 58.2252775710585"
+[1] 0.2516529 0.2528617 0.2536664 0.2546504 0.2609418
+[1] 0.2000599 0.2044107 0.3269706 0.6197330 0.9999896
+[1] "16. 60.7813928450892"
+[1] 0.2516529 0.2522043 0.2533748 0.2540612 0.2609418
+[1] 0.2000599 0.2044107 0.2651727 0.6197330 0.9999896
+[1] "17. 46.3979808958645"
+[1] 0.2516529 0.2528554 0.2536234 0.2546504 0.2609418
+[1] 0.2000599 0.2044107 0.2651727 0.6197330 0.9999896
+[1] "18. 43.8944445187267"
+[1] 0.2516529 0.2528491 0.2534885 0.2545651 0.2609418
+[1] 0.2000599 0.2044107 0.3269706 0.6197330 0.9999896
+[1] "19. 37.4288211167858"
+[1] "resample"
+[1] 0.2550664 0.2570623 0.2581399 0.2592572 0.2625774
+[1] 0.2000035 0.2055357 0.3900003 0.8654640 0.9999834
+[1] "SMC:  198.095194715046"
+[1] 0.2546625 0.2568331 0.2575241 0.2586945 0.2625774
+[1] 0.2000035 0.2039612 0.3589094 0.8473543 0.9999834
+[1] "SMC:  185.000210399287"
+[1] 0.2546625 0.2567871 0.2573790 0.2586149 0.2625774
+[1] 0.2000035 0.2039612 0.3452832 0.8368699 0.9999834
+[1] "SMC:  173.920545122723"
+[1] 0.2546625 0.2566051 0.2571295 0.2580607 0.2625774
+[1] 0.2000035 0.2039612 0.3306826 0.8266998 0.9999834
+[1] "SMC:  149.042911808443"
+[1] 0.2546625 0.2564028 0.2570549 0.2578414 0.2625774
+[1] 0.2000035 0.2039865 0.3589094 0.8321854 0.9999834
+[1] "SMC:  133.5423639311"
+[1] 0.2546625 0.2566170 0.2571598 0.2581252 0.2625774
+[1] 0.2000035 0.2040465 0.3867584 0.8398482 0.9999834
+[1] "SMC:  141.946656080312"
+[1] 0.2546625 0.2565182 0.2571210 0.2580277 0.2625774
+[1] 0.2000035 0.2055158 0.3867584 0.8398482 0.9999834
+[1] "SMC:  123.160265452367"
+[1] 0.2546625 0.2563894 0.2569891 0.2577693 0.2625774
+[1] 0.2000035 0.2039865 0.4098753 0.8405167 0.9999834
+[1] "SMC:  100.105313654522"
+[1] 0.2546625 0.2563241 0.2568733 0.2575336 0.2625774
+[1] 0.2000035 0.2039865 0.3893523 0.8321854 0.9999834
+[1] "SMC:  83.3579351337947"
+[1] 0.2546625 0.2564913 0.2570342 0.2577415 0.2625774
+[1] 0.2000035 0.2039865 0.4098753 0.8303909 0.9999834
+[1] "SMC:  102.992400533005"
+[1] 0.2546625 0.2563170 0.2569196 0.2574998 0.2625774
+[1] 0.2000035 0.2056064 0.3307492 0.7993653 0.9999834
+[1] "SMC:  72.0035977390303"
+[1] 0.2546625 0.2561645 0.2566154 0.2571262 0.2619147
+[1] 0.2000233 0.2048015 0.3273149 0.7993653 0.9999834
+[1] "SMC:  50.2350530711104"
+[1] 0.2546625 0.2559507 0.2565595 0.2570720 0.2619147
+[1] 0.2000470 0.2039865 0.3273149 0.7993653 0.9999834
+[1] "SMC:  51.3877411707541"
+[1] 0.2546625 0.2553621 0.2563391 0.2568789 0.2610742
+[1] 0.2003024 0.2078671 0.4348476 0.7993653 0.9999834
+[1] "SMC:  30.4168258970461"
+[1] 0.2546625 0.2553621 0.2562674 0.2568080 0.2610742
+[1] 0.2000835 0.2039865 0.3273149 0.7411618 0.9999834
+[1] "SMC:  27.2990149337642"
+[1] 0.2546625 0.2557462 0.2565182 0.2569447 0.2610742
+[1] 0.2000835 0.2103357 0.3589094 0.7354654 0.9999834
+[1] "SMC:  40.3600244253233"
+[1] 0.2546625 0.2554354 0.2562915 0.2567707 0.2610742
+[1] 0.2003072 0.2078671 0.3273149 0.7354654 0.9999834
+[1] "SMC:  26.9775541874078"
+[1] 0.2546625 0.2557462 0.2563241 0.2567926 0.2610742
+[1] 0.2000857 0.2103357 0.4348476 0.7354654 0.9999834
+[1] "SMC:  29.6780835964282"
+[1] 0.2546625 0.2554354 0.2561384 0.2566882 0.2610742
+[1] 0.2000470 0.2116424 0.4348476 0.7338259 0.9999834
+[1] "SMC:  24.0116319284356"
+acceptance rate:  0.24 
+[1] 0.2516529 0.2528617 0.2533222 0.2546686 0.2580440
+[1] 0.2000599 0.2044107 0.2867966 0.6197330 0.9937750
+[1] "20. 182.435976374541"
+> 
+> state_df <- get_state(full_list)
+> 
+> state_df$state <- true_states
+> 
+> theta_df <- get_parameter(full_list)
+> 
+> 
+> save.image()
+> save(state_df, file = "state_df.RData")
+> save(theta_df, file = "theta_df.RData")
+> 
+> 
+> 
+> ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
+> 
+> ggplot(theta_df[which(theta_df$time %% 5 == 0),]) + aes(x = value, weights = weight, col = factor(time)) + geom_density() + facet_wrap(~parameter, scales = "free")
+> 
+> proc.time()
+    user   system  elapsed 
+7756.791  118.706  533.421 
