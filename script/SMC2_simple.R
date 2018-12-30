@@ -27,9 +27,9 @@ lambda_fun <- stepfun(seq(1, TT - 1, by = 1), y = true_states)
 # y_history <- sim_hawkes(lambda_fun, NULL, kern, 0, TT*10, progressBar = FALSE)
 # y <- hist(y_history, breaks = seq(0, TT*10, by = 10), plot = FALSE)$counts
 
-y <- generate_simple(TT, true_states, true_theta[1])
+y <- generate_simple(TT, true_states, true_theta)
 
-plot(seq(0, TT, length.out = TT * 1000), unlist(y))
+plot(seq(0, TT, length.out = TT * 10), unlist(y))
 
 plot(lambda_fun, add = TRUE, col = "red")
 
@@ -47,36 +47,30 @@ inp <- list(
 loss = loss_simple
 
 
-Ntheta = 200
-Nx = 4000
-pacc = 5e-3
+Ntheta = 1000
+Nx = 1000
+pacc = 0.05
 
 lower_theta <- c(0.1, 0.2)
 upper_theta <- c(0.5, 1)
-
-trans_args <- list(
-  lower_theta = lower_theta,
-  upper_theta = upper_theta,
-  a = 0.9
-)
 
 prior_sample <- data.frame(theta1 = runif(Ntheta, lower_theta[1], upper_theta[1]), theta2 = runif(Ntheta, lower_theta[2], upper_theta[2]))
 
 prior_sample <- as.matrix(prior_sample, ncol = 2)
 
 trans <- function(x, trans_args){
-  theta1 <- gtools::logit(x[,1], min = trans_args$lower[1], max = trans_args$upper[1])
-  theta2 <- gtools::logit(x[,2], min = trans_args$lower[2], max = trans_args$upper[2])
+  theta1 <- log(x[,1])
+  theta2 <- log(x[,2])
   return(cbind(theta1, theta2))
 }
 
 invtrans <- function(x, trans_args){
-  theta1 <- gtools::inv.logit(trans_args$a * x[,1], min = trans_args$lower[1], max = trans_args$upper[1])
-  theta2 <- gtools::inv.logit(trans_args$a * x[,2], min = trans_args$lower[2], max = trans_args$upper[2])
+  theta1 <- exp(x[,1])
+  theta2 <- exp(x[,2])
   return(cbind(theta1, theta2))
 }
 
-full_list <- SMC2_ABC(prior_sample, dprior = function(x){1}, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.2, TT = TT, trans = trans, invtrans = invtrans, trans_args = trans_args)
+full_list <- SMC2_ABC(prior_sample, dprior = function(x){1}, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.2, TT = TT, trans = trans, invtrans = invtrans)
 
 state_df <- get_state(full_list)
 

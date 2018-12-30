@@ -8,22 +8,22 @@ loss_simple <- function(x, theta, time1, time2, inp){
     x <- generate_state(x, 1, lower = inp$lower, upper = inp$upper, sd = inp$sd, a = inp$a)
   }
 
-  y <- rnorm(1000, x, theta[1])
-  output <- sum(
-    (mean(y) - mean(inp$y[[time2]]))^2 +
-    (4*(sd(y) - sd(inp$y[[time2]])))^2
-  )
+  y <- sn::rsn(1e1, dp = sn::cp2dp(cp = c(x, theta), "SN"))
 
-  #output <- dist_h(x, theta, inp$history, time1 = time1, time2 = time2, simulator = inp$simulator)
+  ss_obs <- c(mean(inp$y[[time2]]), sd(inp$y[[time2]]), e1071::skewness(inp$y[[time2]]))
+  ss_sim <- c(mean(y), sd(y), e1071::skewness(y))
 
-  return(list(distance = output, x = x))
+  # ss_obs <- sn::summary(sn::selm(inp$y[[time2]]~1, opt.method = "BFGS"))@param.table[,1]
+  # ss_sim <- sn::summary(sn::selm(y~1), opt.method = "BFGS")@param.table[,1]
+
+  return(list(distance = sqrt(sum((ss_obs - ss_sim)^2)), x = x))
 }
 
 #' @export
 generate_simple <- function(TT, true_states, theta){
   y <- list()
   for(i in 1:TT){
-    y[[i]] <- rnorm(1000, true_states[i], theta)
+    y[[i]] <- as.numeric(sn::rsn(1e1, dp = sn::cp2dp(cp = c(true_states[i], theta), "SN")))
   }
   return(y)
 }
