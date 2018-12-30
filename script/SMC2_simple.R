@@ -52,7 +52,7 @@ Nx = 1000
 pacc = 0.05
 
 lower_theta <- c(0.1, 0.2)
-upper_theta <- c(0.5, 1)
+upper_theta <- c(0.5, 0.8)
 
 prior_sample <- data.frame(theta1 = runif(Ntheta, lower_theta[1], upper_theta[1]), theta2 = runif(Ntheta, lower_theta[2], upper_theta[2]))
 
@@ -70,7 +70,7 @@ invtrans <- function(x, trans_args){
   return(cbind(theta1, theta2))
 }
 
-full_list <- SMC2_ABC(prior_sample, dprior = function(x){1}, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.2, TT = TT, trans = trans, invtrans = invtrans)
+full_list <- SMC2_ABC(prior_sample, dprior = function(x){dunif(x[1], 0.1, 0.5)*dunif(x[2],0.2,0.8)}, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.2, TT = TT, trans = trans, invtrans = invtrans)
 
 state_df <- get_state(full_list)
 
