@@ -1,0 +1,20 @@
+On branch master
+Your branch is up-to-date with 'origin/master'.
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	../35/Hawkes_35.o3840529
+	../35/Rplots.pdf
+	../35/SMC2_ABC_run.Rout
+	../35/git_log
+	../35/git_status
+	../35/state_df.RData
+	../35/theta_df.RData
+	../36/Rplots.pdf
+	../36/SMC2_ABC_run.Rout
+	../36/git_log
+	../36/git_status
+	git_log
+	git_status
+
+nothing added to commit but untracked files present (use "git add" to track)
