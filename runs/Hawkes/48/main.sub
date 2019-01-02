@@ -1,0 +1,16 @@
+#!/bin/bash -l
+#PBS -N Hawkes_48
+#PBS -l walltime=23:50:00
+#PBS -l select=1:ncpus=16:mpiprocs=1:mem=350GB:cpuarch=avx2
+#PBS -j oe
+
+cd $PBS_O_WORKDIR
+
+module load r/3.5.1-foss-2018a
+export MC_CORES=16
+export OMP_NUM_THREADS=1
+
+git log > git_log
+git status > git_status
+R CMD BATCH ../../../script/SMC2_ABC_run.R
+
