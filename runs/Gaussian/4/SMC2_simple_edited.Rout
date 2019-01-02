@@ -1,0 +1,229 @@
+
+R version 3.5.1 (2018-07-02) -- "Feather Spray"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> 
+> library(parallel)
+> library(StateSpaceInference)
+> library(ggplot2)
+> library(ggalt)
+> sessionInfo()
+R version 3.5.1 (2018-07-02)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: SUSE Linux Enterprise Server 12 SP2
+
+Matrix products: default
+BLAS/LAPACK: /pkg/suse12/software/openblas/0.2.20-gcc-6.4.0-2.28/lib/libopenblas_sandybridgep-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] ggalt_0.4.0               ggplot2_3.1.0            
+[3] StateSpaceInference_1.1.0
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.0         Rttf2pt1_1.3.7     bindr_0.1.1        magrittr_1.5      
+ [5] maps_3.3.0         MASS_7.3-51.1      tidyselect_0.2.5   munsell_0.5.0     
+ [9] colorspace_1.3-2   R6_2.3.0           rlang_0.3.0.1      plyr_1.8.4        
+[13] dplyr_0.7.8        grid_3.5.1         gtable_0.2.0       ash_1.0-15        
+[17] KernSmooth_2.23-15 extrafontdb_1.0    withr_2.1.2        proj4_1.0-8       
+[21] lazyeval_0.2.1     assertthat_0.2.0   tibble_1.4.2       crayon_1.3.4      
+[25] bindrcpp_0.2.2     RColorBrewer_1.1-2 purrr_0.2.5        glue_1.3.0        
+[29] compiler_3.5.1     pillar_1.3.0       scales_1.0.0       extrafont_0.17    
+[33] pkgconfig_2.0.2   
+> 
+> #cl <- makeCluster(parallel::detectCores() - 1)
+> cl = "mclapply"
+> #cl <- NULL
+> 
+> set.seed(2)
+> 
+> TT <- 20
+> true_theta <- c(0.25, 0.5)
+> lower <- 0
+> upper <- 3.5
+> sd_t <- 1
+> init <- min(rgamma(1, 100, 100), upper - 1)
+> a_logit <- 0.9
+> dist_coef <- 0.5
+> true_states <- generate_state(init, TT, lower, upper, sd_t, a = a_logit)
+> 
+> lambda_fun <- stepfun(seq(1, TT - 1, by = 1), y = true_states)
+> # kern <- function(x){return(decay_func(x, alpha = true_theta[1], delta = true_theta[2]))}
+> #
+> # y_history <- sim_hawkes(lambda_fun, NULL, kern, 0, TT*10, progressBar = FALSE)
+> # y <- hist(y_history, breaks = seq(0, TT*10, by = 10), plot = FALSE)$counts
+> 
+> y <- generate_simple(TT, true_states, true_theta)
+> 
+> plot(seq(0, TT, length.out = TT * 10), unlist(y))
+> 
+> plot(lambda_fun, add = TRUE, col = "red")
+> 
+> simulator <- hawkes_simulator
+> 
+> inp <- list(
++   lower = lower,
++   upper = upper,
++   sd_t = sd_t,
++   a_logit = a_logit,
++   y = y,
++   simulator = simulator
++ )
+> 
+> loss = loss_simple
+> 
+> 
+> Ntheta = 1000
+> Nx = 1000
+> pacc = 0.05
+> 
+> lower_theta <- c(0.1, 0.2)
+> upper_theta <- c(0.5, 0.8)
+> 
+> prior_sample <- data.frame(theta1 = runif(Ntheta, lower_theta[1], upper_theta[1]), theta2 = runif(Ntheta, lower_theta[2], upper_theta[2]))
+> 
+> prior_sample <- as.matrix(prior_sample, ncol = 2)
+> 
+> trans <- function(x, trans_args){
++   theta1 <- log(x[,1])
++   theta2 <- log(x[,2])
++   return(cbind(theta1, theta2))
++ }
+> 
+> invtrans <- function(x, trans_args){
++   theta1 <- exp(x[,1])
++   theta2 <- exp(x[,2])
++   return(cbind(theta1, theta2))
++ }
+> 
+> full_list <- SMC2_ABC(prior_sample, dprior = function(x){dunif(x[1], 0.1, 0.5)*dunif(x[2],0.2,0.8)}, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.5, TT = TT, trans = trans, invtrans = invtrans)
+[1] 0.1008277 0.1781218 0.2480518 0.3308571 0.4994755
+[1] 0.2011203 0.3759752 0.5405225 0.6837377 0.7995355
+[1] "1. 827.252991640777"
+[1] 0.1008277 0.1673218 0.2260967 0.2888850 0.4994755
+[1] 0.2011203 0.3769491 0.5364946 0.6769376 0.7995355
+[1] "2. 673.668106439965"
+[1] 0.1008277 0.1682171 0.2258975 0.2864804 0.4994755
+[1] 0.2011203 0.4028648 0.5674253 0.6926232 0.7995355
+[1] "3. 620.083193820144"
+[1] 0.1008277 0.1747822 0.2286168 0.2873366 0.4994755
+[1] 0.2011203 0.3719207 0.5285250 0.6687261 0.7995355
+[1] "4. 624.216466640894"
+[1] 0.1016352 0.1942530 0.2421839 0.2969800 0.4994755
+[1] 0.2011203 0.3666831 0.5233658 0.6635586 0.7995355
+[1] "5. 562.360739372904"
+[1] 0.1030434 0.2045879 0.2489034 0.2988464 0.4994755
+[1] 0.2011203 0.3612303 0.5108962 0.6535717 0.7995355
+[1] "6. 526.267980088078"
+[1] 0.1047767 0.2127054 0.2565462 0.3081574 0.4994755
+[1] 0.2024922 0.3879154 0.5506791 0.6848062 0.7995355
+[1] "7. 489.576641704417"
+[1] "resample"
+[1] 0.08601006 0.19163903 0.24019950 0.29570212 0.71910789
+[1] 0.09685183 0.38567445 0.52805179 0.72746391 0.99166877
+[1] "SMC:  806.610585749678"
+[1] 0.08601006 0.18483968 0.22902056 0.27578220 0.71910789
+[1] 0.09685183 0.38278551 0.52308491 0.71569871 0.99166877
+[1] "SMC:  739.827427857025"
+[1] 0.08625014 0.18390081 0.22878903 0.27555448 0.71910789
+[1] 0.1051490 0.4105010 0.5512082 0.7499508 0.9916688
+[1] "SMC:  676.000312474864"
+[1] 0.08934591 0.18855776 0.22985456 0.27604523 0.71910789
+[1] 0.09685183 0.37625701 0.50746838 0.69174054 0.99166877
+[1] "SMC:  714.470423755771"
+[1] 0.1030796 0.1991070 0.2400542 0.2815351 0.7191079
+[1] 0.09685183 0.37265378 0.50339749 0.67498447 0.99166877
+[1] "SMC:  678.629693714394"
+[1] 0.1063355 0.2080717 0.2454975 0.2866000 0.7191079
+[1] 0.09685183 0.36839582 0.49559070 0.65622170 0.99166877
+[1] "SMC:  641.04233631539"
+[1] 0.1091762 0.2144398 0.2512758 0.2930044 0.7191079
+[1] 0.1051490 0.4044186 0.5327970 0.7156987 0.9916688
+[1] "SMC:  588.436011662467"
+acceptance rate:  0.649 
+[1] 0.1142870 0.2236313 0.2517407 0.2817202 0.4138891
+[1] 0.2022910 0.4106590 0.5349331 0.6697264 0.7999744
+[1] "8. 967.460197764173"
+[1] 0.1268263 0.2261756 0.2550427 0.2833875 0.4138891
+[1] 0.2022910 0.4034561 0.5307812 0.6605186 0.7999744
+[1] "9. 938.014716651008"
+[1] 0.1268263 0.2262416 0.2555296 0.2833875 0.4138891
+[1] 0.2022910 0.4028297 0.5222237 0.6521475 0.7999744
+[1] "10. 907.493964126551"
+[1] 0.1502616 0.2322905 0.2606070 0.2870420 0.4138891
+[1] 0.2022910 0.3996054 0.5153286 0.6471693 0.7999744
+[1] "11. 840.280650636894"
+[1] 0.1551684 0.2358803 0.2614362 0.2870420 0.4138891
+[1] 0.2022910 0.4391462 0.5540411 0.6860752 0.7999744
+[1] "12. 826.73733505139"
+[1] 0.1567955 0.2330939 0.2604546 0.2869030 0.4138891
+[1] 0.2022910 0.3827855 0.4951189 0.6091196 0.7999744
+[1] "13. 737.42032160544"
+[1] 0.1755685 0.2506377 0.2722365 0.2987421 0.4138891
+[1] 0.2025722 0.3989607 0.5052903 0.6211772 0.7999744
+[1] "14. 629.923101179675"
+[1] 0.1755685 0.2484690 0.2690546 0.2970077 0.4138891
+[1] 0.2025722 0.4533690 0.5533600 0.6838721 0.7999744
+[1] "15. 671.651042649429"
+[1] 0.1760606 0.2470517 0.2680846 0.2930044 0.4138891
+[1] 0.2025722 0.4391462 0.5483867 0.6689336 0.7999744
+[1] "16. 640.697718275349"
+[1] 0.1747891 0.2429013 0.2609095 0.2815828 0.4138891
+[1] 0.2025722 0.4533690 0.5533600 0.6781300 0.7999744
+[1] "17. 621.701183868954"
+[1] 0.1755685 0.2436711 0.2609095 0.2817202 0.4138891
+[1] 0.2025722 0.4920382 0.5777113 0.7118740 0.7999744
+[1] "18. 593.661824456213"
+[1] 0.1744575 0.2353635 0.2581752 0.2719703 0.4138891
+[1] 0.2025722 0.4953401 0.5907687 0.7156987 0.7999744
+[1] "19. 552.208541314507"
+[1] 0.1755685 0.2351999 0.2555296 0.2704567 0.4138891
+[1] 0.2025722 0.4878661 0.5757883 0.7074496 0.7999744
+[1] "20. 532.570878537027"
+> 
+> state_df <- get_state(full_list)
+> 
+> state_df$state <- true_states
+> 
+> theta_df <- get_parameter(full_list)
+> 
+> 
+> save.image()
+> save(state_df, file = "state_df.RData")
+> save(theta_df, file = "theta_df.RData")
+> 
+> 
+> 
+> ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
+> 
+> ggplot(theta_df[which(theta_df$time %% 5 == 0),]) + aes(x = value, weights = weight, col = factor(time)) + geom_density() + facet_wrap(~parameter, scales = "free")
+> 
+> proc.time()
+    user   system  elapsed 
+6041.159  119.212  552.900 
