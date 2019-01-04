@@ -1,0 +1,193 @@
+
+R version 3.5.1 (2018-07-02) -- "Feather Spray"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> 
+> library(parallel)
+> library(StateSpaceInference)
+> library(ggplot2)
+> library(ggalt)
+> sessionInfo()
+R version 3.5.1 (2018-07-02)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: SUSE Linux Enterprise Server 12 SP2
+
+Matrix products: default
+BLAS/LAPACK: /pkg/suse12/software/openblas/0.2.20-gcc-6.4.0-2.28/lib/libopenblas_sandybridgep-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] ggalt_0.4.0               ggplot2_3.1.0            
+[3] StateSpaceInference_1.1.0
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.0         Rttf2pt1_1.3.7     bindr_0.1.1        magrittr_1.5      
+ [5] maps_3.3.0         MASS_7.3-51.1      tidyselect_0.2.5   munsell_0.5.0     
+ [9] colorspace_1.3-2   R6_2.3.0           rlang_0.3.0.1      plyr_1.8.4        
+[13] dplyr_0.7.8        grid_3.5.1         gtable_0.2.0       ash_1.0-15        
+[17] KernSmooth_2.23-15 extrafontdb_1.0    withr_2.1.2        proj4_1.0-8       
+[21] lazyeval_0.2.1     assertthat_0.2.0   tibble_1.4.2       crayon_1.3.4      
+[25] bindrcpp_0.2.2     RColorBrewer_1.1-2 purrr_0.2.5        glue_1.3.0        
+[29] compiler_3.5.1     pillar_1.3.0       scales_1.0.0       extrafont_0.17    
+[33] pkgconfig_2.0.2   
+> 
+> #cl <- makeCluster(parallel::detectCores())
+> cl = "mclapply"
+> #cl <- NULL
+> 
+> set.seed(3)
+> 
+> TT <- 40
+> true_theta <- c(0.5, 0.5)
+> lower <- 0
+> upper <- 3.5
+> sd_t <- 1
+> init <- min(rgamma(1, 100, 100), upper - 1)
+> a_logit <- 0.9
+> dist_coef <- 0.5
+> true_states <- generate_state(init, TT, lower, upper, sd_t, a = a_logit)
+> 
+> y <- hawkes_simulator(true_states[1], true_theta, NULL, 0, 10)
+> for(tp in 1:TT){
++   y <- hawkes_simulator(true_states[tp], true_theta, y$history, tp * 10, tp * 10 + 10)
++ }
+> 
+> y_history <- y$history
+> 
+> lambda_fun <- stepfun(seq(10, TT*10 - 10, by = 10), y = true_states)
+> kern <- function(x){return(decay_func(x, alpha = true_theta[1], delta = true_theta[2]))}
+> #
+> #y_history <- sim_hawkes(lambda_fun, NULL, kern, 0, TT*10, progressBar = FALSE)
+> #y <- hist(y_history, breaks = seq(0, TT*10, by = 10), plot = FALSE)$counts
+> 
+> hist(y_history, breaks = TT * 10)
+> 
+> plot(lambda_fun, add = TRUE, col = "red")
+> 
+> simulator <- hawkes_simulator
+> 
+> inp <- list(
++   lower = lower,
++   upper = upper,
++   sd_t = sd_t,
++   a_logit = a_logit,
++   history = y_history,
++   simulator = simulator
++ )
+> 
+> loss = loss_hawkes
+> 
+> 
+> Ntheta = 400
+> Nx = 100000
+> pacc = 0.0005
+> 
+> lower_theta <- c(0.3, 0.3)
+> upper_theta <- c(0.7, 0.7)
+> 
+> prior_sample <- data.frame(theta1 = runif(Ntheta, lower_theta[1], upper_theta[1]), theta2 = runif(Ntheta, lower_theta[2], upper_theta[2]))
+> 
+> prior_sample <- as.matrix(prior_sample, ncol = 2)
+> 
+> trans <- function(x, trans_args){
++   theta1 <- log(x[,1])
++   theta2 <- log(x[,2])
++   return(cbind(theta1, theta2))
++ }
+> 
+> invtrans <- function(x, trans_args){
++   theta1 <- exp(x[,1])
++   theta2 <- exp(x[,2])
++   return(cbind(theta1, theta2))
++ }
+> 
+> full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.2, TT = TT, trans = trans, invtrans = invtrans, cov_coef = 0.25^2)
+[1] 0.3002906 0.3987081 0.4953697 0.5867937 0.6982322
+[1] 0.3008791 0.3987931 0.5146290 0.6060596 0.6995915
+[1] "1. 389.599892675962"
+[1] 0.3002906 0.3826416 0.4768813 0.5637071 0.6982322
+[1] 0.3008791 0.3722474 0.4777804 0.5868004 0.6995915
+[1] "2. 346.79247930567"
+[1] 0.3002906 0.3720314 0.4637633 0.5495654 0.6982322
+[1] 0.3008791 0.3675643 0.4692469 0.5817838 0.6995915
+[1] "3. 322.897985845682"
+[1] 0.3002906 0.3693185 0.4591121 0.5470832 0.6982322
+[1] 0.3008791 0.3652931 0.4541849 0.5770850 0.6995915
+[1] "4. 308.045358787817"
+[1] 0.3002906 0.3625494 0.4522086 0.5404643 0.6982322
+[1] 0.3008791 0.3652931 0.4618973 0.5779902 0.6995915
+[1] "5. 294.921893940774"
+[1] 0.3002906 0.3583574 0.4356049 0.5348635 0.6982322
+[1] 0.3008791 0.3620862 0.4517377 0.5778590 0.6995915
+[1] "6. 270.220765474767"
+[1] 0.3002906 0.3567073 0.4308404 0.5309338 0.6982322
+[1] 0.3008791 0.3608992 0.4486048 0.5778590 0.6995915
+[1] "7. 257.365826584273"
+[1] 0.3002906 0.3529030 0.4181270 0.5136618 0.6982322
+[1] 0.3008791 0.3551196 0.4412457 0.5718750 0.6995915
+[1] "8. 237.813648250952"
+[1] 0.3002906 0.3608328 0.4349787 0.5296014 0.6982322
+[1] 0.3008791 0.3380181 0.4261690 0.5519856 0.6995915
+[1] "9. 235.673219386057"
+[1] 0.3047466 0.3589086 0.4274115 0.5072738 0.6982322
+[1] 0.3008791 0.3352505 0.4248985 0.5519459 0.6995915
+[1] "10. 220.040337697118"
+[1] 0.3002906 0.3485428 0.4097301 0.4888715 0.6982322
+[1] 0.3008791 0.3362969 0.4391129 0.5668454 0.6995915
+[1] "11. 193.681184755964"
+[1] 0.3002906 0.3619905 0.4356000 0.5132166 0.6982322
+[1] 0.3008791 0.3796909 0.4883197 0.5877905 0.6995915
+[1] "12. 224.466162251233"
+[1] 0.3047466 0.3754736 0.4563778 0.5343174 0.6982322
+[1] 0.3008791 0.3685921 0.4878800 0.5812664 0.6995915
+[1] "13. 216.846122019814"
+[1] 0.3047466 0.3625494 0.4416508 0.5184602 0.6982322
+[1] 0.3008791 0.3626385 0.4690343 0.5768270 0.6995915
+[1] "14. 208.634290173051"
+[1] 0.3047466 0.3827190 0.4629021 0.5367016 0.6982322
+[1] 0.3008791 0.3856467 0.5028338 0.5880300 0.6995915
+[1] "15. 226.108644524011"
+[1] 0.3047466 0.3818712 0.4566660 0.5350605 0.6982322
+[1] 0.3008791 0.3627322 0.4685156 0.5742256 0.6995915
+[1] "16. 214.404270200166"
+[1] 0.3047466 0.3725809 0.4520325 0.5299536 0.6982322
+[1] 0.3008791 0.3831277 0.4995726 0.5863912 0.6995915
+[1] "17. 209.439552657941"
+[1] 0.3047466 0.3700030 0.4422161 0.5184602 0.6982322
+[1] 0.3008791 0.3759275 0.4878800 0.5787109 0.6995915
+[1] "18. 191.207356394027"
+[1] 0.3047466 0.3737731 0.4520325 0.5237838 0.6982322
+[1] 0.3008791 0.3898774 0.5124331 0.5939124 0.6995915
+[1] "19. 187.766859068158"
+[1] 0.3047466 0.3619905 0.4296665 0.5058978 0.6982322
+[1] 0.3008791 0.3685921 0.4878454 0.5812749 0.6995915
+[1] "20. 183.817491031622"
+Error in x + weights : non-numeric argument to binary operator
+Calls: SMC2_ABC -> <Anonymous> -> wtd.table
+Execution halted
