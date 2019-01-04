@@ -92,6 +92,8 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
         MH_ratio <- proposed_Z_hat * dprior(proposed_thetas[p_aa[m],]) / (old_Z_hat * dprior(thetas[aa[m],]))
 
+        MH_ratio <- MH_ratio * prod(abs(1/thetas[aa[m],])) / prod(abs(1/proposed_thetas[p_aa[m],]))
+
         un <- runif(1)
 
         if(un < MH_ratio){
