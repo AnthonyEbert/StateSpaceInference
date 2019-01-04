@@ -11,7 +11,7 @@ cl = "mclapply"
 
 set.seed(3)
 
-TT <- 40
+TT <- 20
 true_theta <- c(0.5, 0.5)
 lower <- 0
 upper <- 3.5
@@ -53,7 +53,7 @@ loss = loss_hawkes
 
 
 Ntheta = 400
-Nx = 100000
+Nx = 10000
 pacc = 0.0005
 
 lower_theta <- c(0.3, 0.3)
@@ -75,7 +75,7 @@ invtrans <- function(x, trans_args){
   return(cbind(theta1, theta2))
 }
 
-full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.2, TT = TT, trans = trans, invtrans = invtrans, cov_coef = 0.25^2)
+full_list <- SMC2_ABC(prior_sample, dprior = dHawkes, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 10, ESS_threshold = 0.5, TT = TT, trans = trans, invtrans = invtrans, cov_coef = 0.25^2)
 
 state_df <- get_state(full_list, probs = c(0.25, 0.5, 0.75))
 
