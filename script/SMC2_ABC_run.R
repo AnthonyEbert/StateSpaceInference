@@ -56,7 +56,7 @@ loss = loss_hawkes
 
 Ntheta = 200
 Nx = 1000
-pacc = 0.1
+pacc = 0.25
 
 lower_theta <- c(0.3, 0.4)
 upper_theta <- c(0.7, 0.6)
