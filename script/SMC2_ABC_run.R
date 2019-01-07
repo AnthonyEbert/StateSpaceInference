@@ -58,8 +58,8 @@ Ntheta = 200
 Nx = 1000
 pacc = 0.02
 
-lower_theta <- c(0.3, 0.4)
-upper_theta <- c(0.7, 0.6)
+lower_theta <- c(0.3, 0.3)
+upper_theta <- c(0.7, 0.7)
 
 prior_sample <- data.frame(theta1 = runif(Ntheta, lower_theta[1], upper_theta[1]), theta2 = runif(Ntheta, lower_theta[2], upper_theta[2]))
 
