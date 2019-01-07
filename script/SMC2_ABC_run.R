@@ -5,13 +5,13 @@ library(ggplot2)
 library(ggalt)
 sessionInfo()
 
-#cl <- makeCluster(parallel::detectCores())
-cl = "mclapply"
+cl <- makeCluster(parallel::detectCores())
+#cl = "mclapply"
 #cl <- NULL
 
 set.seed(3)
 
-TT <- 60
+TT <- 40
 true_theta <- c(0.5, 0.5)
 lower <- 0
 upper <- 3.5
@@ -21,9 +21,11 @@ a_logit <- 0.9
 dist_coef <- 0.5
 true_states <- generate_state(init, TT, lower, upper, sd_t, a = a_logit)
 
-y <- hawkes_simulator(true_states[1], true_theta, NULL, 0, 10)
+y <- NULL
+
+#y <- hawkes_simulator(true_states[1], true_theta, NULL, 0, 10)
 for(tp in 1:TT){
-  y <- hawkes_simulator(true_states[tp], true_theta, y$history, tp * 10, tp * 10 + 10)
+  y <- hawkes_simulator(true_states[tp], true_theta, y$history, tp * 10 - 10, tp * 10)
 }
 
 y_history <- y$history
@@ -52,12 +54,12 @@ inp <- list(
 loss = loss_hawkes
 
 
-Ntheta = 200
-Nx = 100000
-pacc = 0.0005
+Ntheta = 40
+Nx = 400
+pacc = 0.05
 
-lower_theta <- c(0.3, 0.3)
-upper_theta <- c(0.7, 0.7)
+lower_theta <- c(0.3, 0.4)
+upper_theta <- c(0.7, 0.6)
 
 prior_sample <- data.frame(theta1 = runif(Ntheta, lower_theta[1], upper_theta[1]), theta2 = runif(Ntheta, lower_theta[2], upper_theta[2]))
 
@@ -83,13 +85,6 @@ state_df$state <- true_states
 
 theta_df <- get_parameter(full_list)
 
-
-save.image()
-save(state_df, file = "state_df.RData")
-save(theta_df, file = "theta_df.RData")
-
-
-
 ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
 
-ggplot(theta_df[which(theta_df$time %% 5 == 0),]) + aes(x = value, weights = weight, col = factor(time)) + geom_density() + facet_wrap(~parameter, scales = "free")
+ggplot(theta_df) + aes(x = value, weights = weight, col = factor(time)) + geom_density() + facet_wrap(~parameter, scales = "free")

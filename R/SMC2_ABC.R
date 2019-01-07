@@ -44,7 +44,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
     }
 
     if(is.na(eps[tp])){
-      eps[tp] <- Hmisc::wtd.quantile(distances, weights = d_weights/sum(d_weights), probs = pacc, normwt = TRUE)
+      eps[tp] <- Hmisc::wtd.quantile(distances, weights = d_weights/sum(d_weights) * 1e20, probs = pacc, normwt = FALSE)
       #eps[tp] <- quantile(as.numeric(distances), probs = pacc)
     }
 
@@ -65,7 +65,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
     ESS <- sum(omegas) ^ 2 / sum(omegas^2)
     for(i in 1:dim(thetas)[2]){
-      print(as.numeric(Hmisc::wtd.quantile(thetas[,i], weights = omegas/sum(omegas), normwt = TRUE)))
+      print(as.numeric(Hmisc::wtd.quantile(thetas[,i], weights = omegas/sum(omegas) * 1e20, normwt = FALSE)))
     }
     ifelse(ESS_threshold > 0, print(paste0(tp, ". ", ESS)), print(paste("SMC: ", ESS)))
 
@@ -73,7 +73,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
     if(ESS < Ntheta * ESS_threshold | tp %in% resample_times){
       print("resample")
-      post_cov <- cov_coef * cov.wt(trans(thetas, trans_args = trans_args), wt=omegas)$cov
+      post_cov <- cov_coef * cov.wt(trans(thetas, trans_args = trans_args), wt=omegas * 1e20)$cov
       nb <- 0
       aa <- sample(1:Ntheta, Ntheta, prob = omegas/sum(omegas), replace = TRUE)
       proposed_log_theta <- trans(thetas[aa, , drop = FALSE], trans_args = trans_args) + mvtnorm::rmvnorm(Ntheta, sigma = post_cov)
