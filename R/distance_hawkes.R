@@ -38,7 +38,7 @@ loss_hawkes <- function(x, theta, time1, time2, inp){
     x <- x[length(x)]
   }
 
-  output <- dist_ss(x, theta, inp$history, time1 = time1, time2 = time2, simulator = inp$simulator)
+  output <- dist_h(x, theta, inp$history, time1 = time1, time2 = time2, simulator = inp$simulator)
 
   return(list(distance = output, x = x))
 }
@@ -87,16 +87,16 @@ dist_h <- function(x, theta, history, time1, time2, simulator){
 
   n_out <- (sim_out$n - length(cotemp_history))^2 / max(1, length(cotemp_history))
 
-  true_input <- sort(c(cotemp_history, time2, time1))
-  sim_input <- sort(c(sim_out$new_history, time2, time1))
+  # true_input <- sort(c(cotemp_history, time2, time1))
+  # sim_input <- sort(c(sim_out$new_history, time2, time1))
+  #
+  # diff_out <- mean(diff(true_input[which(!is.na(true_input))])) - mean(diff(sim_input[which(!is.na(sim_input))]))
 
-  diff_out <- mean(diff(true_input[which(!is.na(true_input))])) - mean(diff(sim_input[which(!is.na(sim_input))]))
-
-  if(is.nan(diff_out)){
-    kol <- 2+2
-  }
-
-  dist_out <- n_out + abs(diff_out)
+  # if(is.nan(diff_out)){
+  #   kol <- 2+2
+  # }
+  #
+  dist_out <- n_out
 
 
   return(dist_out)
