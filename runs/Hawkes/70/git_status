@@ -1,0 +1,87 @@
+On branch master
+Your branch is ahead of 'origin/master' by 13 commits.
+  (use "git push" to publish your local commits)
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	../../Gaussian/8/Gaussian_8.o3872079
+	../../Gaussian/8/Rplots.pdf
+	../../Gaussian/8/SMC2_simple.Rout
+	../../Gaussian/8/git_log
+	../../Gaussian/8/git_status
+	../../Gaussian/8/state_df.RData
+	../../Gaussian/8/theta_df.RData
+	../../Gaussian/9/Gaussian_9.o3872156
+	../../Gaussian/9/Rplots.pdf
+	../../Gaussian/9/SMC2_simple.Rout
+	../../Gaussian/9/git_log
+	../../Gaussian/9/git_status
+	../../Gaussian/9/state_df.RData
+	../../Gaussian/9/theta_df.RData
+	../58/Hawkes_58.o3871697
+	../58/Rplots.pdf
+	../58/SMC2_ABC_run.Rout
+	../58/git_log
+	../58/git_status
+	../60/Hawkes_60.o3871995
+	../60/Rplots.pdf
+	../60/SMC2_ABC_run.Rout
+	../60/git_log
+	../60/git_status
+	../60/state_df.RData
+	../60/theta_df.RData
+	../61/Hawkes_61.o3872011
+	../61/Rplots.pdf
+	../61/SMC2_ABC_run.Rout
+	../61/git_log
+	../61/git_status
+	../61/state_df.RData
+	../61/theta_df.RData
+	../62/Hawkes_62.o3872102
+	../62/Rplots.pdf
+	../62/SMC2_ABC_run.Rout
+	../62/git_log
+	../62/git_status
+	../62/state_df.RData
+	../62/theta_df.RData
+	../63/Hawkes_63.o3872129
+	../63/Rplots.pdf
+	../63/SMC2_ABC_run.Rout
+	../63/git_log
+	../63/git_status
+	../63/state_df.RData
+	../63/theta_df.RData
+	../64/Hawkes_64.o3872137
+	../64/Rplots.pdf
+	../64/SMC2_ABC_run.Rout
+	../64/git_log
+	../64/git_status
+	../64/state_df.RData
+	../64/theta_df.RData
+	../65/Hawkes_65.o3872191
+	../65/Rplots.pdf
+	../65/SMC2_ABC_run.Rout
+	../65/git_log
+	../65/git_status
+	../65/state_df.RData
+	../65/theta_df.RData
+	../66/Rplots.pdf
+	../66/SMC2_ABC_run.Rout
+	../66/git_log
+	../66/git_status
+	../67/Rplots.pdf
+	../67/SMC2_ABC_run.Rout
+	../67/git_log
+	../67/git_status
+	../68/Rplots.pdf
+	../68/SMC2_ABC_run.Rout
+	../68/git_log
+	../68/git_status
+	../69/Rplots.pdf
+	../69/SMC2_ABC_run.Rout
+	../69/git_log
+	../69/git_status
+	git_log
+	git_status
+
+nothing added to commit but untracked files present (use "git add" to track)
