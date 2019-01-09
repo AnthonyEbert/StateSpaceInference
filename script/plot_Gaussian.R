@@ -16,14 +16,13 @@ state_df <- state_df %>%
 state_df$time[nr] <- state_df$time[nr] + 1
 
 state_plot <- ggplot(state_df) +
-  aes(x = time * 10 - 10, y = med, ymin = lower, ymax = upper) +
-  geom_step() +
-  geom_ribbon(alpha = 0.2, stat = "stepribbon") +
-  geom_step(mapping = aes(x = time * 10 - 10, y = state), col = "red") +
+  aes(x = time, y = med, ymin = lower, ymax = upper) +
+  geom_pointrange(shape = 95) +
+  geom_point(mapping = aes(x = time, y = state), col = "red") +
   ggthemes::theme_base() +
   scale_y_continuous(expand = c(0, 0)) +
   xlab("Time: t") +
-  ylab(expression(State:~x[j]))
+  ylab(expression(State:~mu[j]))
 
 ggsave(paste0("Gaussian_", directoryname, "_state.pdf"), height = 10, width = 15, units = "cm", plot = state_plot)
 
@@ -33,9 +32,9 @@ limits <- data.frame(parameter = factor(rep(c(1,2), each = 2)), value = c(c(0.1,
 
 theta_of_interest <- bind_rows(theta_of_interest, limits)
 
-levels(theta_of_interest$parameter) <- c("theta[1]", "theta[2]")
+levels(theta_of_interest$parameter) <- c("sigma", "gamma")
 
-true_theta <- data.frame(parameter = factor(c("theta[1]", "theta[2]")), value = c(0.25, 0.5))
+true_theta <- data.frame(parameter = factor(c("sigma", "gamma")), value = c(0.25, 0.5))
 
 parameter_plot <- ggplot(theta_of_interest) +
   aes(x = value, weights = weight) +
