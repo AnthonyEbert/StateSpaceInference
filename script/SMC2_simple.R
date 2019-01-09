@@ -11,7 +11,7 @@ cl = "mclapply"
 
 set.seed(2)
 
-TT <- 20
+TT <- 40
 true_theta <- c(0.25, 0.5)
 lower <- 0
 upper <- 3.5
