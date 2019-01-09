@@ -6,7 +6,9 @@ library(ggalt)
 
 sessionInfo()
 
-cl <- makeCluster(parallel::detectCores() - 1)
+#cl <- makeCluster(parallel::detectCores() - 1)
+cl = "mclapply"
+#cl <- NULL
 
 # length of the time series
 TT <- 20
@@ -35,7 +37,7 @@ inp <- list(
 )
 
 Ntheta <- 80
-Nx <- 5000
+Nx <- 50000
 pacc = 0.005
 
 prior_sample <- data.frame(rprior_vol(Ntheta))
@@ -64,6 +66,10 @@ state_df <- get_state(full_list, probs = c(0.25, 0.5, 0.75))
 state_df$state <- true_states
 
 theta_df <- get_parameter(full_list)
+
+save.image()
+save(state_df, file = "state_df.RData")
+save(theta_df, file = "theta_df.RData")
 
 ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
 
