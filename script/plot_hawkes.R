@@ -8,12 +8,18 @@ load("theta_df.RData")
 fullpath = getwd()
 directoryname = basename(fullpath)
 
+nr <- dim(state_df)[1]
+
+state_df <- state_df %>%
+  bind_rows(state_df[nr,])
+
+state_df$time[nr] <- state_df$time[nr] + 1
 
 state_plot <- ggplot(state_df) +
-  aes(x = time, y = med / 3.5, ymin = lower/3.5, ymax = upper/3.5) +
+  aes(x = time * 10 - 10, y = med / 3.5, ymin = lower/3.5, ymax = upper/3.5) +
   geom_step() +
   geom_ribbon(alpha = 0.2, stat = "stepribbon") +
-  geom_step(mapping = aes(x = time, y = state/3.5), col = "red") +
+  geom_step(mapping = aes(x = time * 10 - 10, y = state/3.5), col = "red") +
   ggthemes::theme_base() +
   scale_y_continuous(expand = c(0, 0)) +
   xlab("Time: t") +
