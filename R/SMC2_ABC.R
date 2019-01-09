@@ -1,6 +1,8 @@
 
 #' @export
-SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, TT, trans = I, invtrans = I, resample_times = NA, trans_args = list(), cov_coef = 1){
+SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, TT, trans = I, invtrans = I, resample_times = NA, trans_args = list(), cov_coef = 1, acceptance_correction = function(x){
+  1/(prod(x))
+}){
 
 
   parallel <- ifelse(is.null(cl), 1,
@@ -92,7 +94,9 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
         MH_ratio <- proposed_Z_hat * dprior(proposed_thetas[p_aa[m],]) / (old_Z_hat * dprior(thetas[aa[m],]))
 
-        MH_ratio <- MH_ratio * prod(abs(1/thetas[aa[m],])) / prod(abs(1/proposed_thetas[p_aa[m],]))
+        MH_ratio <- MH_ratio * acceptance_correction(thetas[aa[m]]) / acceptance_correction(proposed_thetas[p_aa[m]])
+
+          #(0.5/(dnorm(qnorm(thetas[aa[m]])))) * (0.5/(dnorm(qnorm(proposed_thetas[p_aa[m]]))))
 
         un <- runif(1)
 
