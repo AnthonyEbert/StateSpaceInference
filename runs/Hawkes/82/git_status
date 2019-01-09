@@ -1,0 +1,25 @@
+On branch master
+Your branch is ahead of 'origin/master' by 1 commit.
+  (use "git push" to publish your local commits)
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   ../../../R/distance_hawkes.R
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	../80/Rplots.pdf
+	../80/SMC2_ABC_run.Rout
+	../80/git_log
+	../80/git_status
+	../81/Rplots.pdf
+	../81/SMC2_ABC_run.Rout
+	../81/git_log
+	../81/git_status
+	git_log
+	git_status
+	../83/
+
+no changes added to commit (use "git add" and/or "git commit -a")
