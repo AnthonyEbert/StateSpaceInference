@@ -19,7 +19,7 @@ sd_t <- 1
 init <- min(rgamma(1, 100, 100), upper - 1)
 a_logit <- 0.9
 dist_coef <- 0.5
-true_states <- generate_state(init, TT, lower, upper, sd_t, a = a_logit)
+true_states <-cumsum(rnorm(TT))
 
 lambda_fun <- stepfun(seq(1, TT - 1, by = 1), y = true_states)
 # kern <- function(x){return(decay_func(x, alpha = true_theta[1], delta = true_theta[2]))}
@@ -33,15 +33,12 @@ plot(seq(0, TT, length.out = TT * 10), unlist(y))
 
 plot(lambda_fun, add = TRUE, col = "red")
 
-simulator <- hawkes_simulator
-
 inp <- list(
   lower = lower,
   upper = upper,
   sd_t = sd_t,
   a_logit = a_logit,
-  y = y,
-  simulator = simulator
+  y = y
 )
 
 loss = loss_simple

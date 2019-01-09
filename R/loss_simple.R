@@ -3,9 +3,9 @@ loss_simple <- function(x, theta, time1, time2, inp){
   x <- as.numeric(x[1])
 
   if(gtools::invalid(x)){
-    x <- rgamma(1, 10, 10)
+    x <- rnorm(1)
   } else {
-    x <- generate_state(x, 1, lower = inp$lower, upper = inp$upper, sd = inp$sd, a = inp$a)
+    x <- rnorm(1, mean = x)
   }
 
   y <- sn::rsn(1e1, dp = sn::cp2dp(cp = c(x, theta), "SN"))
