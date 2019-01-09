@@ -38,7 +38,7 @@ loss_hawkes <- function(x, theta, time1, time2, inp){
     x <- x[length(x)]
   }
 
-  output <- dist_h(x, theta, inp$history, time1 = time1, time2 = time2, simulator = inp$simulator)
+  output <- dist_ss(x, theta, inp$history, time1 = time1, time2 = time2, simulator = inp$simulator)
 
   return(list(distance = output, x = x))
 }
@@ -66,7 +66,7 @@ dist_ss <- function(x, theta, history, time1, time2, simulator){
   est2 <- c(6.417910e-01, 2.508705e-03, -2.210345e-04, 9.340399e-07, 2.108424e-08, -1.946335e-10, 4.520269e-13, 2.967803e-03, -2.532569e-04, 2.830355e-03)
   est3 <- c(1.802715e-01, 5.490010e-02, 2.827284e-04, -2.936200e-05, 3.912895e-07, -2.008020e-09, 3.616250e-12,  4.192238e-04, -5.677054e-05, 5.512495e-03)
 
-  est_mat <- rbind(est1, est3)
+  est_mat <- rbind(est1, est2)
 
   sim_est <- est_mat %*% sim_ss
   obs_est <- est_mat %*% obs_ss
