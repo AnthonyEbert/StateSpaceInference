@@ -94,7 +94,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
         MH_ratio <- proposed_Z_hat * dprior(proposed_thetas[p_aa[m],]) / (old_Z_hat * dprior(thetas[aa[m],]))
 
-        MH_ratio <- MH_ratio * acceptance_correction(thetas[aa[m]]) / acceptance_correction(proposed_thetas[p_aa[m]])
+        MH_ratio <- MH_ratio * acceptance_correction(thetas[aa[m],]) / acceptance_correction(proposed_thetas[p_aa[m],])
 
           #(0.5/(dnorm(qnorm(thetas[aa[m]])))) * (0.5/(dnorm(qnorm(proposed_thetas[p_aa[m]]))))
 
