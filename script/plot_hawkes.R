@@ -22,8 +22,8 @@ state_plot <- ggplot(state_df) +
   geom_step(mapping = aes(x = time * 10 - 10, y = state/3.5), col = "red") +
   ggthemes::theme_base() +
   scale_y_continuous(expand = c(0, 0)) +
-  xlab("Time: t") +
-  ylab(expression(Transformed~state:~logit^{-1}~(x[j])))
+  xlab(expression(Continuous~time:~tau)) +
+  ylab(expression(Transformed~state:~logit^{-1}~(x[t])))
 
 ggsave(paste0("Hawkes_", directoryname, "_state.pdf"), height = 10, width = 15, units = "cm", plot = state_plot)
 
