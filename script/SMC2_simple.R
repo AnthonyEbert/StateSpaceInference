@@ -46,7 +46,7 @@ loss = loss_simple
 
 Ntheta = 1000
 Nx = 10000
-pacc = 0.05
+pacc = 0.005
 
 lower_theta <- c(0.1, 0.2)
 upper_theta <- c(0.5, 0.8)
