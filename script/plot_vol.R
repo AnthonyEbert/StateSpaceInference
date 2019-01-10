@@ -17,11 +17,11 @@ state_df$time[nr] <- state_df$time[nr] + 1
 
 state_plot <- ggplot(state_df) +
   aes(x = time, y = state, ymin = lower, ymax = upper) +
-  geom_point(shape = 16, size = 1, col = "red") +
-  geom_pointrange(mapping = aes(x = time, y = med), shape = 95, size = 0.5) +
+  geom_point(size = 1, col = "red") +
+  geom_errorbar(mapping = aes(x = time, y = med), shape = 95, size = 0.5) +
   ggthemes::theme_base() +
-  xlab("Epoch: j") +
-  ylab(expression(State:~x[j]))
+  xlab("Time: t") +
+  ylab(expression(State:~x[t]))
 
 ggsave(paste0("Vol_", directoryname, "_state.pdf"), height = 10, width = 15, units = "cm", plot = state_plot)
 
