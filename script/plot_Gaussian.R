@@ -22,7 +22,7 @@ state_plot <- ggplot(state_df) +
   ggthemes::theme_base() +
   scale_y_continuous(expand = c(0, 0)) +
   xlab("Time: t") +
-  ylab(expression(State:~mu[t]))
+  ylab(expression(State:~x[t]))
 
 ggsave(paste0("Gaussian_", directoryname, "_state.pdf"), height = 10, width = 15, units = "cm", plot = state_plot)
 
