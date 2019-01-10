@@ -54,7 +54,7 @@ The following objects are masked from ‘package:base’:
 +   ggthemes::theme_base() +
 +   scale_y_continuous(expand = c(0, 0)) +
 +   xlab("Time: t") +
-+   ylab(expression(State:~mu[j]))
++   ylab(expression(State:~x[t]))
 > 
 > ggsave(paste0("Gaussian_", directoryname, "_state.pdf"), height = 10, width = 15, units = "cm", plot = state_plot)
 > 
@@ -83,4 +83,4 @@ The following objects are masked from ‘package:base’:
 > 
 > proc.time()
    user  system elapsed 
-  0.768   0.036   0.802 
+  0.764   0.020   0.773 

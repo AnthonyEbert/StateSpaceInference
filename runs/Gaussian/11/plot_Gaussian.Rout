@@ -17,8 +17,6 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-[Previously saved workspace restored]
-
 > library(ggplot2)
 > library(ggalt)
 > library(dplyr)
@@ -48,31 +46,30 @@ The following objects are masked from ‘package:base’:
 > state_df$time[nr] <- state_df$time[nr] + 1
 > 
 > state_plot <- ggplot(state_df) +
-+   aes(x = time * 10 - 10, y = med / 3.5, ymin = lower/3.5, ymax = upper/3.5) +
-+   geom_step() +
-+   geom_ribbon(alpha = 0.2, stat = "stepribbon") +
-+   geom_step(mapping = aes(x = time * 10 - 10, y = state/3.5), col = "red") +
++   aes(x = time, y = med, ymin = lower, ymax = upper) +
++   geom_pointrange(shape = 95) +
++   geom_point(mapping = aes(x = time, y = state), col = "red") +
 +   ggthemes::theme_base() +
 +   scale_y_continuous(expand = c(0, 0)) +
-+   xlab(expression(Continuous~time:~tau)) +
-+   ylab(expression(Transformed~state:~logit^{-1}~(x[t])))
++   xlab("Time: t") +
++   ylab(expression(State:~x[t]))
 > 
-> ggsave(paste0("Hawkes_", directoryname, "_state.pdf"), height = 10, width = 15, units = "cm", plot = state_plot)
+> ggsave(paste0("Gaussian_", directoryname, "_state.pdf"), height = 10, width = 15, units = "cm", plot = state_plot)
 > 
 > theta_of_interest <- theta_df[which(theta_df$time == max(theta_df$time)),] %>% select(-time)
 > 
-> limits <- data.frame(parameter = factor(rep(c(1,2), each = 2)), value = rep(c(0.3, 0.7), 2), weight = 0)
+> limits <- data.frame(parameter = factor(rep(c(1,2), each = 2)), value = c(c(0.1, 0.5), c(0.2, 0.8)), weight = 0)
 > 
 > theta_of_interest <- bind_rows(theta_of_interest, limits)
 > 
-> levels(theta_of_interest$parameter) <- c("theta[1]", "theta[2]")
+> levels(theta_of_interest$parameter) <- c("sigma", "gamma")
 > 
-> true_theta <- data.frame(parameter = factor(c("theta[1]", "theta[2]")), value = c(0.5, 0.5))
+> true_theta <- data.frame(parameter = factor(c("sigma", "gamma")), value = c(0.25, 0.5))
 > 
 > parameter_plot <- ggplot(theta_of_interest) +
 +   aes(x = value, weights = weight) +
 +   geom_density(bw = 0.025) +
-+   facet_wrap(~parameter, labeller = label_parsed) +
++   facet_wrap(~parameter, labeller = label_parsed, scales = "free_x") +
 +   geom_vline(data = true_theta, mapping = aes(xintercept = value), col = "red") +
 +   xlab("Parameter value") +
 +   scale_y_continuous(expand = expand_scale(mult = c(0,0.05))) +
@@ -80,8 +77,8 @@ The following objects are masked from ‘package:base’:
 +   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +
 +   ylab("ABC posterior density")
 > 
-> ggsave(paste0("Hawkes_", directoryname, "_parameter.pdf"), height = 7, width = 10, units = "cm", plot = parameter_plot)
+> ggsave(paste0("Gaussian_", directoryname, "_parameter.pdf"), height = 7, width = 10, units = "cm", plot = parameter_plot)
 > 
 > proc.time()
    user  system elapsed 
-  0.780   0.064   0.829 
+  0.756   0.024   0.774 
