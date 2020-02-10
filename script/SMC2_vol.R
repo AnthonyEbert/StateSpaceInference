@@ -50,7 +50,7 @@ trans <- function(x, trans_args){
 }
 
 invtrans <- function(x, trans_args){
-  theta1 <- pnorm(2*x - 1)
+  theta1 <- 2*pnorm(x) - 1
   return(theta1)
 }
 
