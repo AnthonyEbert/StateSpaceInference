@@ -4,11 +4,26 @@
 \alias{SMC2_ABC}
 \title{Generate posterior samples of static and state parameters.}
 \usage{
-SMC2_ABC(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc,
-  dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, TT,
-  trans = I, invtrans = I, resample_times = NA,
-  trans_args = list(), cov_coef = 1,
-  acceptance_correction = function(x) {     1/(prod(x)) })
+SMC2_ABC(
+  prior_sample,
+  dprior,
+  loss,
+  loss_args,
+  Ntheta,
+  Nx,
+  pacc,
+  dtp = 1,
+  ESS_threshold = 0.1,
+  eps = NULL,
+  cl = NULL,
+  TT,
+  trans = I,
+  invtrans = I,
+  resample_times = NA,
+  trans_args = list(),
+  cov_coef = 1,
+  acceptance_correction = function(x) {     1/(prod(x)) }
+)
 }
 \arguments{
 \item{prior_sample}{Matrix of prior samples of static parameters. The number of rows is the number of samples, the number of components of the parameter is equal to the number of columns.}

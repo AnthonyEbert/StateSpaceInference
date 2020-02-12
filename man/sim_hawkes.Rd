@@ -4,8 +4,15 @@
 \alias{sim_hawkes}
 \title{Simulate inhomogenous Hawkes process}
 \usage{
-sim_hawkes(lambda_fun, history0 = NULL, kern, startT = max(history0),
-  endT = 10, maxI = Inf, progressBar = TRUE)
+sim_hawkes(
+  lambda_fun,
+  history0 = NULL,
+  kern,
+  startT = max(history0),
+  endT = 10,
+  maxI = Inf,
+  progressBar = TRUE
+)
 }
 \arguments{
 \item{lambda_fun}{function for inhomogenous poisson process}
