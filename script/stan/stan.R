@@ -25,9 +25,12 @@ fit <- stan(
   file = "../../../script/stan/stochvol.stan",
   model_name = "example",
   data = dat,
-  iter = 50000,
+  iter = 500000,
   chains = parallel::detectCores(),
-  cores = parallel::detectCores()
+  cores = parallel::detectCores(),
+  init = rep(list(list(theta = phi)), parallel::detectCores()),
+  control = list(adapt_delta = 0.99),
+  pars = "theta"
 )
 print(fit)
 theta_stan = extract(fit, pars = "theta")$theta
