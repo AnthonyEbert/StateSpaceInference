@@ -1,0 +1,300 @@
+
+R version 3.6.2 (2019-12-12) -- "Dark and Stormy Night"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> 
+> library(StateSpaceInference)
+> library(parallel)
+> library(rstan)
+Loading required package: StanHeaders
+Loading required package: ggplot2
+rstan (Version 2.19.3, GitRev: 2e1f913d3ca3)
+For execution on a local, multicore CPU with excess RAM we recommend calling
+options(mc.cores = parallel::detectCores()).
+To avoid recompilation of unchanged Stan programs, we recommend calling
+rstan_options(auto_write = TRUE)
+> 
+> sessionInfo()
+R version 3.6.2 (2019-12-12)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.4 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_AU.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_AU.UTF-8        LC_COLLATE=en_AU.UTF-8    
+ [5] LC_MONETARY=en_AU.UTF-8    LC_MESSAGES=en_AU.UTF-8   
+ [7] LC_PAPER=en_AU.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] rstan_2.19.3              ggplot2_3.2.1            
+[3] StanHeaders_2.18.1-10     StateSpaceInference_1.2.9
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.3         magrittr_1.5       tidyselect_0.2.5   munsell_0.5.0     
+ [5] colorspace_1.4-1   R6_2.4.1           rlang_0.4.2        dplyr_0.8.3       
+ [9] pkgbuild_1.0.4     grid_3.6.2         gtable_0.3.0       loo_2.1.0         
+[13] cli_1.1.0          withr_2.1.2        matrixStats_0.54.0 lazyeval_0.2.2    
+[17] assertthat_0.2.1   tibble_2.1.3       lifecycle_0.1.0    crayon_1.3.4      
+[21] processx_3.4.1     gridExtra_2.3      callr_3.3.1        purrr_0.3.3       
+[25] ps_1.3.0           inline_0.3.15      glue_1.3.1.9000    compiler_3.6.2    
+[29] pillar_1.4.2       prettyunits_1.0.2  scales_1.1.0       stats4_3.6.2      
+[33] pkgconfig_2.0.3   
+> set.seed(1)
+> 
+> # length of the time series
+> TT <- 40
+> # parameters
+> mu <- -0.2; phi <- 0.95; sh <- 0.6
+> # simulating the hidden states
+> h <- rep(0, TT)
+> h[1] <- rnorm(1, mu, sh/(sqrt(1-phi^2)))
+> for (t in 2:TT) {
++   h[t] <- mu + phi * (h[t - 1]) + sh * rnorm(1)
++ }
+> 
+> # emission of the observations
+> yobs <- exp(h/2) * rnorm(TT, 0, 1)
+> 
+> dat <- list(TT = TT, y = yobs, mu = mu, sh = sh)
+> fit <- stan(
++   file = "../../../script/stan/stochvol.stan",
++   model_name = "example",
++   data = dat,
++   iter = 50000,
++   chains = parallel::detectCores(),
++   cores = parallel::detectCores()
++ )
+
+SAMPLING FOR MODEL 'example' NOW (CHAIN 1).
+
+SAMPLING FOR MODEL 'example' NOW (CHAIN 2).
+
+SAMPLING FOR MODEL 'example' NOW (CHAIN 3).
+
+SAMPLING FOR MODEL 'example' NOW (CHAIN 4).
+Chain 1: 
+Chain 1: Gradient evaluation took 7.3e-05 seconds
+Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.73 seconds.
+Chain 1: Adjust your expectations accordingly!
+Chain 1: 
+Chain 1: 
+Chain 1: Iteration:     1 / 50000 [  0%]  (Warmup)
+Chain 3: 
+Chain 3: Gradient evaluation took 6.9e-05 seconds
+Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.69 seconds.
+Chain 3: Adjust your expectations accordingly!
+Chain 3: 
+Chain 3: 
+Chain 3: Iteration:     1 / 50000 [  0%]  (Warmup)
+Chain 2: 
+Chain 2: Gradient evaluation took 5e-05 seconds
+Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.5 seconds.
+Chain 2: Adjust your expectations accordingly!
+Chain 2: 
+Chain 2: 
+Chain 2: Iteration:     1 / 50000 [  0%]  (Warmup)
+Chain 4: 
+Chain 4: Gradient evaluation took 5.1e-05 seconds
+Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.51 seconds.
+Chain 4: Adjust your expectations accordingly!
+Chain 4: 
+Chain 4: 
+Chain 4: Iteration:     1 / 50000 [  0%]  (Warmup)
+Chain 2: Iteration:  5000 / 50000 [ 10%]  (Warmup)
+Chain 4: Iteration:  5000 / 50000 [ 10%]  (Warmup)
+Chain 1: Iteration:  5000 / 50000 [ 10%]  (Warmup)
+Chain 3: Iteration:  5000 / 50000 [ 10%]  (Warmup)
+Chain 2: Iteration: 10000 / 50000 [ 20%]  (Warmup)
+Chain 1: Iteration: 10000 / 50000 [ 20%]  (Warmup)
+Chain 3: Iteration: 10000 / 50000 [ 20%]  (Warmup)
+Chain 4: Iteration: 10000 / 50000 [ 20%]  (Warmup)
+Chain 1: Iteration: 15000 / 50000 [ 30%]  (Warmup)
+Chain 2: Iteration: 15000 / 50000 [ 30%]  (Warmup)
+Chain 3: Iteration: 15000 / 50000 [ 30%]  (Warmup)
+Chain 4: Iteration: 15000 / 50000 [ 30%]  (Warmup)
+Chain 1: Iteration: 20000 / 50000 [ 40%]  (Warmup)
+Chain 2: Iteration: 20000 / 50000 [ 40%]  (Warmup)
+Chain 4: Iteration: 20000 / 50000 [ 40%]  (Warmup)
+Chain 3: Iteration: 20000 / 50000 [ 40%]  (Warmup)
+Chain 1: Iteration: 25000 / 50000 [ 50%]  (Warmup)
+Chain 1: Iteration: 25001 / 50000 [ 50%]  (Sampling)
+Chain 2: Iteration: 25000 / 50000 [ 50%]  (Warmup)
+Chain 2: Iteration: 25001 / 50000 [ 50%]  (Sampling)
+Chain 4: Iteration: 25000 / 50000 [ 50%]  (Warmup)
+Chain 4: Iteration: 25001 / 50000 [ 50%]  (Sampling)
+Chain 3: Iteration: 25000 / 50000 [ 50%]  (Warmup)
+Chain 3: Iteration: 25001 / 50000 [ 50%]  (Sampling)
+Chain 2: Iteration: 30000 / 50000 [ 60%]  (Sampling)
+Chain 1: Iteration: 30000 / 50000 [ 60%]  (Sampling)
+Chain 4: Iteration: 30000 / 50000 [ 60%]  (Sampling)
+Chain 2: Iteration: 35000 / 50000 [ 70%]  (Sampling)
+Chain 3: Iteration: 30000 / 50000 [ 60%]  (Sampling)
+Chain 4: Iteration: 35000 / 50000 [ 70%]  (Sampling)
+Chain 1: Iteration: 35000 / 50000 [ 70%]  (Sampling)
+Chain 2: Iteration: 40000 / 50000 [ 80%]  (Sampling)
+Chain 4: Iteration: 40000 / 50000 [ 80%]  (Sampling)
+Chain 2: Iteration: 45000 / 50000 [ 90%]  (Sampling)
+Chain 3: Iteration: 35000 / 50000 [ 70%]  (Sampling)
+Chain 1: Iteration: 40000 / 50000 [ 80%]  (Sampling)
+Chain 4: Iteration: 45000 / 50000 [ 90%]  (Sampling)
+Chain 2: Iteration: 50000 / 50000 [100%]  (Sampling)
+Chain 2: 
+Chain 2:  Elapsed Time: 16.0305 seconds (Warm-up)
+Chain 2:                13.6424 seconds (Sampling)
+Chain 2:                29.6729 seconds (Total)
+Chain 2: 
+Chain 4: Iteration: 50000 / 50000 [100%]  (Sampling)
+Chain 4: 
+Chain 4:  Elapsed Time: 16.2301 seconds (Warm-up)
+Chain 4:                13.4995 seconds (Sampling)
+Chain 4:                29.7296 seconds (Total)
+Chain 4: 
+Chain 1: Iteration: 45000 / 50000 [ 90%]  (Sampling)
+Chain 3: Iteration: 40000 / 50000 [ 80%]  (Sampling)
+Chain 1: Iteration: 50000 / 50000 [100%]  (Sampling)
+Chain 1: 
+Chain 1:  Elapsed Time: 16 seconds (Warm-up)
+Chain 1:                17.4245 seconds (Sampling)
+Chain 1:                33.4245 seconds (Total)
+Chain 1: 
+Chain 3: Iteration: 45000 / 50000 [ 90%]  (Sampling)
+Chain 3: Iteration: 50000 / 50000 [100%]  (Sampling)
+Chain 3: 
+Chain 3:  Elapsed Time: 16.2668 seconds (Warm-up)
+Chain 3:                20.7994 seconds (Sampling)
+Chain 3:                37.0661 seconds (Total)
+Chain 3: 
+Warning messages:
+1: There were 5625 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help. See
+http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup 
+2: Examine the pairs() plot to diagnose sampling problems
+ 
+> print(fit)
+Inference for Stan model: example.
+4 chains, each with iter=50000; warmup=25000; thin=1; 
+post-warmup draws per chain=25000, total post-warmup draws=1e+05.
+
+           mean se_mean   sd  2.5%   25%   50%   75% 97.5% n_eff Rhat
+theta      0.91    0.00 0.04  0.82  0.89  0.92  0.95  0.98 19763    1
+x_std[1]  -1.13    0.00 0.69 -2.54 -1.58 -1.11 -0.66  0.18 69454    1
+x_std[2]  -0.21    0.00 0.96 -2.10 -0.86 -0.21  0.43  1.68 65139    1
+x_std[3]   0.02    0.00 0.95 -1.83 -0.62  0.02  0.66  1.89 57097    1
+x_std[4]   0.11    0.00 0.92 -1.69 -0.51  0.11  0.74  1.92 53558    1
+x_std[5]   0.12    0.00 0.91 -1.67 -0.50  0.12  0.73  1.91 56153    1
+x_std[6]  -0.05    0.00 0.91 -1.83 -0.65 -0.05  0.56  1.75 75931    1
+x_std[7]  -0.03    0.00 0.92 -1.83 -0.65 -0.03  0.59  1.79 57241    1
+x_std[8]   0.20    0.00 0.91 -1.58 -0.41  0.20  0.81  2.00 46880    1
+x_std[9]   0.01    0.00 0.92 -1.80 -0.61  0.01  0.63  1.82 61243    1
+x_std[10]  0.31    0.00 0.91 -1.46 -0.29  0.30  0.92  2.09 67281    1
+x_std[11]  0.13    0.00 0.90 -1.63 -0.47  0.14  0.75  1.89 73771    1
+x_std[12]  0.25    0.00 0.89 -1.50 -0.36  0.25  0.85  1.99 54455    1
+x_std[13]  0.07    0.00 0.92 -1.74 -0.55  0.07  0.69  1.87 59103    1
+x_std[14]  0.30    0.00 0.91 -1.48 -0.32  0.30  0.92  2.09 62155    1
+x_std[15]  0.45    0.00 0.89 -1.29 -0.15  0.45  1.05  2.19 71251    1
+x_std[16]  0.33    0.00 0.88 -1.38 -0.26  0.33  0.92  2.05 69074    1
+x_std[17] -0.03    0.00 0.92 -1.81 -0.65 -0.03  0.59  1.79 69946    1
+x_std[18]  0.27    0.00 0.90 -1.48 -0.34  0.27  0.88  2.05 73420    1
+x_std[19]  0.31    0.00 0.92 -1.49 -0.31  0.31  0.93  2.10 39700    1
+x_std[20]  0.54    0.00 0.90 -1.22 -0.07  0.54  1.15  2.30 63850    1
+x_std[21]  0.92    0.00 0.88 -0.80  0.33  0.92  1.50  2.63 35537    1
+x_std[22] -0.52    0.00 0.92 -2.31 -1.15 -0.53  0.09  1.29 68390    1
+x_std[23] -0.26    0.00 0.90 -2.02 -0.87 -0.26  0.35  1.52 61979    1
+x_std[24] -0.38    0.00 0.93 -2.19 -1.01 -0.38  0.26  1.45 56297    1
+x_std[25] -0.09    0.00 0.92 -1.89 -0.72 -0.09  0.53  1.72 58122    1
+x_std[26] -0.03    0.00 0.92 -1.83 -0.66 -0.03  0.59  1.77 61453    1
+x_std[27]  0.28    0.00 0.90 -1.46 -0.33  0.27  0.88  2.05 57298    1
+x_std[28] -0.32    0.00 0.90 -2.07 -0.92 -0.32  0.29  1.45 63391    1
+x_std[29] -0.33    0.00 0.92 -2.12 -0.95 -0.33  0.29  1.48 59050    1
+x_std[30] -0.04    0.00 0.89 -1.78 -0.64 -0.03  0.57  1.71 62538    1
+x_std[31] -0.48    0.00 0.91 -2.28 -1.10 -0.48  0.13  1.29 63476    1
+x_std[32] -0.32    0.00 0.91 -2.10 -0.94 -0.31  0.30  1.47 58366    1
+x_std[33] -0.29    0.00 0.90 -2.05 -0.90 -0.29  0.32  1.49 61585    1
+x_std[34] -0.25    0.00 0.90 -2.01 -0.85 -0.24  0.36  1.52 59582    1
+x_std[35] -0.53    0.00 0.90 -2.26 -1.13 -0.53  0.07  1.26 49148    1
+x_std[36] -0.81    0.00 0.96 -2.68 -1.46 -0.81 -0.17  1.07 58090    1
+x_std[37] -0.62    0.00 0.95 -2.47 -1.27 -0.62  0.02  1.23 68019    1
+x_std[38] -0.45    0.00 0.97 -2.34 -1.10 -0.45  0.21  1.45 63123    1
+x_std[39] -0.17    0.00 0.96 -2.06 -0.83 -0.17  0.48  1.71 62302    1
+x_std[40]  0.12    0.00 0.96 -1.74 -0.52  0.12  0.77  2.02 56662    1
+x[1]      -1.99    0.00 1.03 -3.96 -2.70 -2.00 -1.30  0.08 58157    1
+x[2]      -2.16    0.00 0.92 -3.88 -2.80 -2.18 -1.55 -0.28 60431    1
+x[3]      -2.17    0.00 0.81 -3.64 -2.73 -2.20 -1.64 -0.49 68753    1
+x[4]      -2.12    0.00 0.73 -3.44 -2.63 -2.16 -1.65 -0.60 70118    1
+x[5]      -2.07    0.00 0.68 -3.29 -2.55 -2.11 -1.64 -0.65 64413    1
+x[6]      -2.13    0.00 0.70 -3.41 -2.61 -2.16 -1.67 -0.69 62192    1
+x[7]      -2.16    0.00 0.72 -3.50 -2.66 -2.19 -1.69 -0.70 64348    1
+x[8]      -2.06    0.00 0.67 -3.29 -2.53 -2.09 -1.62 -0.67 75161    1
+x[9]      -2.08    0.00 0.71 -3.43 -2.58 -2.10 -1.61 -0.63 71886    1
+x[10]     -1.92    0.00 0.66 -3.12 -2.38 -1.95 -1.50 -0.56 77940    1
+x[11]     -1.88    0.00 0.67 -3.13 -2.34 -1.90 -1.44 -0.49 81755    1
+x[12]     -1.77    0.00 0.65 -2.98 -2.23 -1.80 -1.35 -0.41 79678    1
+x[13]     -1.78    0.00 0.71 -3.12 -2.26 -1.80 -1.32 -0.34 75760    1
+x[14]     -1.65    0.00 0.68 -2.92 -2.12 -1.67 -1.20 -0.25 76428    1
+x[15]     -1.44    0.00 0.63 -2.60 -1.88 -1.47 -1.03 -0.11 69022    1
+x[16]     -1.32    0.00 0.62 -2.44 -1.75 -1.35 -0.92 -0.03 78435    1
+x[17]     -1.42    0.00 0.70 -2.76 -1.91 -1.44 -0.96  0.00 81295    1
+x[18]     -1.34    0.00 0.70 -2.65 -1.82 -1.36 -0.88  0.09 81465    1
+x[19]     -1.24    0.00 0.71 -2.59 -1.73 -1.26 -0.77  0.20 61007    1
+x[20]     -1.01    0.00 0.67 -2.28 -1.47 -1.02 -0.56  0.34 64025    1
+x[21]     -0.57    0.00 0.51 -1.48 -0.93 -0.60 -0.25  0.51 83070    1
+x[22]     -1.04    0.00 0.66 -2.30 -1.49 -1.05 -0.60  0.31 70360    1
+x[23]     -1.31    0.00 0.68 -2.57 -1.78 -1.33 -0.86  0.08 74976    1
+x[24]     -1.62    0.00 0.75 -3.05 -2.13 -1.64 -1.13 -0.10 65074    1
+x[25]     -1.74    0.00 0.72 -3.09 -2.24 -1.76 -1.26 -0.27 71094    1
+x[26]     -1.81    0.00 0.72 -3.17 -2.30 -1.83 -1.33 -0.36 71556    1
+x[27]     -1.69    0.00 0.61 -2.78 -2.12 -1.73 -1.30 -0.41 70163    1
+x[28]     -1.94    0.00 0.66 -3.17 -2.40 -1.96 -1.50 -0.58 64876    1
+x[29]     -2.17    0.00 0.70 -3.50 -2.65 -2.19 -1.71 -0.73 63018    1
+x[30]     -2.21    0.00 0.63 -3.35 -2.65 -2.24 -1.80 -0.89 71834    1
+x[31]     -2.51    0.00 0.70 -3.83 -3.00 -2.53 -2.05 -1.09 62853    1
+x[32]     -2.69    0.00 0.69 -3.98 -3.17 -2.72 -2.24 -1.26 74007    1
+x[33]     -2.84    0.00 0.69 -4.10 -3.32 -2.87 -2.39 -1.40 68704    1
+x[34]     -2.95    0.00 0.65 -4.12 -3.41 -2.99 -2.53 -1.57 70474    1
+x[35]     -3.22    0.00 0.69 -4.46 -3.70 -3.26 -2.78 -1.75 74480    1
+x[36]     -3.64    0.00 0.82 -5.16 -4.21 -3.67 -3.11 -1.95 69809    1
+x[37]     -3.91    0.00 0.90 -5.57 -4.54 -3.95 -3.33 -2.05 67662    1
+x[38]     -4.06    0.00 0.97 -5.87 -4.73 -4.10 -3.43 -2.07 59752    1
+x[39]     -4.03    0.00 1.00 -5.84 -4.73 -4.08 -3.39 -1.96 56440    1
+x[40]     -3.83    0.00 0.98 -5.54 -4.54 -3.91 -3.20 -1.73 60642    1
+lp__       5.01    0.03 4.72 -5.26  2.07  5.35  8.35 13.26 31912    1
+
+Samples were drawn using NUTS(diag_e) at Wed Feb 12 11:00:53 2020.
+For each parameter, n_eff is a crude measure of effective sample size,
+and Rhat is the potential scale reduction factor on split chains (at 
+convergence, Rhat=1).
+> theta_stan = extract(fit, pars = "theta")$theta
+> 
+> save.image()
+> save(theta_stan, file = "theta_stan.RData")
+> 
+> 
+> #init = rep(list(list(theta = phi)), parallel::detectCores())
+> 
+> proc.time()
+   user  system elapsed 
+244.333   5.681 163.227 
