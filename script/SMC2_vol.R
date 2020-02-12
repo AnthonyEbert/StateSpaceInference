@@ -5,6 +5,7 @@ library(ggplot2)
 library(ggalt)
 
 sessionInfo()
+set.seed(1)
 
 #cl <- makeCluster(parallel::detectCores() - 1)
 cl = "mclapply"
@@ -13,25 +14,25 @@ cl = "mclapply"
 # length of the time series
 TT <- 40
 # parameters
-alpha <- 1.75; beta <- 0.1; mu <- -0.2; phi <- 0.95; s_h <- 0.6; s_v <- 0.8
+alpha <- 2; beta <- 0; mu <- -0.2; phi <- 0.95; sh <- 0.6; s_v <- 0.8
 # simulating the hidden states
 h <- rep(0, TT)
-h[1] <- rnorm(1)
+h[1] <- rnorm(1, mu, sh/(sqrt(1-phi^2)))
 for (t in 2:TT) {
-  h[t] <- mu + phi * h[t - 1] + s_h * rnorm(1)
+  h[t] <- mu + phi * (h[t - 1]) + sh * rnorm(1)
 }
 
-true_states <- h
-
 # emission of the observations
-yobs <- exp(h/2) * stable(TT, alpha, beta, 0, s_v)
+yobs <- exp(h/2) * rnorm(TT, 0, 1)
 
+
+true_states <- h
 
 inp <- list(
   alpha = alpha,
   beta = beta,
   mu = mu,
-  s_h = s_h,
+  s_h = sh,
   s_v = s_v,
   y = yobs
 )
