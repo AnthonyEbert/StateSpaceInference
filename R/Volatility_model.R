@@ -10,13 +10,20 @@ loss_volatility <- function(x, theta, time1, time2, inp){
     x <- inp$mu + phi * x + inp$s_h * rnorm(1)
   }
 
-  y_prop <- exp(x/2) * stable(1, inp$alpha, inp$beta, 0, inp$s_v)
+  if(is.null(inp$gamma)){
+    inp$gamma <- 0
+  }
+
+  y_prop <- exp(x/2) * stable(1, inp$alpha, inp$beta, inp$gamma, inp$s_v)
   output <- abs(inp$y[time2] - y_prop)
 
   return(list(distance = output, x = x))
 }
 
+#' stable distribution
 #' @export
+#' @references
+#' Vankov, E., & Ensor, K. B. (2014). Stochastic Volatility Filtering with Intractable Likelihoods. arXiv:1405.4323.
 stable <- function(n, alpha, beta, gamma, delta) {
   U <- runif(n, min = -.5 * pi, max = .5 * pi)
   W <- rexp(n)
