@@ -27,11 +27,13 @@ ggsave(paste0("Vol_", directoryname, "_state.pdf"), height = 10, width = 15, uni
 
 theta_of_interest <- theta_df[which(theta_df$time == max(theta_df$time)),] %>% select(-time, -parameter)
 
-limits <- data.frame(value = c(-1,1), weight = 0)
+limits <- data.frame(value = c(0.5,1), weight = 0)
 
 theta_of_interest <- bind_rows(theta_of_interest, limits)
 
 true_theta <- data.frame(value = c(0.95))
+
+theta_stan <- load("theta_df.RData")
 
 parameter_plot <- ggplot(theta_of_interest) +
   aes(x = value, weights = weight) +
