@@ -1,0 +1,223 @@
+
+R version 3.6.2 (2019-12-12) -- "Dark and Stormy Night"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> 
+> library(StateSpaceInference)
+> library(parallel)
+> library(rstan)
+Loading required package: StanHeaders
+Loading required package: ggplot2
+rstan (Version 2.19.3, GitRev: 2e1f913d3ca3)
+For execution on a local, multicore CPU with excess RAM we recommend calling
+options(mc.cores = parallel::detectCores()).
+To avoid recompilation of unchanged Stan programs, we recommend calling
+rstan_options(auto_write = TRUE)
+> 
+> sessionInfo()
+R version 3.6.2 (2019-12-12)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.4 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_AU.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_AU.UTF-8        LC_COLLATE=en_AU.UTF-8    
+ [5] LC_MONETARY=en_AU.UTF-8    LC_MESSAGES=en_AU.UTF-8   
+ [7] LC_PAPER=en_AU.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] rstan_2.19.3               ggplot2_3.2.1             
+[3] StanHeaders_2.18.1-10      StateSpaceInference_1.2.10
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.3         magrittr_1.5       tidyselect_0.2.5   munsell_0.5.0     
+ [5] colorspace_1.4-1   R6_2.4.1           rlang_0.4.2        dplyr_0.8.3       
+ [9] pkgbuild_1.0.4     grid_3.6.2         gtable_0.3.0       loo_2.1.0         
+[13] cli_1.1.0          withr_2.1.2        matrixStats_0.54.0 lazyeval_0.2.2    
+[17] assertthat_0.2.1   tibble_2.1.3       lifecycle_0.1.0    crayon_1.3.4      
+[21] processx_3.4.1     gridExtra_2.3      callr_3.3.1        purrr_0.3.3       
+[25] ps_1.3.0           inline_0.3.15      glue_1.3.1.9000    compiler_3.6.2    
+[29] pillar_1.4.2       prettyunits_1.0.2  scales_1.1.0       stats4_3.6.2      
+[33] pkgconfig_2.0.3   
+> set.seed(1)
+> 
+> # length of the time series
+> TT <- 40
+> # parameters
+> alpha <- 2; beta <- 0; gamma <- sqrt(2 * 0.1)/2; mu <- -0.2; phi <- 0.95; sh <- 0.6; s_v <- 1
+> # simulating the hidden states
+> h <- rep(0, TT)
+> h[1] <- rnorm(1, mu, sh/(sqrt(1-phi^2)))
+> for (t in 2:TT) {
++   h[t] <- mu + phi * (h[t - 1]) + sh * rnorm(1)
++ }
+> 
+> # emission of the observations
+> yobs <- exp(h/2) * rnorm(TT, s_v, 0.1)
+> 
+> dat <- list(TT = TT, y = yobs, mu = mu, sh = sh)
+> fit <- stan(
++   file = "../../../script/stan/stochvol.stan",
++   model_name = "example",
++   data = dat,
++   iter = 500000,
++   chains = parallel::detectCores(),
++   cores = parallel::detectCores(),
++   init = rep(list(list(theta = phi, x = h)), parallel::detectCores()),
++   control = list(adapt_delta = 0.99),
++   pars = "theta"
++ )
+
+SAMPLING FOR MODEL 'example' NOW (CHAIN 1).
+
+SAMPLING FOR MODEL 'example' NOW (CHAIN 2).
+
+SAMPLING FOR MODEL 'example' NOW (CHAIN 3).
+
+SAMPLING FOR MODEL 'example' NOW (CHAIN 4).
+Chain 1: 
+Chain 1: Gradient evaluation took 4.9e-05 seconds
+Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.49 seconds.
+Chain 1: Adjust your expectations accordingly!
+Chain 1: 
+Chain 1: 
+Chain 1: Iteration:      1 / 500000 [  0%]  (Warmup)
+Chain 2: 
+Chain 2: Gradient evaluation took 4.7e-05 seconds
+Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.47 seconds.
+Chain 2: Adjust your expectations accordingly!
+Chain 2: 
+Chain 2: 
+Chain 2: Iteration:      1 / 500000 [  0%]  (Warmup)
+Chain 4: 
+Chain 4: Gradient evaluation took 4.1e-05 seconds
+Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.41 seconds.
+Chain 4: Adjust your expectations accordingly!
+Chain 4: 
+Chain 4: 
+Chain 4: Iteration:      1 / 500000 [  0%]  (Warmup)
+Chain 3: 
+Chain 3: Gradient evaluation took 4.1e-05 seconds
+Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.41 seconds.
+Chain 3: Adjust your expectations accordingly!
+Chain 3: 
+Chain 3: 
+Chain 3: Iteration:      1 / 500000 [  0%]  (Warmup)
+Chain 3: Iteration:  50000 / 500000 [ 10%]  (Warmup)
+Chain 1: Iteration:  50000 / 500000 [ 10%]  (Warmup)
+Chain 2: Iteration:  50000 / 500000 [ 10%]  (Warmup)
+Chain 4: Iteration:  50000 / 500000 [ 10%]  (Warmup)
+Chain 1: Iteration: 100000 / 500000 [ 20%]  (Warmup)
+Chain 3: Iteration: 100000 / 500000 [ 20%]  (Warmup)
+Chain 4: Iteration: 100000 / 500000 [ 20%]  (Warmup)
+Chain 2: Iteration: 100000 / 500000 [ 20%]  (Warmup)
+Chain 1: Iteration: 150000 / 500000 [ 30%]  (Warmup)
+Chain 3: Iteration: 150000 / 500000 [ 30%]  (Warmup)
+Chain 4: Iteration: 150000 / 500000 [ 30%]  (Warmup)
+Chain 2: Iteration: 150000 / 500000 [ 30%]  (Warmup)
+Chain 1: Iteration: 200000 / 500000 [ 40%]  (Warmup)
+Chain 3: Iteration: 200000 / 500000 [ 40%]  (Warmup)
+Chain 4: Iteration: 200000 / 500000 [ 40%]  (Warmup)
+Chain 2: Iteration: 200000 / 500000 [ 40%]  (Warmup)
+Chain 1: Iteration: 250000 / 500000 [ 50%]  (Warmup)
+Chain 1: Iteration: 250001 / 500000 [ 50%]  (Sampling)
+Chain 4: Iteration: 250000 / 500000 [ 50%]  (Warmup)
+Chain 4: Iteration: 250001 / 500000 [ 50%]  (Sampling)
+Chain 3: Iteration: 250000 / 500000 [ 50%]  (Warmup)
+Chain 3: Iteration: 250001 / 500000 [ 50%]  (Sampling)
+Chain 2: Iteration: 250000 / 500000 [ 50%]  (Warmup)
+Chain 2: Iteration: 250001 / 500000 [ 50%]  (Sampling)
+Chain 2: Iteration: 300000 / 500000 [ 60%]  (Sampling)
+Chain 4: Iteration: 300000 / 500000 [ 60%]  (Sampling)
+Chain 1: Iteration: 300000 / 500000 [ 60%]  (Sampling)
+Chain 3: Iteration: 300000 / 500000 [ 60%]  (Sampling)
+Chain 2: Iteration: 350000 / 500000 [ 70%]  (Sampling)
+Chain 2: Iteration: 400000 / 500000 [ 80%]  (Sampling)
+Chain 4: Iteration: 350000 / 500000 [ 70%]  (Sampling)
+Chain 3: Iteration: 350000 / 500000 [ 70%]  (Sampling)
+Chain 1: Iteration: 350000 / 500000 [ 70%]  (Sampling)
+Chain 2: Iteration: 450000 / 500000 [ 90%]  (Sampling)
+Chain 2: Iteration: 500000 / 500000 [100%]  (Sampling)
+Chain 2: 
+Chain 2:  Elapsed Time: 544.346 seconds (Warm-up)
+Chain 2:                277.303 seconds (Sampling)
+Chain 2:                821.65 seconds (Total)
+Chain 2: 
+Chain 4: Iteration: 400000 / 500000 [ 80%]  (Sampling)
+Chain 3: Iteration: 400000 / 500000 [ 80%]  (Sampling)
+Chain 1: Iteration: 400000 / 500000 [ 80%]  (Sampling)
+Chain 4: Iteration: 450000 / 500000 [ 90%]  (Sampling)
+Chain 3: Iteration: 450000 / 500000 [ 90%]  (Sampling)
+Chain 1: Iteration: 450000 / 500000 [ 90%]  (Sampling)
+Chain 4: Iteration: 500000 / 500000 [100%]  (Sampling)
+Chain 4: 
+Chain 4:  Elapsed Time: 538.506 seconds (Warm-up)
+Chain 4:                437.719 seconds (Sampling)
+Chain 4:                976.225 seconds (Total)
+Chain 4: 
+Chain 3: Iteration: 500000 / 500000 [100%]  (Sampling)
+Chain 3: 
+Chain 3:  Elapsed Time: 538.009 seconds (Warm-up)
+Chain 3:                483.803 seconds (Sampling)
+Chain 3:                1021.81 seconds (Total)
+Chain 3: 
+Chain 1: Iteration: 500000 / 500000 [100%]  (Sampling)
+Chain 1: 
+Chain 1:  Elapsed Time: 536.387 seconds (Warm-up)
+Chain 1:                494.653 seconds (Sampling)
+Chain 1:                1031.04 seconds (Total)
+Chain 1: 
+Warning messages:
+1: There were 11564 divergent transitions after warmup. Increasing adapt_delta above 0.99 may help. See
+http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup 
+2: Examine the pairs() plot to diagnose sampling problems
+ 
+> print(fit)
+Inference for Stan model: example.
+4 chains, each with iter=5e+05; warmup=250000; thin=1; 
+post-warmup draws per chain=250000, total post-warmup draws=1e+06.
+
+       mean se_mean   sd   2.5%   25%   50%   75% 97.5%  n_eff Rhat
+theta  0.86    0.00 0.07   0.70  0.82  0.87  0.91  0.97 311081    1
+lp__  -5.00    0.01 4.79 -15.36 -7.99 -4.64 -1.61  3.33 342018    1
+
+Samples were drawn using NUTS(diag_e) at Sat Feb 15 04:04:12 2020.
+For each parameter, n_eff is a crude measure of effective sample size,
+and Rhat is the potential scale reduction factor on split chains (at 
+convergence, Rhat=1).
+> theta_stan = extract(fit, pars = "theta")$theta
+> 
+> save.image()
+> save(theta_stan, file = "theta_stan.RData")
+> 
+> 
+> #init = rep(list(list(theta = phi)), parallel::detectCores())
+> 
+> proc.time()
+    user   system  elapsed 
+3962.542   11.465 1193.158 
