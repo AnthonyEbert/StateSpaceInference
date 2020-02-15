@@ -38,7 +38,7 @@ inp <- list(
   y = yobs
 )
 
-Ntheta <- 80
+Ntheta <- 240
 Nx <- 50000
 pacc = 0.005
 
