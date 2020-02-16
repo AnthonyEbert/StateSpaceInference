@@ -12,7 +12,7 @@ cl = "mclapply"
 #cl <- NULL
 
 # length of the time series
-TT <- 40
+TT <- 60
 # parameters
 alpha <- 2; beta <- 0; gamma <- 0.1 * sqrt(1/2); mu <- -0.2; phi <- 0.95; sh <- 0.6; s_v <- 1
 # simulating the hidden states
