@@ -23,7 +23,7 @@ for (t in 2:TT) {
 }
 
 # emission of the observations
-yobs <- exp(h/2) * rnorm(TT, s_v, 0.1)
+yobs <- exp(h/2) * stabledist::rstable(TT, alpha, beta, gamma, s_v)
 
 
 true_states <- h
