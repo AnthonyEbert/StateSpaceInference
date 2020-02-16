@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #PBS -N Vol_13
-#PBS -l walltime=23:50:00
+#PBS -l walltime=3:50:00
 #PBS -l select=1:ncpus=16:mpiprocs=1:mem=350GB:cpuarch=avx2
 #PBS -j oe
 
