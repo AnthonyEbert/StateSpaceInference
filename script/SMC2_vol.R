@@ -14,10 +14,10 @@ cl = "mclapply"
 # length of the time series
 TT <- 60
 # parameters
-alpha <- 2; beta <- 0; gamma <- 0.1 * sqrt(1/2); mu <- -0.2; phi <- 0.95; sh <- 0.6; s_v <- 1
+alpha <- 2; beta <- 0; gamma <- 0.1 * sqrt(1/2); mu <- 0; phi <- 0.9; sh <- 0.6; s_v <- 1
 # simulating the hidden states
 h <- rep(0, TT)
-h[1] <- rnorm(1, mu, sh/(sqrt(1-phi^2)))
+h[1] <- rnorm(1, mu/(1-phi), sd = sqrt(s_h^2/(1-phi^2)))
 for (t in 2:TT) {
   h[t] <- mu + phi * (h[t - 1]) + sh * rnorm(1)
 }

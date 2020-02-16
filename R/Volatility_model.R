@@ -5,7 +5,7 @@ loss_volatility <- function(x, theta, time1, time2, inp){
   phi <- theta[1]
 
   if(gtools::invalid(x)){
-    x <- rnorm(1, inp$mu/(1-phi), inp$s_h^2/(1-phi^2))
+    x <- rnorm(1, inp$mu/(1-phi), sd = sqrt(inp$s_h^2/(1-phi^2)))
   } else {
     x <- inp$mu + phi * x + inp$s_h * rnorm(1)
   }
