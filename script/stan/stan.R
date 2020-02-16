@@ -1,21 +1,26 @@
 
+options(mc.cores = parallel::detectCores())
+
 library(StateSpaceInference)
 library(parallel)
 library(rstan)
 
 sessionInfo()
-set.seed(1)
+set.seed(2)
 
 # length of the time series
-TT <- 40
+TT <- 20
 # parameters
-alpha <- 2; beta <- 0; gamma <- 0.1 * sqrt(1/2); mu <- 0; phi <- 0.9; sh <- 0.6; s_v <- 1
+alpha <- 2; beta <- 0; gamma <- 0.1 * sqrt(1/2); mu <- 1; phi <- 0.80; sh <- 0.6; s_v <- 1
 # simulating the hidden states
 h <- rep(0, TT)
 h[1] <- rnorm(1, mu/(1-phi), sd = sqrt(sh^2/(1-phi^2)))
 for (t in 2:TT) {
   h[t] <- mu + phi * (h[t - 1]) + sh * rnorm(1)
 }
+
+
+parallel::detectCores()
 
 # emission of the observations
 yobs <- exp(h/2) * stabledist::rstable(TT, alpha, beta, gamma, s_v)
@@ -25,10 +30,10 @@ fit <- stan(
   file = "../../../script/stan/stochvol.stan",
   model_name = "example",
   data = dat,
-  iter = 5000,
+  iter = 40000,
   chains = parallel::detectCores(),
   cores = parallel::detectCores(),
-  init = rep(list(list(theta = phi, x = h)), parallel::detectCores()),
+  # init = rep(list(list(theta = phi, x = h)), parallel::detectCores()),
   control = list(adapt_delta = 0.99),
   pars = "theta"
 )

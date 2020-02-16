@@ -4,6 +4,7 @@ library(dplyr)
 
 load("state_df.RData")
 load("theta_df.RData")
+load("theta_stan.RData")
 
 fullpath = getwd()
 directoryname = basename(fullpath)
@@ -29,14 +30,17 @@ theta_of_interest <- theta_df[which(theta_df$time == max(theta_df$time)),] %>% s
 
 limits <- data.frame(value = c(0.5,1), weight = 0)
 
-theta_of_interest <- bind_rows(theta_of_interest, limits)
+true_theta <- data.frame(value = c(0.8))
 
-true_theta <- data.frame(value = c(0.95))
+theta_of_interest <- bind_rows(theta_of_interest, limits) %>%
+  mutate(type = "ABC")
 
-theta_stan <- load("theta_df.RData")
+theta_stan <- data.frame(value = theta_stan, weight = 1/length(theta_stan), type = "stan")
+
+theta_of_interest <- bind_rows(theta_of_interest, theta_stan)
 
 parameter_plot <- ggplot(theta_of_interest) +
-  aes(x = value, weights = weight) +
+  aes(x = value, weights = weight, col = type) +
   geom_density(adjust = 1) +
   geom_vline(data = true_theta, mapping = aes(xintercept = value), col = "red") +
   xlab(expression(Parameter~value:~theta)) +

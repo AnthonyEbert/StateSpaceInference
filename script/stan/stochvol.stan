@@ -6,20 +6,20 @@ data {
 }
 parameters {
   real<lower=-1> theta;         // white noise shock scale
-  vector[TT] x_std;                 // log volatility at time t
+  vector[TT] x;                 // log volatility at time t
 }
-transformed parameters {
-  vector[TT] x = x_std * sh;  // now h ~ normal(0, sigma)
-  x[1] /= sqrt(1 - theta * theta);  // rescale h[1]
-  x += mu;
-  for (t in 2:TT)
-    x[t] += theta * (x[t-1]);
-}
+// transformed parameters {
+//   vector[TT] x = x_std * sh;  // now h ~ normal(0, sigma)
+//   x[1] /= sqrt(1 - theta * theta);  // rescale h[1]
+//   x += mu;
+//   for (t in 2:TT)
+//     x[t] += theta * (x[t-1]);
+// }
 model {
   theta ~ uniform(-1, 1);
-  x_std ~ std_normal();
-  // x[1] ~ normal(mu/(1-theta), sh^2/(1-theta^2));
-  // for (t in 2:TT)
-  //   x[t] ~ normal(mu + theta * x[t-1], sh);
-  y ~ normal(0, exp(0.5 * x));
+  // x_std ~ std_normal();
+  x[1] ~ normal(mu/(1-theta), sqrt(sh^2/(1-theta^2)));
+  for (t in 2:TT)
+    x[t] ~ normal(mu + theta * x[t-1], sh);
+  y ~ normal(exp(0.5 * x), 0.1 * exp(0.5 * x));
 }
