@@ -12,7 +12,7 @@ cl = "mclapply"
 #cl <- NULL
 
 # length of the time series
-TT <- 40
+TT <- 60
 # parameters
 alpha <- 2; beta <- 0; gamma <- sqrt(2 * 0.1)/2; mu <- -0.2; phi <- 0.95; sh <- 0.6; s_v <- 1
 # simulating the hidden states
@@ -38,9 +38,9 @@ inp <- list(
   y = yobs
 )
 
-Ntheta <- 240
+Ntheta <- 160
 Nx <- 50000
-pacc = 0.0025
+pacc = 0.005
 
 prior_sample <- data.frame(rprior_vol(Ntheta))
 
