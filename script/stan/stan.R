@@ -30,10 +30,10 @@ fit <- stan(
   file = "../../../script/stan/stochvol.stan",
   model_name = "example",
   data = dat,
-  iter = 40000,
+  iter = 1000000,
   chains = parallel::detectCores(),
   cores = parallel::detectCores(),
-  # init = rep(list(list(theta = phi, x = h)), parallel::detectCores()),
+  init = rep(list(list(theta = phi, x = h)), parallel::detectCores()),
   control = list(adapt_delta = 0.99),
   pars = "theta"
 )

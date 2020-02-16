@@ -1,0 +1,100 @@
+
+R version 3.6.2 (2019-12-12) -- "Dark and Stormy Night"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> library(ggplot2)
+> library(ggalt)
+Registered S3 methods overwritten by 'ggalt':
+  method                  from   
+  grid.draw.absoluteGrob  ggplot2
+  grobHeight.absoluteGrob ggplot2
+  grobWidth.absoluteGrob  ggplot2
+  grobX.absoluteGrob      ggplot2
+  grobY.absoluteGrob      ggplot2
+> library(dplyr)
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+> 
+> load("state_df.RData")
+> load("theta_df.RData")
+> load("theta_stan.RData")
+> 
+> fullpath = getwd()
+> directoryname = basename(fullpath)
+> 
+> nr <- dim(state_df)[1]
+> 
+> state_df <- state_df %>%
++   bind_rows(state_df[nr,])
+> 
+> state_df$time[nr] <- state_df$time[nr] + 1
+> 
+> state_plot <- ggplot(state_df) +
++   aes(x = time, y = state, ymin = lower, ymax = upper) +
++   geom_point(size = 1, col = "red") +
++   geom_errorbar(mapping = aes(x = time, y = med), shape = 95, size = 0.5) +
++   ggthemes::theme_base() +
++   xlab("Time: t") +
++   ylab(expression(State:~x[t]))
+Warning: Ignoring unknown parameters: shape
+Warning: Ignoring unknown aesthetics: y
+> 
+> ggsave(paste0("Vol_", directoryname, "_state.pdf"), height = 10, width = 15, units = "cm", plot = state_plot)
+> 
+> theta_of_interest <- theta_df[which(theta_df$time == max(theta_df$time)),] %>% select(-time, -parameter)
+> 
+> limits <- data.frame(value = c(0.5,1), weight = 0)
+> 
+> true_theta <- data.frame(value = c(0.8))
+> 
+> theta_of_interest <- bind_rows(theta_of_interest, limits) %>%
++   mutate(type = "ABC")
+> 
+> theta_stan <- data.frame(value = theta_stan, weight = 1/length(theta_stan), type = "stan")
+> 
+> theta_of_interest <- bind_rows(theta_of_interest, theta_stan)
+Warning message:
+In bind_rows_(x, .id) :
+  binding character and factor vector, coercing into character vector
+> 
+> parameter_plot <- ggplot(theta_of_interest) +
++   aes(x = value, weights = weight, col = type) +
++   geom_density(adjust = 1) +
++   geom_vline(data = true_theta, mapping = aes(xintercept = value), col = "red") +
++   xlab(expression(Parameter~value:~theta)) +
++   scale_y_continuous(expand = expand_scale(mult = c(0,0.05))) +
++   ggthemes::theme_few() +
++   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +
++   ylab("ABC posterior density")
+> 
+> ggsave(paste0("Vol_", directoryname, "_parameter.pdf"), height = 7, width = 10, units = "cm", plot = parameter_plot)
+> 
+> proc.time()
+   user  system elapsed 
+  2.110   0.302   2.136 
