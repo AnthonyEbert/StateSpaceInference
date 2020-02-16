@@ -38,9 +38,9 @@ inp <- list(
   y = yobs
 )
 
-Ntheta <- 160
+Ntheta <- 500
 Nx <- 50000
-pacc = 0.005
+pacc = 0.0025
 
 prior_sample <- data.frame(rprior_vol(Ntheta))
 
