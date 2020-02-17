@@ -3,9 +3,12 @@ library(StateSpaceInference)
 library(parallel)
 library(ggplot2)
 library(ggalt)
+library(dplyr)
 
 sessionInfo()
-set.seed(2)
+
+seed <- 10
+set.seed(seed)
 
 cl <- makeCluster(parallel::detectCores())
 #cl = "mclapply"
@@ -14,7 +17,7 @@ cl <- makeCluster(parallel::detectCores())
 # length of the time series
 TT <- 20
 # parameters
-alpha <- 1.9; beta <- 0.5; gamma <- 0.1 * sqrt(1/2); mu <- 1; phi <- 0.80; sh <- 0.6; s_v <- 1
+alpha <- 2; beta <- 0; gamma <- 0.1 * sqrt(1/2); mu <- 1; phi <- 0.80; sh <- 0.6; s_v <- 1
 # simulating the hidden states
 h <- rep(0, TT)
 h[1] <- rnorm(1, mu/(1-phi), sd = sqrt(sh^2/(1-phi^2)))
@@ -69,10 +72,15 @@ state_df$state <- true_states
 
 theta_df <- get_parameter(full_list)
 
-save.image()
-save(state_df, file = "state_df.RData")
-save(theta_df, file = "theta_df.RData")
-
 ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
 
 ggplot(theta_df[which(theta_df$time %% 5 == 0),]) + aes(x = value, weights = weight, col = factor(time)) + geom_density() + facet_wrap(~parameter, scales = "free")
+
+theta_df <- theta_df %>%
+  filter(time == TT) %>%
+  mutate(seed = seed, type = "ABC") %>%
+  select(-parameter, -time)
+
+save.image()
+#save(state_df, file = "state_df.RData")
+saveRDS(theta_df, file = paste0("theta_df_", seed,".RData"))

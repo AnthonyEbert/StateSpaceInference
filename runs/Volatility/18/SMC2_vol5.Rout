@@ -1,0 +1,231 @@
+
+R version 3.6.2 (2019-12-12) -- "Dark and Stormy Night"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> 
+> library(StateSpaceInference)
+> library(parallel)
+> library(ggplot2)
+> library(ggalt)
+Registered S3 methods overwritten by 'ggalt':
+  method                  from   
+  grid.draw.absoluteGrob  ggplot2
+  grobHeight.absoluteGrob ggplot2
+  grobWidth.absoluteGrob  ggplot2
+  grobX.absoluteGrob      ggplot2
+  grobY.absoluteGrob      ggplot2
+> library(dplyr)
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+> 
+> sessionInfo()
+R version 3.6.2 (2019-12-12)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.4 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_AU.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_AU.UTF-8        LC_COLLATE=en_AU.UTF-8    
+ [5] LC_MONETARY=en_AU.UTF-8    LC_MESSAGES=en_AU.UTF-8   
+ [7] LC_PAPER=en_AU.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] dplyr_0.8.3               ggalt_0.4.0              
+[3] ggplot2_3.2.1             StateSpaceInference_2.0.0
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.3         Rttf2pt1_1.3.7     magrittr_1.5       maps_3.3.0        
+ [5] MASS_7.3-51.4      tidyselect_0.2.5   munsell_0.5.0      colorspace_1.4-1  
+ [9] R6_2.4.1           rlang_0.4.2        grid_3.6.2         gtable_0.3.0      
+[13] ash_1.0-15         KernSmooth_2.23-15 extrafontdb_1.0    withr_2.1.2       
+[17] proj4_1.0-8        lazyeval_0.2.2     assertthat_0.2.1   tibble_2.1.3      
+[21] lifecycle_0.1.0    crayon_1.3.4       RColorBrewer_1.1-2 purrr_0.3.3       
+[25] glue_1.3.1.9000    compiler_3.6.2     pillar_1.4.2       scales_1.1.0      
+[29] extrafont_0.17     pkgconfig_2.0.3   
+> 
+> seed <- 5
+> set.seed(seed)
+> 
+> cl <- makeCluster(parallel::detectCores())
+> #cl = "mclapply"
+> #cl <- NULL
+> 
+> # length of the time series
+> TT <- 20
+> # parameters
+> alpha <- 2; beta <- 0; gamma <- 0.1 * sqrt(1/2); mu <- 1; phi <- 0.80; sh <- 0.6; s_v <- 1
+> # simulating the hidden states
+> h <- rep(0, TT)
+> h[1] <- rnorm(1, mu/(1-phi), sd = sqrt(sh^2/(1-phi^2)))
+> for (t in 2:TT) {
++   h[t] <- mu + phi * (h[t - 1]) + sh * rnorm(1)
++ }
+> 
+> # emission of the observations
+> yobs <- exp(h/2) * stabledist::rstable(TT, alpha, beta, gamma, s_v)
+> 
+> 
+> true_states <- h
+> 
+> inp <- list(
++   alpha = alpha,
++   beta = beta,
++   gamma = gamma,
++   mu = mu,
++   s_h = sh,
++   s_v = s_v,
++   y = yobs
++ )
+> 
+> Ntheta <- 20
+> Nx <- 2500
+> pacc = 0.05
+> 
+> prior_sample <- data.frame(rprior_vol(Ntheta))
+> 
+> prior_sample <- as.matrix(prior_sample, ncol = 1)
+> 
+> trans <- function(x, trans_args){
++   theta1 <- qnorm((x + 1)/2)
++   return(theta1)
++ }
+> 
+> invtrans <- function(x, trans_args){
++   theta1 <- 2*pnorm(x) - 1
++   return(theta1)
++ }
+> 
+> acceptance_correction <- function(x){
++   0.5/(dnorm(qnorm((x+1)/2)))
++ }
+> 
+> full_list <- SMC2_ABC(prior_sample, dprior = dprior_vol, loss = loss_volatility, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.5, TT = TT, trans = trans, invtrans = invtrans, cov_coef = 1.5, acceptance_correction = acceptance_correction)
+[1] -0.8998772  0.5663111  0.6319127  0.6474910  0.8788730
+[1] "1. 3.26075161107216"
+[1] "resample"
+[1] -0.9247060  0.6951479  0.7604806  0.7617926  0.8046838
+[1] "SMC:  8.73663459529064"
+acceptance rate:  0.9 
+[1] 0.5019332 0.7604806 0.7617926 0.8046838 0.8046838
+[1] "2. 13.5816419661871"
+[1] 0.5019332 0.7604806 0.7617926 0.8046838 0.8046838
+[1] "3. 13.8511239614678"
+[1] 0.5019332 0.7604806 0.7617926 0.8046838 0.8046838
+[1] "4. 13.1249210526856"
+[1] 0.6319127 0.7617926 0.7809673 0.8046838 0.8046838
+[1] "5. 10.5501539551576"
+[1] 0.6319127 0.7617926 0.7809673 0.8046838 0.8046838
+[1] "6. 10.8272304412457"
+[1] 0.6319127 0.7617926 0.7809673 0.8046838 0.8046838
+[1] "7. 10.7513585944614"
+[1] 0.6319127 0.7617926 0.7617926 0.8046838 0.8046838
+[1] "8. 11.94362403795"
+[1] 0.6319127 0.7617926 0.7617926 0.8046838 0.8046838
+[1] "9. 11.5336275571392"
+[1] 0.6319127 0.7617926 0.7617926 0.8046838 0.8046838
+[1] "10. 11.3070562995584"
+[1] 0.6319127 0.7617926 0.7809673 0.8046838 0.8046838
+[1] "11. 9.97492330437351"
+[1] "resample"
+[1] 0.6976158 0.7441215 0.7624893 0.7753290 0.8332373
+[1] "SMC:  18.5414324538734"
+[1] 0.6976158 0.7586781 0.7648054 0.7941496 0.8332373
+[1] "SMC:  18.3106123294446"
+[1] 0.6976158 0.7586781 0.7648054 0.7918945 0.8332373
+[1] "SMC:  17.7428436112499"
+[1] 0.6976158 0.7586781 0.7648054 0.7918945 0.8332373
+[1] "SMC:  17.1734967989202"
+[1] 0.6976158 0.7624893 0.7753290 0.7968250 0.8332373
+[1] "SMC:  16.3393497783489"
+[1] 0.6976158 0.7624893 0.7684333 0.7968250 0.8332373
+[1] "SMC:  16.197229569332"
+[1] 0.6976158 0.7587912 0.7684333 0.7941496 0.8332373
+[1] "SMC:  15.5295516725207"
+[1] 0.6976158 0.7586781 0.7648054 0.7918945 0.8332373
+[1] "SMC:  15.2123268861843"
+[1] 0.6976158 0.7587912 0.7684333 0.7918945 0.8332373
+[1] "SMC:  14.9344691662047"
+[1] 0.6976158 0.7587912 0.7684333 0.7941496 0.8332373
+[1] "SMC:  14.6412393407559"
+[1] 0.6976158 0.7624893 0.7753290 0.7968250 0.8332373
+[1] "SMC:  14.1960527766037"
+acceptance rate:  0.85 
+[1] 0.7586781 0.7633513 0.7684333 0.7918945 0.7968250
+[1] "12. 19.7966488232872"
+[1] 0.7586781 0.7624893 0.7684333 0.7918945 0.7968250
+[1] "13. 19.4244262647755"
+[1] 0.7586781 0.7624893 0.7684333 0.7918945 0.7968250
+[1] "14. 18.9361857033604"
+[1] 0.7586781 0.7624893 0.7684333 0.7918945 0.7968250
+[1] "15. 18.5999484526578"
+[1] 0.7586781 0.7624893 0.7648054 0.7918945 0.7968250
+[1] "16. 17.8259124836787"
+[1] 0.7586781 0.7587912 0.7648054 0.7753290 0.7968250
+[1] "17. 16.7760826144798"
+[1] 0.7586781 0.7587912 0.7648054 0.7753290 0.7968250
+[1] "18. 14.9937286744336"
+[1] 0.7586781 0.7587912 0.7648054 0.7753290 0.7968250
+[1] "19. 14.8241753987611"
+[1] 0.7586781 0.7587912 0.7648054 0.7684333 0.7968250
+[1] "20. 14.5441344736617"
+There were 50 or more warnings (use warnings() to see the first 50)
+> 
+> 
+> state_df <- get_state(full_list, probs = c(0.025, 0.5, 0.975))
+> 
+> state_df$state <- true_states
+> 
+> theta_df <- get_parameter(full_list)
+> 
+> ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
+> 
+> ggplot(theta_df[which(theta_df$time %% 5 == 0),]) + aes(x = value, weights = weight, col = factor(time)) + geom_density() + facet_wrap(~parameter, scales = "free")
+> 
+> theta_df <- theta_df %>%
++   filter(time == TT) %>%
++   mutate(seed = seed, type = "ABC") %>%
++   select(-parameter, -time)
+> 
+> save.image()
+> #save(state_df, file = "state_df.RData")
+> saveRDS(theta_df, file = paste0("theta_df_", seed,".RData"))
+> 
+> proc.time()
+   user  system elapsed 
+  5.363   0.568 130.159 

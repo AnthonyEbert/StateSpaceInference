@@ -1,0 +1,239 @@
+
+R version 3.6.2 (2019-12-12) -- "Dark and Stormy Night"
+Copyright (C) 2019 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> 
+> options(mc.cores = parallel::detectCores())
+> 
+> library(StateSpaceInference)
+> library(parallel)
+> library(rstan)
+Loading required package: StanHeaders
+Loading required package: ggplot2
+rstan (Version 2.19.3, GitRev: 2e1f913d3ca3)
+For execution on a local, multicore CPU with excess RAM we recommend calling
+options(mc.cores = parallel::detectCores()).
+To avoid recompilation of unchanged Stan programs, we recommend calling
+rstan_options(auto_write = TRUE)
+> 
+> sessionInfo()
+R version 3.6.2 (2019-12-12)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 18.04.4 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_AU.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_AU.UTF-8        LC_COLLATE=en_AU.UTF-8    
+ [5] LC_MONETARY=en_AU.UTF-8    LC_MESSAGES=en_AU.UTF-8   
+ [7] LC_PAPER=en_AU.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] rstan_2.19.3              ggplot2_3.2.1            
+[3] StanHeaders_2.18.1-10     StateSpaceInference_2.0.0
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.3         magrittr_1.5       tidyselect_0.2.5   munsell_0.5.0     
+ [5] colorspace_1.4-1   R6_2.4.1           rlang_0.4.2        dplyr_0.8.3       
+ [9] pkgbuild_1.0.4     grid_3.6.2         gtable_0.3.0       loo_2.1.0         
+[13] cli_1.1.0          withr_2.1.2        matrixStats_0.54.0 lazyeval_0.2.2    
+[17] assertthat_0.2.1   tibble_2.1.3       lifecycle_0.1.0    crayon_1.3.4      
+[21] processx_3.4.1     gridExtra_2.3      purrr_0.3.3        callr_3.3.1       
+[25] ps_1.3.0           inline_0.3.15      glue_1.3.1.9000    compiler_3.6.2    
+[29] pillar_1.4.2       scales_1.1.0       prettyunits_1.0.2  stats4_3.6.2      
+[33] pkgconfig_2.0.3   
+> 
+> seed <- 9
+> set.seed(seed)
+> 
+> cl <- makeCluster(parallel::detectCores())
+> #cl = "mclapply"
+> #cl <- NULL
+> 
+> # length of the time series
+> TT <- 20
+> # parameters
+> alpha <- 2; beta <- 0; gamma <- 0.1 * sqrt(1/2); mu <- 1; phi <- 0.80; sh <- 0.6; s_v <- 1
+> # simulating the hidden states
+> h <- rep(0, TT)
+> h[1] <- rnorm(1, mu/(1-phi), sd = sqrt(sh^2/(1-phi^2)))
+> for (t in 2:TT) {
++   h[t] <- mu + phi * (h[t - 1]) + sh * rnorm(1)
++ }
+> 
+> # emission of the observations
+> yobs <- exp(h/2) * stabledist::rstable(TT, alpha, beta, gamma, s_v)
+> 
+> 
+> dat <- list(TT = TT, y = yobs, mu = mu, sh = sh)
+> fit <- stan(
++   file = "../../../script/stan/stochvol.stan",
++   model_name = "example",
++   data = dat,
++   iter = 100000,
++   chains = parallel::detectCores(),
++   cores = parallel::detectCores(),
++   init = rep(list(list(theta = phi, x = h)), parallel::detectCores()),
++   control = list(adapt_delta = 0.99),
++   pars = "theta"
++ )
+
+SAMPLING FOR MODEL 'example' NOW (CHAIN 1).
+Chain 1: 
+Chain 1: Gradient evaluation took 9.8e-05 seconds
+Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.98 seconds.
+Chain 1: Adjust your expectations accordingly!
+Chain 1: 
+Chain 1: 
+Chain 1: Iteration:     1 / 100000 [  0%]  (Warmup)
+
+SAMPLING FOR MODEL 'example' NOW (CHAIN 2).
+Chain 2: 
+Chain 2: Gradient evaluation took 7.6e-05 seconds
+Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.76 seconds.
+Chain 2: Adjust your expectations accordingly!
+Chain 2: 
+Chain 2: 
+Chain 2: Iteration:     1 / 100000 [  0%]  (Warmup)
+
+SAMPLING FOR MODEL 'example' NOW (CHAIN 3).
+
+SAMPLING FOR MODEL 'example' NOW (CHAIN 4).
+Chain 3: 
+Chain 3: Gradient evaluation took 8.7e-05 seconds
+Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.87 seconds.
+Chain 3: Adjust your expectations accordingly!
+Chain 3: 
+Chain 3: 
+Chain 3: Iteration:     1 / 100000 [  0%]  (Warmup)
+Chain 4: 
+Chain 4: Gradient evaluation took 7.7e-05 seconds
+Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.77 seconds.
+Chain 4: Adjust your expectations accordingly!
+Chain 4: 
+Chain 4: 
+Chain 4: Iteration:     1 / 100000 [  0%]  (Warmup)
+Chain 3: Iteration: 10000 / 100000 [ 10%]  (Warmup)
+Chain 4: Iteration: 10000 / 100000 [ 10%]  (Warmup)
+Chain 2: Iteration: 10000 / 100000 [ 10%]  (Warmup)
+Chain 1: Iteration: 10000 / 100000 [ 10%]  (Warmup)
+Chain 3: Iteration: 20000 / 100000 [ 20%]  (Warmup)
+Chain 2: Iteration: 20000 / 100000 [ 20%]  (Warmup)
+Chain 1: Iteration: 20000 / 100000 [ 20%]  (Warmup)
+Chain 4: Iteration: 20000 / 100000 [ 20%]  (Warmup)
+Chain 2: Iteration: 30000 / 100000 [ 30%]  (Warmup)
+Chain 3: Iteration: 30000 / 100000 [ 30%]  (Warmup)
+Chain 1: Iteration: 30000 / 100000 [ 30%]  (Warmup)
+Chain 4: Iteration: 30000 / 100000 [ 30%]  (Warmup)
+Chain 2: Iteration: 40000 / 100000 [ 40%]  (Warmup)
+Chain 3: Iteration: 40000 / 100000 [ 40%]  (Warmup)
+Chain 1: Iteration: 40000 / 100000 [ 40%]  (Warmup)
+Chain 4: Iteration: 40000 / 100000 [ 40%]  (Warmup)
+Chain 2: Iteration: 50000 / 100000 [ 50%]  (Warmup)
+Chain 2: Iteration: 50001 / 100000 [ 50%]  (Sampling)
+Chain 3: Iteration: 50000 / 100000 [ 50%]  (Warmup)
+Chain 3: Iteration: 50001 / 100000 [ 50%]  (Sampling)
+Chain 1: Iteration: 50000 / 100000 [ 50%]  (Warmup)
+Chain 1: Iteration: 50001 / 100000 [ 50%]  (Sampling)
+Chain 4: Iteration: 50000 / 100000 [ 50%]  (Warmup)
+Chain 4: Iteration: 50001 / 100000 [ 50%]  (Sampling)
+Chain 2: Iteration: 60000 / 100000 [ 60%]  (Sampling)
+Chain 1: Iteration: 60000 / 100000 [ 60%]  (Sampling)
+Chain 3: Iteration: 60000 / 100000 [ 60%]  (Sampling)
+Chain 4: Iteration: 60000 / 100000 [ 60%]  (Sampling)
+Chain 1: Iteration: 70000 / 100000 [ 70%]  (Sampling)
+Chain 2: Iteration: 70000 / 100000 [ 70%]  (Sampling)
+Chain 3: Iteration: 70000 / 100000 [ 70%]  (Sampling)
+Chain 4: Iteration: 70000 / 100000 [ 70%]  (Sampling)
+Chain 1: Iteration: 80000 / 100000 [ 80%]  (Sampling)
+Chain 2: Iteration: 80000 / 100000 [ 80%]  (Sampling)
+Chain 3: Iteration: 80000 / 100000 [ 80%]  (Sampling)
+Chain 1: Iteration: 90000 / 100000 [ 90%]  (Sampling)
+Chain 4: Iteration: 80000 / 100000 [ 80%]  (Sampling)
+Chain 2: Iteration: 90000 / 100000 [ 90%]  (Sampling)
+Chain 1: Iteration: 100000 / 100000 [100%]  (Sampling)
+Chain 1: 
+Chain 1:  Elapsed Time: 16.8655 seconds (Warm-up)
+Chain 1:                15.7149 seconds (Sampling)
+Chain 1:                32.5803 seconds (Total)
+Chain 1: 
+Chain 3: Iteration: 90000 / 100000 [ 90%]  (Sampling)
+Chain 4: Iteration: 90000 / 100000 [ 90%]  (Sampling)
+Chain 2: Iteration: 100000 / 100000 [100%]  (Sampling)
+Chain 2: 
+Chain 2:  Elapsed Time: 16.8316 seconds (Warm-up)
+Chain 2:                18.8966 seconds (Sampling)
+Chain 2:                35.7283 seconds (Total)
+Chain 2: 
+Chain 3: Iteration: 100000 / 100000 [100%]  (Sampling)
+Chain 3: 
+Chain 3:  Elapsed Time: 16.9199 seconds (Warm-up)
+Chain 3:                19.1631 seconds (Sampling)
+Chain 3:                36.083 seconds (Total)
+Chain 3: 
+Chain 4: Iteration: 100000 / 100000 [100%]  (Sampling)
+Chain 4: 
+Chain 4:  Elapsed Time: 16.7814 seconds (Warm-up)
+Chain 4:                19.9746 seconds (Sampling)
+Chain 4:                36.756 seconds (Total)
+Chain 4: 
+> print(fit)
+Inference for Stan model: example.
+4 chains, each with iter=1e+05; warmup=50000; thin=1; 
+post-warmup draws per chain=50000, total post-warmup draws=2e+05.
+
+        mean se_mean   sd   2.5%    25%    50%    75%  97.5%  n_eff Rhat
+theta   0.78    0.00 0.02   0.73   0.76   0.78   0.79   0.82 306193    1
+lp__  -20.50    0.01 3.29 -27.82 -22.50 -20.16 -18.13 -15.08  86365    1
+
+Samples were drawn using NUTS(diag_e) at Mon Feb 17 17:53:03 2020.
+For each parameter, n_eff is a crude measure of effective sample size,
+and Rhat is the potential scale reduction factor on split chains (at 
+convergence, Rhat=1).
+> theta_stan = extract(fit, pars = "theta")$theta
+> 
+> save.image()
+> save(theta_stan, file = "theta_stan.RData")
+> 
+> stan_df <- data.frame(
++   value = theta_stan,
++   weight = 1/length(theta_stan),
++   seed = seed,
++   type = "stan"
++ )
+> 
+> saveRDS(stan_df, file = paste0("theta_stan_", seed,".RData"))
+> 
+> 
+> 
+> #init = rep(list(list(theta = phi)), parallel::detectCores())
+> 
+> proc.time()
+   user  system elapsed 
+151.757   1.715  54.360 
