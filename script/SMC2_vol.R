@@ -7,14 +7,14 @@ library(ggalt)
 sessionInfo()
 set.seed(2)
 
-cl <- makeCluster(parallel::detectCores() - 1)
+cl <- makeCluster(parallel::detectCores())
 #cl = "mclapply"
 #cl <- NULL
 
 # length of the time series
 TT <- 20
 # parameters
-alpha <- 2; beta <- 0; gamma <- 0.1 * sqrt(1/2); mu <- 1; phi <- 0.80; sh <- 0.6; s_v <- 1
+alpha <- 1.9; beta <- 0.5; gamma <- 0.1 * sqrt(1/2); mu <- 1; phi <- 0.80; sh <- 0.6; s_v <- 1
 # simulating the hidden states
 h <- rep(0, TT)
 h[1] <- rnorm(1, mu/(1-phi), sd = sqrt(sh^2/(1-phi^2)))
@@ -63,7 +63,7 @@ acceptance_correction <- function(x){
 full_list <- SMC2_ABC(prior_sample, dprior = dprior_vol, loss = loss_volatility, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.5, TT = TT, trans = trans, invtrans = invtrans, cov_coef = 1.5, acceptance_correction = acceptance_correction)
 
 
-state_df <- get_state(full_list, probs = c(0.25, 0.5, 0.75))
+state_df <- get_state(full_list, probs = c(0.025, 0.5, 0.975))
 
 state_df$state <- true_states
 

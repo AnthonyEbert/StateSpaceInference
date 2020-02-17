@@ -4,7 +4,6 @@ library(dplyr)
 
 load("state_df.RData")
 load("theta_df.RData")
-load("theta_stan.RData")
 
 fullpath = getwd()
 directoryname = basename(fullpath)
@@ -35,18 +34,18 @@ true_theta <- data.frame(value = c(0.8))
 theta_of_interest <- bind_rows(theta_of_interest, limits) %>%
   mutate(type = "Approximate posterior")
 
-theta_stan <- data.frame(value = theta_stan, weight = 1/length(theta_stan), type = "True posterior")
-
-theta_of_interest <- bind_rows(theta_of_interest, theta_stan)
+# theta_stan <- data.frame(value = theta_stan, weight = 1/length(theta_stan), type = "True posterior")
+#
+# theta_of_interest <- bind_rows(theta_of_interest, theta_stan)
 
 parameter_plot <- ggplot(theta_of_interest) +
-  aes(x = value, weights = weight, col = type) +
+  aes(x = value, weights = weight) +
   geom_density(adjust = 1) +
   geom_vline(data = true_theta, mapping = aes(xintercept = value), col = "red") +
   xlab(expression(Parameter~value:~theta)) +
   scale_y_continuous(expand = expand_scale(mult = c(0,0.05))) +
   ggthemes::theme_few() +
-  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank(), legend.position = "bottom", legend.title=element_blank()) +
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +
   ylab("ABC posterior density")
 
 ggsave(paste0("Vol_", directoryname, "_parameter.pdf"), height = 8.4, width = 12, units = "cm", plot = parameter_plot)
