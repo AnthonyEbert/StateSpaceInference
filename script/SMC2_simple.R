@@ -5,11 +5,11 @@ library(ggplot2)
 library(ggalt)
 sessionInfo()
 
-#cl <- makeCluster(parallel::detectCores() - 1)
-cl = "mclapply"
+cl <- makeCluster(parallel::detectCores() - 1)
+#cl = "mclapply"
 #cl <- NULL
 
-set.seed(2)
+set.seed(3)
 
 TT <- 40
 true_theta <- c(0.25, 0.5)
@@ -38,36 +38,25 @@ inp <- list(
   upper = upper,
   sd_t = sd_t,
   a_logit = a_logit,
-  y = y
+  y = y,
+  weights = c(6, 0.1, 1)
 )
 
 loss = loss_simple
 
 
-Ntheta = 1000
-Nx = 10000
-pacc = 0.005
+Ntheta = 100
+Nx = 200
+pacc = 0.1
 
-lower_theta <- c(0.1, 0.2)
+lower_theta <- c(-0.2, 0.2)
 upper_theta <- c(0.5, 0.8)
 
 prior_sample <- data.frame(theta1 = runif(Ntheta, lower_theta[1], upper_theta[1]), theta2 = runif(Ntheta, lower_theta[2], upper_theta[2]))
 
 prior_sample <- as.matrix(prior_sample, ncol = 2)
 
-trans <- function(x, trans_args){
-  theta1 <- log(x[,1])
-  theta2 <- log(x[,2])
-  return(cbind(theta1, theta2))
-}
-
-invtrans <- function(x, trans_args){
-  theta1 <- exp(x[,1])
-  theta2 <- exp(x[,2])
-  return(cbind(theta1, theta2))
-}
-
-full_list <- SMC2_ABC(prior_sample, dprior = function(x){dunif(x[1], 0.1, 0.5)*dunif(x[2],0.2,0.8)}, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.5, TT = TT, trans = trans, invtrans = invtrans, cov_coef = 0.25^2)
+full_list <- SMC2_ABC(prior_sample, dprior = protoABC::prior_unif(lower_theta, upper_theta, eval = TRUE), loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.5, TT = TT, cov_coef = 1)
 
 state_df <- get_state(full_list)
 

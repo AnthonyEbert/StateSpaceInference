@@ -22,7 +22,7 @@ SMC2_ABC(
   resample_times = NA,
   trans_args = list(),
   cov_coef = 1,
-  acceptance_correction = function(x) {     1/(prod(x)) }
+  acceptance_correction = function(x) {     1 }
 )
 }
 \arguments{

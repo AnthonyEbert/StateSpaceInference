@@ -119,8 +119,8 @@
 #' }
 #' @export
 SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, TT, trans = I, invtrans = I, resample_times = NA, trans_args = list(), cov_coef = 1, acceptance_correction = function(x){
-  1/(prod(x))
-}){
+  1})
+{
 
   prior_sample <- as.matrix(prior_sample)
 
@@ -191,7 +191,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
     ESS <- sum(omegas) ^ 2 / sum(omegas^2)
     for(i in 1:dim(thetas)[2]){
-      print(as.numeric(Hmisc::wtd.quantile(thetas[,i], weights = omegas/sum(omegas) * 1e20, normwt = FALSE)))
+      print(as.numeric(Hmisc::wtd.quantile(thetas[,i], weights = omegas/sum(omegas) * 1e20, normwt = FALSE, probs = c(0, 0.025, 0.5, 0.975, 1))))
     }
     ifelse(ESS_threshold > 0, print(paste0(tp, ". ", ESS)), print(paste("SMC: ", ESS)))
 

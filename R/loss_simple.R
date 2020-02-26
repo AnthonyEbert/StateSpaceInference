@@ -8,7 +8,7 @@ loss_simple <- function(x, theta, time1, time2, inp){
     x <- rnorm(1, mean = x)
   }
 
-  y <- sn::rsn(1e1, dp = sn::cp2dp(cp = c(x, theta), "SN"))
+  y <- suppressMessages(sn::rsn(1e1, dp = sn::cp2dp(cp = c(x, theta), "SN")))
 
   ss_obs <- c(mean(inp$y[[time2]]), sd(inp$y[[time2]]), e1071::skewness(inp$y[[time2]]))
   ss_sim <- c(mean(y), sd(y), e1071::skewness(y))
@@ -16,7 +16,13 @@ loss_simple <- function(x, theta, time1, time2, inp){
   # ss_obs <- sn::summary(sn::selm(inp$y[[time2]]~1, opt.method = "BFGS"))@param.table[,1]
   # ss_sim <- sn::summary(sn::selm(y~1), opt.method = "BFGS")@param.table[,1]
 
-  return(list(distance = sqrt(sum((ss_obs - ss_sim)^2)), x = x))
+  if(is.null(inp$weights)){
+    inp$weights <- c(1,1,1)
+  }
+
+  distance_out <- sum( (ss_obs - ss_sim)^2 / inp$weights^2 )
+
+  return(list(distance = sqrt(distance_out), x = x))
 }
 
 #' @export

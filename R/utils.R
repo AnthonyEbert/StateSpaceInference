@@ -26,7 +26,7 @@ check_input <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc,
   stopifnot(is.function(trans))
   stopifnot(is.function(invtrans))
 
-  stopifnot(length(formals(trans)) == 2)
+  # stopifnot(length(formals(trans)) == 2)
   stopifnot(length(formals(trans)) == length(formals(invtrans)))
 
   if(
