@@ -7,7 +7,7 @@ library(rstan)
 
 sessionInfo()
 
-seed <- 10
+seed <- 14
 set.seed(seed)
 
 cl <- makeCluster(parallel::detectCores())
