@@ -118,7 +118,7 @@
 #' ggplot(theta_df[which(theta_df$time %% 5 == 0),]) + aes(x = value, weights = weight, col = factor(time)) + geom_density() + facet_wrap(~parameter, scales = "free")
 #' }
 #' @export
-SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, TT, trans = I, invtrans = I, resample_times = NA, trans_args = list(), cov_coef = 1, acceptance_correction = function(x){
+SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, TT, trans = function(x, trans_args){I(x)}, invtrans = function(x, trans_args){I(x)}, resample_times = NA, trans_args = list(), cov_coef = 1, acceptance_correction = function(x){
   1})
 {
 
