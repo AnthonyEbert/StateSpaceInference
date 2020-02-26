@@ -39,7 +39,7 @@ inp <- list(
   sd_t = sd_t,
   a_logit = a_logit,
   y = y,
-  weights = c(6, 0.1, 1)
+  weights = c(1, 1, 1)
 )
 
 loss = loss_simple
