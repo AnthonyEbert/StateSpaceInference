@@ -118,15 +118,16 @@
 #' ggplot(theta_df[which(theta_df$time %% 5 == 0),]) + aes(x = value, weights = weight, col = factor(time)) + geom_density() + facet_wrap(~parameter, scales = "free")
 #' }
 #' @export
-SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, TT, trans = function(x, trans_args){I(x)}, invtrans = function(x, trans_args){I(x)}, resample_times = NA, trans_args = list(), cov_coef = 1, acceptance_correction = function(x){
+SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp = 1, ESS_threshold = 0.1, eps = NULL, cl = NULL, TT, trans = function(x, trans_args){x}, invtrans = function(x, trans_args){x}, resample_times = NA, trans_args = list(), cov_coef = 1, acceptance_correction = function(x){
   1})
 {
 
+  prior_names <- names(prior_sample)
   prior_sample <- as.matrix(prior_sample)
 
   # Check inputs to function
   .args <- as.list(as.list(environment()))
-  do.call(check_input, .args)
+  #do.call(check_input, .args)
 
 
   parallel <- ifelse(is.null(cl), 1,
@@ -148,7 +149,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
   }
 
   for(m in 1:Ntheta){
-    x_list[[m]]$theta <- prior_sample[m, , drop = FALSE]
+    x_list[[m]]$theta <- prior_sample[m, ]
     x_list[[m]]$x <- matrix(NA, nrow = Nx)
     x_list[[m]]$w <- rep(1, Nx)
     x_list[[m]]$p <- NULL
@@ -170,8 +171,8 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
     }
 
     if(is.na(eps[tp])){
-      eps[tp] <- Hmisc::wtd.quantile(distances, weights = d_weights/sum(d_weights) * 1e20, probs = pacc, normwt = FALSE)
-      #eps[tp] <- quantile(as.numeric(distances), probs = pacc)
+      #eps[tp] <- Hmisc::wtd.quantile(distances, weights = d_weights/sum(d_weights) * 1e20, probs = pacc, normwt = FALSE)
+      eps[tp] <- quantile(as.numeric(distances), probs = pacc)
     }
 
     for(m in 1:Ntheta){
@@ -191,7 +192,7 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
     ESS <- sum(omegas) ^ 2 / sum(omegas^2)
     for(i in 1:dim(thetas)[2]){
-      print(as.numeric(Hmisc::wtd.quantile(thetas[,i], weights = omegas/sum(omegas) * 1e20, normwt = FALSE, probs = c(0, 0.025, 0.5, 0.975, 1))))
+      print(as.numeric(Hmisc::wtd.quantile(thetas[,i], weights = omegas/sum(omegas) * 1e6, normwt = FALSE, probs = c(0, 0.025, 0.5, 0.975, 1))))
     }
     ifelse(ESS_threshold > 0, print(paste0(tp, ". ", ESS)), print(paste("SMC: ", ESS)))
 
@@ -199,11 +200,13 @@ SMC2_ABC <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc, dt
 
     if(ESS < Ntheta * ESS_threshold | tp %in% resample_times){
       print("resample")
-      post_cov <- cov_coef * cov.wt(trans(thetas, trans_args = trans_args), wt=omegas * 1e20)$cov
+      post_cov <- cov_coef * cov.wt(trans(thetas, trans_args = trans_args), wt=omegas * 1e20)$cov + 1e-6
       nb <- 0
       aa <- sample(1:Ntheta, Ntheta, prob = omegas/sum(omegas), replace = TRUE)
       proposed_log_theta <- trans(thetas[aa, , drop = FALSE], trans_args = trans_args) + mvtnorm::rmvnorm(Ntheta, sigma = post_cov)
       proposed_thetas <- invtrans(proposed_log_theta, trans_args = trans_args)
+      proposed_thetas <- as.data.frame(proposed_thetas)
+      names(proposed_thetas) <- prior_names
 
       full_list_prop <- SMC2_ABC(proposed_thetas, dprior, loss, loss_args, Ntheta, Nx, pacc, dtp, ESS_threshold = 0, eps = eps[1:tp], cl,  TT = tp, trans = trans, invtrans = invtrans)
 

@@ -4,7 +4,9 @@
 \name{Ny}
 \alias{Ny}
 \title{Initialise SMC}
-\format{An object of class \code{numeric} of length 1.}
+\format{
+An object of class \code{numeric} of length 1.
+}
 \usage{
 Ny
 }

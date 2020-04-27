@@ -9,7 +9,7 @@ get_state <- function(full_list, dim = 1, probs = c(0.025, 0.5, 0.975)){
   Ntheta <- length(full_list[[2]])
   Nx <- dim(full_list[[2]][[1]]$x)[1]
 
-  q_mat <- matrix(NA, nrow = TT, ncol =3)
+  q_mat <- list()
 
   if(is.na(probs[1])){
     x_array <- array(dim = c(TT, Ntheta, Nx))
@@ -19,7 +19,7 @@ get_state <- function(full_list, dim = 1, probs = c(0.025, 0.5, 0.975)){
   for(tp in 1:TT){
     x_list <- full_list[[tp]]
 
-    x_mat <- t(abind::abind(lapply(x_list, function(x){x$x[, dim, drop = FALSE]})))
+    x_mat <- t(abind::abind(lapply(x_list, function(x){num_x = which(is.numeric(x)); abind::abind(x$x, along = 2)})))
 
     w_mat <- t(sapply(x_list, function(x){x$w * x$omega}))
 
@@ -29,22 +29,24 @@ get_state <- function(full_list, dim = 1, probs = c(0.025, 0.5, 0.975)){
     }
 
     if(!is.na(probs[1])){
-      x <- as.numeric(x_mat)
+      #x <- as.numeric(x_mat)
       w <- as.numeric(w_mat)
 
-      state_sample <- sample(x, prob = w, replace = TRUE)
+      # state_sample <- x_mat[indicies,]
 
-      q_mat[tp,] <- quantile(state_sample, probs = probs)
+      q_mat[[tp]] <- apply(x_mat, 2, Hmisc::wtd.quantile, weights = w/sum(w) * 1e6, probs = probs, normwt = FALSE)
 
       #q_mat[tp,] <- Hmisc::wtd.quantile(x, weights = w / sum(w), probs = probs, normwt = FALSE)
     }
   }
 
-  if(!is.na(probs[1])){
-    output <- data.frame(time = seq(1, TT), lower = q_mat[,1], med = q_mat[,2], upper = q_mat[,3])
-  } else {
-    output <- list(x_array = x_array, w_array = w_array)
-  }
+  # if(!is.na(probs[1])){
+  #   output <- data.frame(time = seq(1, TT), lower = q_mat[,1], med = q_mat[,2], upper = q_mat[,3])
+  # } else {
+  #   output <- list(x_array = x_array, w_array = w_array)
+  # }
+
+  output <- q_mat
 
   return(output)
 }

@@ -11,7 +11,7 @@ check_input <- function(prior_sample, dprior, loss, loss_args, Ntheta, Nx, pacc,
   stopifnot(length(formals(loss)) == 5)
   stopifnot(all(c("x", "theta", "time1", "time2", "inp") %in% names(formals(loss))))
 
-  loss_out <- loss(NULL, prior_sample[1,], 1 * dtp, 2 * dtp, loss_args)
+  loss_out <- loss(NULL, prior_sample[1,], 1 * dtp - dtp, 1 * dtp, loss_args)
 
   stopifnot(is.list(loss_out))
 
