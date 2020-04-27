@@ -1,7 +1,7 @@
 
 #' @export
 #' @importFrom dplyr %>%
-get_state <- function(full_list, dim = 1, probs = c(0.025, 0.5, 0.975)){
+get_state <- function(full_list, dim = 1, probs = c(0.025, 0.5, 0.975), cl = NULL){
 
 
   TT <- length(full_list)
@@ -16,10 +16,9 @@ get_state <- function(full_list, dim = 1, probs = c(0.025, 0.5, 0.975)){
     w_array <- array(dim = c(TT, Ntheta, Nx))
   }
 
-  for(tp in 1:TT){
-    x_list <- full_list[[tp]]
+  output <- parallel::parLapply(cl, full_list, function(x_list){
 
-    x_mat <- t(abind::abind(lapply(x_list, function(x){num_x = which(is.numeric(x)); abind::abind(x$x, along = 2)})))
+    x_mat <- t(abind::abind(lapply(x_list, function(x){abind::abind(x$x, along = 2)})))
 
     w_mat <- t(sapply(x_list, function(x){x$w * x$omega}))
 
@@ -34,19 +33,19 @@ get_state <- function(full_list, dim = 1, probs = c(0.025, 0.5, 0.975)){
 
       # state_sample <- x_mat[indicies,]
 
-      q_mat[[tp]] <- apply(x_mat, 2, Hmisc::wtd.quantile, weights = w/sum(w) * 1e6, probs = probs, normwt = FALSE)
+      q_mat <- apply(x_mat, 2, Hmisc::wtd.quantile, weights = w/sum(w) * 1e6, probs = probs, normwt = FALSE)
 
       #q_mat[tp,] <- Hmisc::wtd.quantile(x, weights = w / sum(w), probs = probs, normwt = FALSE)
     }
-  }
+
+    return(q_mat)
+  })
 
   # if(!is.na(probs[1])){
   #   output <- data.frame(time = seq(1, TT), lower = q_mat[,1], med = q_mat[,2], upper = q_mat[,3])
   # } else {
   #   output <- list(x_array = x_array, w_array = w_array)
   # }
-
-  output <- q_mat
 
   return(output)
 }
