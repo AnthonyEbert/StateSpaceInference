@@ -40,7 +40,7 @@ inp <- list(
   y = y
 )
 
-loss = loss_simple
+loss = loss_stan_skew
 
 
 Ntheta = 1000
