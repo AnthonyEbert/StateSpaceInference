@@ -34,3 +34,14 @@ generate_simple <- function(TT, true_states, theta){
   return(y)
 }
 
+#' @export
+generate_stan_skew <- function(TT, true_states, theta){
+  y <- list()
+  for(i in 1:TT){
+    y[[i]] <- as.numeric(sn::rsn(1e1, true_states[i], theta[1], theta[2]))
+  }
+  return(y)
+}
+
+
+
