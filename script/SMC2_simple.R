@@ -1,4 +1,3 @@
-
 library(parallel)
 library(StateSpaceInference)
 library(ggplot2)
@@ -9,9 +8,9 @@ cl <- makeCluster(parallel::detectCores() - 1)
 #cl = "mclapply"
 #cl <- NULL
 
-set.seed(3)
+set.seed(2)
 
-TT <- 40
+TT <- 15
 true_theta <- c(0.25, 0.5)
 lower <- 0
 upper <- 3.5
@@ -27,7 +26,7 @@ lambda_fun <- stepfun(seq(1, TT - 1, by = 1), y = true_states)
 # y_history <- sim_hawkes(lambda_fun, NULL, kern, 0, TT*10, progressBar = FALSE)
 # y <- hist(y_history, breaks = seq(0, TT*10, by = 10), plot = FALSE)$counts
 
-y <- generate_simple(TT, true_states, true_theta)
+y <- generate_stan_skew(TT, true_states, true_theta)
 
 plot(seq(0, TT, length.out = TT * 10), unlist(y))
 
@@ -38,25 +37,36 @@ inp <- list(
   upper = upper,
   sd_t = sd_t,
   a_logit = a_logit,
-  y = y,
-  weights = c(1, 1, 1)
+  y = y
 )
 
 loss = loss_simple
 
 
-Ntheta = 100
-Nx = 200
+Ntheta = 1000
+Nx = 100
 pacc = 0.1
 
-lower_theta <- c(-0.2, 0.2)
+lower_theta <- c(0.1, 0.2)
 upper_theta <- c(0.5, 0.8)
 
 prior_sample <- data.frame(theta1 = runif(Ntheta, lower_theta[1], upper_theta[1]), theta2 = runif(Ntheta, lower_theta[2], upper_theta[2]))
 
 prior_sample <- as.matrix(prior_sample, ncol = 2)
 
-full_list <- SMC2_ABC(prior_sample, dprior = protoABC::prior_unif(lower_theta, upper_theta, eval = TRUE), loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.5, TT = TT, cov_coef = 1)
+trans <- function(x, trans_args){
+  theta1 <- log(x[,1])
+  theta2 <- log(x[,2])
+  return(cbind(theta1, theta2))
+}
+
+invtrans <- function(x, trans_args){
+  theta1 <- exp(x[,1])
+  theta2 <- exp(x[,2])
+  return(cbind(theta1, theta2))
+}
+
+full_list <- SMC2_ABC(prior_sample, dprior = function(x){dunif(x[1], 0.1, 0.5)*dunif(x[2],0.2,0.8)}, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.5, TT = TT, trans = trans, invtrans = invtrans, cov_coef = 0.25^2)
 
 state_df <- get_state(full_list)
 
