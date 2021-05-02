@@ -74,10 +74,15 @@ state_df$state <- true_states
 
 theta_df <- get_parameter(full_list)
 
-
 save.image()
-save(state_df, file = "state_df.RData")
-save(theta_df, file = "theta_df.RData")
+
+theta_df <- theta_df %>%
+  filter(time == TT) %>%
+  mutate(seed = seed, type = "ABC") %>%
+  select(-parameter, -time)
+
+saveRDS(state_df, file = "state_df.rds")
+saveRDS(theta_df, file = "theta_df.rds")
 
 
 
