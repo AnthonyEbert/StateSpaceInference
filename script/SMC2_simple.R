@@ -4,8 +4,8 @@ library(ggplot2)
 library(ggalt)
 sessionInfo()
 
-cl <- makeCluster(parallel::detectCores() - 1)
-#cl = "mclapply"
+#cl <- makeCluster(parallel::detectCores() - 1)
+cl = "mclapply"
 #cl <- NULL
 
 set.seed(2)
