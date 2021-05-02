@@ -1,6 +1,7 @@
 library(parallel)
 library(StateSpaceInference)
 library(ggplot2)
+library(dplyr)
 #library(ggalt)
 sessionInfo()
 
@@ -10,7 +11,7 @@ cl = "mclapply"
 
 set.seed(2)
 
-TT <- 15
+TT <- 20
 true_theta <- c(0.25, 0.5)
 lower <- 0
 upper <- 3.5
@@ -43,9 +44,9 @@ inp <- list(
 loss = loss_stan_skew
 
 
-Ntheta = 1000
-Nx = 100
-pacc = 0.1
+Ntheta = 2000
+Nx = 10000
+pacc = 0.05
 
 lower_theta <- c(0.1, 0.2)
 upper_theta <- c(0.5, 0.8)
