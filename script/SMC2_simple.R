@@ -1,6 +1,7 @@
 library(parallel)
 library(StateSpaceInference)
 library(ggplot2)
+library(dplyr)
 #library(ggalt)
 sessionInfo()
 
