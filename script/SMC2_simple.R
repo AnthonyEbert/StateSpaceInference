@@ -1,7 +1,7 @@
 library(parallel)
 library(StateSpaceInference)
 library(ggplot2)
-library(ggalt)
+#library(ggalt)
 sessionInfo()
 
 #cl <- makeCluster(parallel::detectCores() - 1)
@@ -86,6 +86,6 @@ saveRDS(theta_df, file = "theta_df.rds")
 
 
 
-ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + ggthemes::theme_base() + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
+ggplot(state_df) + aes(x = time, y = state, ymin = lower, ymax = upper) + geom_step() + geom_ribbon(alpha = 0.2, stat = "stepribbon", fill = "red") + geom_step(mapping = aes(x = time, y = med), col = "red") + scale_y_continuous(expand = c(0, 0)) + scale_x_continuous(expand = c(0, 0))
 
 ggplot(theta_df[which(theta_df$time %% 5 == 0),]) + aes(x = value, weights = weight, col = factor(time)) + geom_density() + facet_wrap(~parameter, scales = "free")
