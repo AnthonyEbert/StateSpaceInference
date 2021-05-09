@@ -5,20 +5,20 @@ library(dplyr)
 #library(ggalt)
 sessionInfo()
 
-#cl <- makeCluster(parallel::detectCores() - 1)
-cl = "mclapply"
+cl <- makeCluster(parallel::detectCores() - 1)
+#cl = "mclapply"
 #cl <- NULL
 
 set.seed(2)
 
 TT <- 20
-true_theta <- c(0.25, 0.5)
+true_theta <- c(0.25, 2)
 lower <- 0
 upper <- 3.5
 sd_t <- 1
-init <- min(rgamma(1, 100, 100), upper - 1)
+
 a_logit <- 0.9
-dist_coef <- 0.5
+
 true_states <-cumsum(rnorm(TT))
 
 lambda_fun <- stepfun(seq(1, TT - 1, by = 1), y = true_states)
@@ -29,7 +29,7 @@ lambda_fun <- stepfun(seq(1, TT - 1, by = 1), y = true_states)
 
 y <- generate_stan_skew(TT, true_states, true_theta)
 
-plot(seq(0, TT, length.out = TT * 10), unlist(y))
+plot(seq(0, TT, length.out = TT * 100), unlist(y))
 
 plot(lambda_fun, add = TRUE, col = "red")
 
@@ -45,11 +45,11 @@ loss = loss_stan_skew
 
 
 Ntheta = 2000
-Nx = 10000
+Nx = 2000
 pacc = 0.05
 
 lower_theta <- c(0.1, 0.2)
-upper_theta <- c(0.5, 0.8)
+upper_theta <- c(0.5, 4)
 
 prior_sample <- data.frame(theta1 = runif(Ntheta, lower_theta[1], upper_theta[1]), theta2 = runif(Ntheta, lower_theta[2], upper_theta[2]))
 
@@ -67,7 +67,7 @@ invtrans <- function(x, trans_args){
   return(cbind(theta1, theta2))
 }
 
-full_list <- SMC2_ABC(prior_sample, dprior = function(x){dunif(x[1], 0.1, 0.5)*dunif(x[2],0.2,0.8)}, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.5, TT = TT, trans = trans, invtrans = invtrans, cov_coef = 0.25^2)
+full_list <- SMC2_ABC(prior_sample, dprior = function(x){dunif(x[1], 0.1, 0.5)*dunif(x[2],0.2,4)}, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.5, TT = TT, trans = trans, invtrans = invtrans, cov_coef = 0.25^2)
 
 state_df <- get_state(full_list)
 
