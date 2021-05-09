@@ -1,0 +1,267 @@
+
+R version 4.0.3 (2020-10-10) -- "Bunny-Wunnies Freak Out"
+Copyright (C) 2020 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(parallel)
+> library(StateSpaceInference)
+> library(ggplot2)
+> library(dplyr)
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+> #library(ggalt)
+> sessionInfo()
+R version 4.0.3 (2020-10-10)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: SUSE Linux Enterprise Server 12 SP5
+
+Matrix products: default
+BLAS/LAPACK: /pkg/suse12/software/OpenBLAS/0.3.12-GCC-10.2.0/lib/libopenblas_haswellp-r0.3.12.so
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] dplyr_1.0.5               ggplot2_3.3.3            
+[3] StateSpaceInference_2.2.0
+
+loaded via a namespace (and not attached):
+ [1] fansi_0.4.2      withr_2.4.2      assertthat_0.2.1 utf8_1.2.1      
+ [5] crayon_1.4.1     grid_4.0.3       R6_2.5.0         gtable_0.3.0    
+ [9] DBI_1.1.0        lifecycle_1.0.0  magrittr_2.0.1   scales_1.1.1    
+[13] pillar_1.6.0     rlang_0.4.11     vctrs_0.3.8      generics_0.1.0  
+[17] ellipsis_0.3.2   glue_1.4.2       munsell_0.5.0    purrr_0.3.4     
+[21] compiler_4.0.3   colorspace_2.0-0 pkgconfig_2.0.3  tidyselect_1.1.1
+[25] tibble_3.1.1    
+> 
+> #cl <- makeCluster(parallel::detectCores() - 1)
+> cl = "mclapply"
+> #cl <- NULL
+> 
+> set.seed(2)
+> 
+> TT <- 20
+> true_theta <- c(0.25, 0.5)
+> lower <- 0
+> upper <- 3.5
+> sd_t <- 1
+> init <- min(rgamma(1, 100, 100), upper - 1)
+> a_logit <- 0.9
+> dist_coef <- 0.5
+> true_states <-cumsum(rnorm(TT))
+> 
+> lambda_fun <- stepfun(seq(1, TT - 1, by = 1), y = true_states)
+> # kern <- function(x){return(decay_func(x, alpha = true_theta[1], delta = true_theta[2]))}
+> #
+> # y_history <- sim_hawkes(lambda_fun, NULL, kern, 0, TT*10, progressBar = FALSE)
+> # y <- hist(y_history, breaks = seq(0, TT*10, by = 10), plot = FALSE)$counts
+> 
+> y <- generate_stan_skew(TT, true_states, true_theta)
+> 
+> plot(seq(0, TT, length.out = TT * 10), unlist(y))
+> 
+> plot(lambda_fun, add = TRUE, col = "red")
+> 
+> inp <- list(
++   lower = lower,
++   upper = upper,
++   sd_t = sd_t,
++   a_logit = a_logit,
++   y = y
++ )
+> 
+> loss = loss_stan_skew
+> 
+> 
+> Ntheta = 2000
+> Nx = 10000
+> pacc = 0.05
+> 
+> lower_theta <- c(0.1, 0.2)
+> upper_theta <- c(0.5, 0.8)
+> 
+> prior_sample <- data.frame(theta1 = runif(Ntheta, lower_theta[1], upper_theta[1]), theta2 = runif(Ntheta, lower_theta[2], upper_theta[2]))
+> 
+> prior_sample <- as.matrix(prior_sample, ncol = 2)
+> 
+> trans <- function(x, trans_args){
++   theta1 <- log(x[,1])
++   theta2 <- log(x[,2])
++   return(cbind(theta1, theta2))
++ }
+> 
+> invtrans <- function(x, trans_args){
++   theta1 <- exp(x[,1])
++   theta2 <- exp(x[,2])
++   return(cbind(theta1, theta2))
++ }
+> 
+> full_list <- SMC2_ABC(prior_sample, dprior = function(x){dunif(x[1], 0.1, 0.5)*dunif(x[2],0.2,0.8)}, loss, loss_args = inp, Ntheta = Ntheta, Nx = Nx, pacc = pacc, cl = cl, dt = 1, ESS_threshold = 0.5, TT = TT, trans = trans, invtrans = invtrans, cov_coef = 0.25^2)
+[1] 0.1000092 0.1142870 0.2988464 0.4886084 0.4996903
+[1] 0.2001172 0.2173243 0.4997637 0.7844427 0.7999193
+[1] "1. 1969.9264177719"
+[1] 0.1000092 0.1116191 0.2765116 0.4823091 0.4996903
+[1] 0.2001172 0.2177598 0.5065251 0.7844652 0.7999193
+[1] "2. 1880.28417080439"
+[1] 0.1000092 0.1133875 0.2699212 0.4751526 0.4996903
+[1] 0.2001172 0.2177598 0.5093051 0.7851815 0.7999193
+[1] "3. 1804.60930721125"
+[1] 0.1000092 0.1174262 0.2569569 0.4581398 0.4996903
+[1] 0.2001172 0.2178999 0.5096202 0.7851815 0.7999193
+[1] "4. 1620.90937644245"
+[1] 0.1000092 0.1192917 0.2541160 0.4395507 0.4996903
+[1] 0.2001172 0.2177598 0.5095277 0.7851815 0.7999193
+[1] "5. 1499.7448760392"
+[1] 0.1000092 0.1225160 0.2550684 0.4340686 0.4996903
+[1] 0.2001172 0.2177598 0.5114120 0.7851815 0.7999193
+[1] "6. 1437.37696836425"
+[1] 0.1000092 0.1228715 0.2569569 0.4331202 0.4996903
+[1] 0.2001172 0.2180163 0.5193656 0.7860059 0.7999193
+[1] "7. 1416.01040282194"
+[1] 0.1000092 0.1227891 0.2485509 0.4136255 0.4996903
+[1] 0.2001172 0.2179861 0.5164770 0.7854855 0.7999193
+[1] "8. 1335.26829186779"
+[1] 0.1000092 0.1233711 0.2486700 0.4091287 0.4996903
+[1] 0.2001172 0.2180163 0.5188395 0.7860059 0.7999193
+[1] "9. 1299.91204450722"
+[1] 0.1000092 0.1372804 0.2661581 0.4121653 0.4996903
+[1] 0.2001172 0.2179861 0.5168444 0.7854855 0.7999193
+[1] "10. 1217.11364537231"
+[1] 0.1000092 0.1450191 0.2691805 0.4118363 0.4996903
+[1] 0.2001172 0.2179861 0.5176853 0.7860059 0.7999193
+[1] "11. 1172.52105726323"
+[1] 0.1000092 0.1471913 0.2666976 0.3990189 0.4996903
+[1] 0.2001172 0.2180163 0.5207317 0.7860059 0.7999193
+[1] "12. 1107.08985352052"
+[1] 0.1000092 0.1537814 0.2696984 0.3961679 0.4996903
+[1] 0.2001172 0.2180163 0.5217495 0.7860059 0.7999193
+[1] "13. 1048.07607681667"
+[1] 0.1000092 0.1553818 0.2699212 0.3935864 0.4996903
+[1] 0.2001172 0.2179861 0.5216290 0.7860059 0.7999193
+[1] "14. 1017.80778530076"
+[1] 0.1000092 0.1564700 0.2677730 0.3865745 0.4996903
+[1] 0.2001172 0.2180163 0.5198154 0.7854855 0.7999193
+[1] "15. 984.019399689385"
+[1] "resample"
+[1] 0.09992036 0.15380108 0.26390238 0.38530441 0.52287073
+[1] 0.1713839 0.2136333 0.5083441 0.8263908 1.0338167
+[1] "SMC:  1988.21680682278"
+[1] 0.09992036 0.15364125 0.26071941 0.38095921 0.52287073
+[1] 0.1713839 0.2136333 0.5112640 0.8271697 1.0338167
+[1] "SMC:  1980.0026916431"
+[1] 0.09992036 0.15408539 0.26043442 0.37626553 0.52287073
+[1] 0.1713839 0.2142783 0.5141865 0.8299000 1.0338167
+[1] "SMC:  1969.15045217837"
+[1] 0.09992036 0.15703166 0.25869363 0.36912704 0.52287073
+[1] 0.1713839 0.2136333 0.5140006 0.8274426 1.0338167
+[1] "SMC:  1935.10136118963"
+[1] 0.09992036 0.15791988 0.25828878 0.36497867 0.52287073
+[1] 0.1713839 0.2132829 0.5138134 0.8271697 1.0338167
+[1] "SMC:  1905.54145149263"
+[1] 0.09992036 0.16086511 0.25947079 0.36379364 0.52287073
+[1] 0.1713839 0.2132829 0.5162873 0.8299000 1.0338167
+[1] "SMC:  1887.46047888283"
+[1] 0.09992036 0.16212836 0.25990222 0.36379364 0.52287073
+[1] 0.1713839 0.2142783 0.5217151 0.8327568 1.0338167
+[1] "SMC:  1877.9156038546"
+[1] 0.09992036 0.16086511 0.25723551 0.35733089 0.52287073
+[1] 0.1713839 0.2132829 0.5190842 0.8317779 1.0338167
+[1] "SMC:  1848.3399915734"
+[1] 0.09992036 0.16230704 0.25762764 0.35579915 0.52287073
+[1] 0.1713839 0.2136333 0.5203870 0.8327568 1.0338167
+[1] "SMC:  1833.87964572407"
+[1] 0.09992036 0.17344286 0.26240088 0.35870466 0.52287073
+[1] 0.1713839 0.2136333 0.5181135 0.8318651 1.0338167
+[1] "SMC:  1805.47101376952"
+[1] 0.09992036 0.17681846 0.26533289 0.35989551 0.52287073
+[1] 0.1713839 0.2136333 0.5193245 0.8327568 1.0338167
+[1] "SMC:  1779.18447789882"
+[1] 0.09992036 0.17810359 0.26359928 0.35356593 0.52287073
+[1] 0.1713839 0.2136333 0.5220492 0.8350893 1.0338167
+[1] "SMC:  1747.56388529246"
+[1] 0.09992036 0.18209362 0.26615197 0.35352162 0.52287073
+[1] 0.1713839 0.2136333 0.5235850 0.8356095 1.0338167
+[1] "SMC:  1711.20113935306"
+[1] 0.09992036 0.18327672 0.26638456 0.35257477 0.52287073
+[1] 0.1713839 0.2136333 0.5219150 0.8350893 1.0338167
+[1] "SMC:  1691.50805317501"
+[1] 0.09992036 0.18331769 0.26542257 0.34984095 0.52287073
+[1] 0.1713839 0.2132829 0.5195861 0.8350893 1.0338167
+[1] "SMC:  1669.76990912936"
+acceptance rate:  0.798 
+[1] 0.1256080 0.1906499 0.2660929 0.3369293 0.3953020
+[1] 0.2000499 0.2218356 0.5167855 0.7770264 0.7997605
+[1] "16. 1994.61678460929"
+[1] 0.1256080 0.1924036 0.2662267 0.3367164 0.3953020
+[1] 0.2000499 0.2218356 0.5141865 0.7743693 0.7997605
+[1] "17. 1988.72142363041"
+[1] 0.1256080 0.1933187 0.2661581 0.3363183 0.3953020
+[1] 0.2000499 0.2208968 0.5091304 0.7743693 0.7997605
+[1] "18. 1979.8326238077"
+[1] 0.1256080 0.1913683 0.2641494 0.3352550 0.3953020
+[1] 0.2000499 0.2193181 0.5027251 0.7743113 0.7997605
+[1] "19. 1967.58331157446"
+[1] 0.1256080 0.1906499 0.2623021 0.3331786 0.3953020
+[1] 0.2000499 0.2193181 0.5018153 0.7743113 0.7997605
+[1] "20. 1945.45473867158"
+There were 50 or more warnings (use warnings() to see the first 50)
+> 
+> state_df <- get_state(full_list)
+> 
+> state_df$state <- true_states
+> 
+> theta_df <- get_parameter(full_list)
+> 
+> save.image()
+> 
+> theta_df <- theta_df %>%
++   filter(time == TT) %>%
++   mutate(seed = seed, type = "ABC") %>%
++   select(-parameter, -time)
+Error: Problem with `mutate()` input `seed`.
+✖ object 'seed' not found
+ℹ Input `seed` is `seed`.
+Backtrace:
+    █
+ 1. ├─`%>%`(...)
+ 2. ├─dplyr::select(., -parameter, -time)
+ 3. ├─dplyr::mutate(., seed = seed, type = "ABC")
+ 4. ├─dplyr:::mutate.data.frame(., seed = seed, type = "ABC")
+ 5. │ └─dplyr:::mutate_cols(.data, ...)
+ 6. │   ├─base::withCallingHandlers(...)
+ 7. │   └─mask$eval_all_mutate(quo)
+ 8. └─base::.handleSimpleError(...)
+ 9.   └─dplyr:::h(simpleError(msg, call))
+Execution halted
