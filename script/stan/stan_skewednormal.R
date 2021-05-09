@@ -14,16 +14,13 @@ set.seed(seed)
 #cl = "mclapply"
 #cl <- NULL
 
-upper <- 3.5
-init <- min(rgamma(1, 100, 100), upper - 1)
-
 TT <- 20
 x <- rnorm(TT)
 x <- cumsum(x)
 
 z <- generate_stan_skew(TT, x, c(0.25, 0.5))
 
-y <- matrix(0, nrow = TT, ncol = 10)
+y <- matrix(0, nrow = TT, ncol = 100)
 for (j in 1:TT) {
   y[j, ] <- z[[j]]
 }

@@ -38,7 +38,7 @@ generate_simple <- function(TT, true_states, theta){
 generate_stan_skew <- function(TT, true_states, theta){
   y <- list()
   for(i in 1:TT){
-    y[[i]] <- as.numeric(sn::rsn(1e1, true_states[i], theta[1], theta[2]))
+    y[[i]] <- as.numeric(sn::rsn(1e2, true_states[i], theta[1], theta[2]))
   }
   return(y)
 }
@@ -53,7 +53,7 @@ loss_stan_skew <- function(x, theta, time1, time2, inp){
     x <- rnorm(1, mean = x)
   }
 
-  y <- suppressMessages(sn::rsn(1e1, x, theta[1], theta[2]))
+  y <- suppressMessages(sn::rsn(1e2, x, theta[1], theta[2]))
 
   ss_obs <- c(mean(inp$y[[time2]]), sd(inp$y[[time2]]), e1071::skewness(inp$y[[time2]]))
   ss_sim <- c(mean(y), sd(y), e1071::skewness(y))
