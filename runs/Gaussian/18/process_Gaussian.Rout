@@ -1,0 +1,85 @@
+
+R version 4.0.5 (2021-03-31) -- "Shake and Throw"
+Copyright (C) 2021 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> # Process Gaussian skewed
+> 
+> library(dplyr)
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+> library(forcats)
+> library(ggplot2)
+> library(ggalt)
+Registered S3 methods overwritten by 'ggalt':
+  method                  from   
+  grid.draw.absoluteGrob  ggplot2
+  grobHeight.absoluteGrob ggplot2
+  grobWidth.absoluteGrob  ggplot2
+  grobX.absoluteGrob      ggplot2
+  grobY.absoluteGrob      ggplot2
+> 
+> load("theta_df.RData")
+> load("stan_df.RData")
+> 
+> theta_df_2 <- theta_df %>% filter(time == max(time)) %>% select(-time) %>% mutate(type = "ABC")
+> 
+> theta_df_2$parameter <- forcats::fct_recode(theta_df_2$parameter, sigma = "1", gamma = "2")
+> 
+> stan_df_2 <- stan_df %>%
++   select(-seed) %>%
++   tidyr::gather(key = parameter, value = value, -type, -weight)
+> 
+> combined_df <- bind_rows(theta_df_2, stan_df_2)
+> 
+> theta_of_interest <- combined_df
+> 
+> limits <- data.frame(parameter = rep(c("sigma","gamma"), each = 2), value = c(c(0.1, 0.5), c(0.2, 0.8)), weight = 0, type = "limits")
+> 
+> #theta_of_interest <- bind_rows(theta_of_interest, limits)
+> 
+> true_theta <- data.frame(parameter = factor(c("sigma", "gamma")), value = c(0.25, 0.5))
+> 
+> parameter_plot <- ggplot(theta_of_interest) +
++   aes(x = value, weights = weight, color = factor(type)) +
++   geom_density(bw = 0.01) +
++   facet_wrap(~parameter, labeller = label_parsed, scales = "free_x") +
++   geom_vline(data = true_theta, mapping = aes(xintercept = value), col = "red") +
++   xlab("Parameter value") +
++   scale_y_continuous(expand = expand_scale(mult = c(0,0.05))) +
++   ggthemes::theme_few() +
++   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.line.y = element_blank()) +
++   ylab("ABC posterior density")
+Warning message:
+`expand_scale()` is deprecated; use `expansion()` instead. 
+> 
+> parameter_plot
+> 
+> proc.time()
+   user  system elapsed 
+  4.321   0.486   4.428 
