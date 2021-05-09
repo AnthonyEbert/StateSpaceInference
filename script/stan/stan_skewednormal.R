@@ -18,7 +18,7 @@ TT <- 20
 x <- rnorm(TT)
 x <- cumsum(x)
 
-z <- generate_stan_skew(TT, x, c(0.25, 0.5))
+z <- generate_stan_skew(TT, x, c(0.25, 2))
 
 y <- matrix(0, nrow = TT, ncol = 100)
 for (j in 1:TT) {
@@ -29,7 +29,7 @@ datastan <- list(TT = TT, y = y)
 fit <- stan(
   file = "../../../script/stan/skewednormal.stan",
   data = datastan,
-  iter = 10000,
+  iter = 1000,
   chains = 2*parallel::detectCores(),
   cores = parallel::detectCores(),
   pars = c("sigma", "gamma")
