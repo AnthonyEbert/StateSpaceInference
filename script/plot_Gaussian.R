@@ -2,7 +2,9 @@ library(ggplot2)
 library(ggalt)
 library(dplyr)
 
-load("state_df.RData")
+state_df <- readRDS("state_df.rds")
+
+#load("state_df.RData")
 load("theta_df.RData")
 
 fullpath = getwd()
@@ -20,7 +22,7 @@ state_plot <- ggplot(state_df) +
   geom_pointrange(shape = 95) +
   geom_point(mapping = aes(x = time, y = state), col = "red") +
   ggthemes::theme_base() +
-  scale_y_continuous(expand = c(0, 0)) +
+  #scale_y_continuous(expand = c(0, 0)) +
   xlab("Time: t") +
   ylab(expression(State:~x[t]))
 
