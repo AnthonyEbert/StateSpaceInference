@@ -1,0 +1,468 @@
+
+R version 4.0.5 (2021-03-31) -- "Shake and Throw"
+Copyright (C) 2021 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> 
+> options(mc.cores = parallel::detectCores())
+> 
+> library(StateSpaceInference)
+> library(parallel)
+> library(rstan)
+Loading required package: StanHeaders
+Loading required package: ggplot2
+rstan (Version 2.21.2, GitRev: 2e1f913d3ca3)
+For execution on a local, multicore CPU with excess RAM we recommend calling
+options(mc.cores = parallel::detectCores()).
+To avoid recompilation of unchanged Stan programs, we recommend calling
+rstan_options(auto_write = TRUE)
+> 
+> sessionInfo()
+R version 4.0.5 (2021-03-31)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 20.04.2 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/liblapack.so.3
+
+locale:
+ [1] LC_CTYPE=en_AU.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_AU.UTF-8        LC_COLLATE=en_AU.UTF-8    
+ [5] LC_MONETARY=en_AU.UTF-8    LC_MESSAGES=en_AU.UTF-8   
+ [7] LC_PAPER=en_AU.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] rstan_2.21.2              ggplot2_3.3.3            
+[3] StanHeaders_2.21.0-7      StateSpaceInference_2.2.1
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.6         pillar_1.4.7       compiler_4.0.5     prettyunits_1.1.1 
+ [5] tools_4.0.5        pkgbuild_1.2.0     jsonlite_1.7.2     lifecycle_1.0.0   
+ [9] tibble_3.0.6       gtable_0.3.0       pkgconfig_2.0.3    rlang_0.4.10      
+[13] DBI_1.1.1          cli_2.3.0          curl_4.3           loo_2.4.1         
+[17] gridExtra_2.3      withr_2.4.1        dplyr_1.0.4        generics_0.1.0    
+[21] vctrs_0.3.6        stats4_4.0.5       grid_4.0.5         tidyselect_1.1.0  
+[25] glue_1.4.2         inline_0.3.17      R6_2.5.0           processx_3.4.5    
+[29] purrr_0.3.4        callr_3.5.1        magrittr_2.0.1     codetools_0.2-18  
+[33] matrixStats_0.58.0 scales_1.1.1       ps_1.5.0           ellipsis_0.3.1    
+[37] assertthat_0.2.1   colorspace_2.0-0   V8_3.4.0           RcppParallel_5.0.2
+[41] munsell_0.5.0      crayon_1.4.1      
+> 
+> seed <- 2
+> set.seed(seed)
+> 
+> #cl <- makeCluster(parallel::detectCores())
+> #cl = "mclapply"
+> #cl <- NULL
+> 
+> TT <- 20
+> x <- rnorm(TT)
+> x <- cumsum(x)
+> 
+> z <- generate_stan_skew(TT, x, c(0.25, 2))
+> 
+> y <- matrix(0, nrow = TT, ncol = 100)
+> for (j in 1:TT) {
++   y[j, ] <- z[[j]]
++ }
+> 
+> datastan <- list(TT = TT, y = y)
+> fit <- stan(
++   file = "../../../script/stan/skewednormal.stan",
++   data = datastan,
++   iter = 1000,
++   chains = 2*parallel::detectCores(),
++   cores = parallel::detectCores(),
++   pars = c("sigma", "gamma")
++ )
+
+SAMPLING FOR MODEL 'skewednormal' NOW (CHAIN 1).
+Chain 1: Rejecting initial value:
+Chain 1:   Gradient evaluated at the initial value is not finite.
+Chain 1:   Stan can't start sampling from this initial value.
+Chain 1: Rejecting initial value:
+Chain 1:   Gradient evaluated at the initial value is not finite.
+Chain 1:   Stan can't start sampling from this initial value.
+Chain 1: 
+Chain 1: Gradient evaluation took 0.00047 seconds
+Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 4.7 seconds.
+Chain 1: Adjust your expectations accordingly!
+Chain 1: 
+Chain 1: 
+
+SAMPLING FOR MODEL 'skewednormal' NOW (CHAIN 2).
+Chain 2: Rejecting initial value:
+Chain 2:   Gradient evaluated at the initial value is not finite.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 1: Iteration:   1 / 1000 [  0%]  (Warmup)
+Chain 2: Rejecting initial value:
+Chain 2:   Gradient evaluated at the initial value is not finite.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Gradient evaluated at the initial value is not finite.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Gradient evaluated at the initial value is not finite.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Gradient evaluated at the initial value is not finite.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Log probability evaluates to log(0), i.e. negative infinity.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Gradient evaluated at the initial value is not finite.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Gradient evaluated at the initial value is not finite.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Log probability evaluates to log(0), i.e. negative infinity.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Log probability evaluates to log(0), i.e. negative infinity.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Gradient evaluated at the initial value is not finite.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Gradient evaluated at the initial value is not finite.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Gradient evaluated at the initial value is not finite.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Gradient evaluated at the initial value is not finite.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Gradient evaluated at the initial value is not finite.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Log probability evaluates to log(0), i.e. negative infinity.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Gradient evaluated at the initial value is not finite.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Gradient evaluated at the initial value is not finite.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Log probability evaluates to log(0), i.e. negative infinity.
+Chain 2:   Stan can't start sampling from this initial value.
+Chain 2: Rejecting initial value:
+Chain 2:   Gradient evaluated at the initial value is not finite.
+Chain 2:   Stan can't start sampling from this initial value.
+
+Chain SAMPLING2 FOR MODEL ': skewednormal
+' NOW (CHAIN 4).
+Chain 2: Gradient evaluation took 0.00049 seconds
+Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 4.9 seconds.
+Chain 2: Adjust your expectations accordingly!
+Chain 2: 
+Chain 2: 
+
+SAMPLING FOR MODEL 'skewednormal' NOW (CHAIN 3).
+Chain 4: 
+Chain 4: Gradient evaluation took 0.000813 seconds
+Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 8.13 seconds.
+Chain 4: Adjust your expectations accordingly!
+Chain 4: 
+Chain 4: 
+Chain 3: Rejecting initial value:
+Chain 3:   Gradient evaluated at the initial value is not finite.
+Chain 3:   Stan can't start sampling from this initial value.
+Chain 3: Rejecting initial value:
+Chain 3:   Gradient evaluated at the initial value is not finite.
+Chain 3:   Stan can't start sampling from this initial value.
+Chain 3: 
+Chain 3: Gradient evaluation took 0.000423 seconds
+Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 4.23 seconds.
+Chain 3: Adjust your expectations accordingly!
+Chain 3: 
+Chain 3: 
+Chain 4: Iteration:   1 / 1000 [  0%]  (Warmup)
+Chain 2: Iteration:   1 / 1000 [  0%]  (Warmup)
+Chain 3: Iteration:   1 / 1000 [  0%]  (Warmup)
+Chain 4: Iteration: 100 / 1000 [ 10%]  (Warmup)
+Chain 1: Iteration: 100 / 1000 [ 10%]  (Warmup)
+Chain 2: Iteration: 100 / 1000 [ 10%]  (Warmup)
+Chain 3: Iteration: 100 / 1000 [ 10%]  (Warmup)
+Chain 4: Iteration: 200 / 1000 [ 20%]  (Warmup)
+Chain 2: Iteration: 200 / 1000 [ 20%]  (Warmup)
+Chain 1: Iteration: 200 / 1000 [ 20%]  (Warmup)
+Chain 2: Iteration: 300 / 1000 [ 30%]  (Warmup)
+Chain 4: Iteration: 300 / 1000 [ 30%]  (Warmup)
+Chain 1: Iteration: 300 / 1000 [ 30%]  (Warmup)
+Chain 2: Iteration: 400 / 1000 [ 40%]  (Warmup)
+Chain 3: Iteration: 200 / 1000 [ 20%]  (Warmup)
+Chain 4: Iteration: 400 / 1000 [ 40%]  (Warmup)
+Chain 1: Iteration: 400 / 1000 [ 40%]  (Warmup)
+Chain 2: Iteration: 500 / 1000 [ 50%]  (Warmup)
+Chain 2: Iteration: 501 / 1000 [ 50%]  (Sampling)
+Chain 4: Iteration: 500 / 1000 [ 50%]  (Warmup)
+Chain 4: Iteration: 501 / 1000 [ 50%]  (Sampling)
+Chain 1: Iteration: 500 / 1000 [ 50%]  (Warmup)
+Chain 1: Iteration: 501 / 1000 [ 50%]  (Sampling)
+Chain 3: Iteration: 300 / 1000 [ 30%]  (Warmup)
+Chain 2: Iteration: 600 / 1000 [ 60%]  (Sampling)
+Chain 4: Iteration: 600 / 1000 [ 60%]  (Sampling)
+Chain 1: Iteration: 600 / 1000 [ 60%]  (Sampling)
+Chain 3: Iteration: 400 / 1000 [ 40%]  (Warmup)
+Chain 4: Iteration: 700 / 1000 [ 70%]  (Sampling)
+Chain 2: Iteration: 700 / 1000 [ 70%]  (Sampling)
+Chain 1: Iteration: 700 / 1000 [ 70%]  (Sampling)
+Chain 4: Iteration: 800 / 1000 [ 80%]  (Sampling)
+Chain 3: Iteration: 500 / 1000 [ 50%]  (Warmup)
+Chain 3: Iteration: 501 / 1000 [ 50%]  (Sampling)
+Chain 2: Iteration: 800 / 1000 [ 80%]  (Sampling)
+Chain 3: Iteration: 600 / 1000 [ 60%]  (Sampling)
+Chain 4: Iteration: 900 / 1000 [ 90%]  (Sampling)
+Chain 1: Iteration: 800 / 1000 [ 80%]  (Sampling)
+Chain 3: Iteration: 700 / 1000 [ 70%]  (Sampling)
+Chain 2: Iteration: 900 / 1000 [ 90%]  (Sampling)
+Chain 1: Iteration: 900 / 1000 [ 90%]  (Sampling)
+Chain 4: Iteration: 1000 / 1000 [100%]  (Sampling)
+Chain 4: 
+Chain 4:  Elapsed Time: 3.17379 seconds (Warm-up)
+Chain 4:                3.16938 seconds (Sampling)
+Chain 4:                6.34317 seconds (Total)
+Chain 4: 
+Chain 3: Iteration: 800 / 1000 [ 80%]  (Sampling)
+Chain 1: Iteration: 1000 / 1000 [100%]  (Sampling)
+Chain 1: 
+Chain 1:  Elapsed Time: 3.43353 seconds (Warm-up)
+Chain 1:                3.55354 seconds (Sampling)
+Chain 1:                6.98707 seconds (Total)
+Chain 1: 
+Chain 2: Iteration: 1000 / 1000 [100%]  (Sampling)
+Chain 2: 
+Chain 2:  Elapsed Time: 2.94152 seconds (Warm-up)
+Chain 2:                3.07378 seconds (Sampling)
+Chain 2:                6.0153 seconds (Total)
+Chain 2: 
+Chain 3: Iteration: 900 / 1000 [ 90%]  (Sampling)
+Chain 3: Iteration: 1000 / 1000 [100%]  (Sampling)
+Chain 3: 
+Chain 3:  Elapsed Time: 4.7995 seconds (Warm-up)
+Chain 3:                3.00745 seconds (Sampling)
+Chain 3:                7.80695 seconds (Total)
+Chain 3: 
+
+SAMPLING FOR MODEL 'skewednormal' NOW (CHAIN 5).
+Chain 5: Rejecting initial value:
+Chain 5:   Gradient evaluated at the initial value is not finite.
+Chain 5:   Stan can't start sampling from this initial value.
+Chain 5: Rejecting initial value:
+Chain 5:   Gradient evaluated at the initial value is not finite.
+Chain 5:   Stan can't start sampling from this initial value.
+Chain 5: 
+Chain 5: Gradient evaluation took 0.000548 seconds
+Chain 5: 1000 transitions using 10 leapfrog steps per transition would take 5.48 seconds.
+Chain 5: Adjust your expectations accordingly!
+Chain 5: 
+Chain 5: 
+Chain 5: Iteration:   1 / 1000 [  0%]  (Warmup)
+Chain 5: Iteration: 100 / 1000 [ 10%]  (Warmup)
+Chain 5: Iteration: 200 / 1000 [ 20%]  (Warmup)
+
+SAMPLING FOR MODEL 'skewednormal' NOW (CHAIN 6).
+Chain 6: Rejecting initial value:
+Chain 6:   Gradient evaluated at the initial value is not finite.
+Chain 6:   Stan can't start sampling from this initial value.
+Chain 6: Rejecting initial value:
+Chain 6:   Gradient evaluated at the initial value is not finite.
+Chain 6:   Stan can't start sampling from this initial value.
+Chain 6: 
+Chain 6: Gradient evaluation took 0.000468 seconds
+Chain 6: 1000 transitions using 10 leapfrog steps per transition would take 4.68 seconds.
+Chain 6: Adjust your expectations accordingly!
+Chain 6: 
+Chain 6: 
+
+SAMPLING FOR MODEL 'skewednormal' NOW (CHAIN 7).
+Chain 7: Rejecting initial value:
+Chain 7:   Gradient evaluated at the initial value is not finite.
+Chain 7:   Stan can't start sampling from this initial value.
+Chain 7: Rejecting initial value:
+Chain 7:   Gradient evaluated at the initial value is not finite.
+Chain 7:   Stan can't start sampling from this initial value.
+Chain 7: Rejecting initial value:
+Chain 7:   Gradient evaluated at the initial value is not finite.
+Chain 7:   Stan can't start sampling from this initial value.
+Chain 7: Rejecting initial value:
+Chain 7:   Gradient evaluated at the initial value is not finite.
+Chain 7:   Stan can't start sampling from this initial value.
+Chain 7: Rejecting initial value:
+Chain 7:   Gradient evaluated at the initial value is not finite.
+Chain 7:   Stan can't start sampling from this initial value.
+Chain 7: Rejecting initial value:
+Chain 7:   Gradient evaluated at the initial value is not finite.
+Chain 7:   Stan can't start sampling from this initial value.
+Chain 7: Rejecting initial value:
+Chain 7:   Log probability evaluates to log(0), i.e. negative infinity.
+Chain 7:   Stan can't start sampling from this initial value.
+Chain 7: 
+Chain 7: Gradient evaluation took 0.000444 seconds
+Chain 7: 1000 transitions using 10 leapfrog steps per transition would take 4.44 seconds.
+Chain 7: Adjust your expectations accordingly!
+Chain 7: 
+Chain 7: 
+Chain 6: Iteration:   1 / 1000 [  0%]  (Warmup)
+Chain 7: Iteration:   1 / 1000 [  0%]  (Warmup)
+
+SAMPLING FOR MODEL 'skewednormal' NOW (CHAIN 8).
+Chain 8: Rejecting initial value:
+Chain 8:   Gradient evaluated at the initial value is not finite.
+Chain 8:   Stan can't start sampling from this initial value.
+Chain 8: Rejecting initial value:
+Chain 8:   Gradient evaluated at the initial value is not finite.
+Chain 8:   Stan can't start sampling from this initial value.
+Chain 8: Rejecting initial value:
+Chain 8:   Gradient evaluated at the initial value is not finite.
+Chain 8:   Stan can't start sampling from this initial value.
+Chain 8: Rejecting initial value:
+Chain 8:   Gradient evaluated at the initial value is not finite.
+Chain 8:   Stan can't start sampling from this initial value.
+Chain 8: Rejecting initial value:
+Chain 8:   Gradient evaluated at the initial value is not finite.
+Chain 8:   Stan can't start sampling from this initial value.
+Chain 8: Rejecting initial value:
+Chain 8:   Log probability evaluates to log(0), i.e. negative infinity.
+Chain 8:   Stan can't start sampling from this initial value.
+Chain 8: Rejecting initial value:
+Chain 8:   Gradient evaluated at the initial value is not finite.
+Chain 8:   Stan can't start sampling from this initial value.
+Chain 8: Rejecting initial value:
+Chain 8:   Gradient evaluated at the initial value is not finite.
+Chain 8:   Stan can't start sampling from this initial value.
+Chain 8: Rejecting initial value:
+Chain 8:   Gradient evaluated at the initial value is not finite.
+Chain 8:   Stan can't start sampling from this initial value.
+Chain 8: 
+Chain 8: Gradient evaluation took 0.000487 seconds
+Chain 8: 1000 transitions using 10 leapfrog steps per transition would take 4.87 seconds.
+Chain 8: Adjust your expectations accordingly!
+Chain 8: 
+Chain 8: 
+Chain 8: Iteration:   1 / 1000 [  0%]  (Warmup)
+Chain 5: Iteration: 300 / 1000 [ 30%]  (Warmup)
+Chain 6: Iteration: 100 / 1000 [ 10%]  (Warmup)
+Chain 7: Iteration: 100 / 1000 [ 10%]  (Warmup)
+Chain 8: Iteration: 100 / 1000 [ 10%]  (Warmup)
+Chain 5: Iteration: 400 / 1000 [ 40%]  (Warmup)
+Chain 7: Iteration: 200 / 1000 [ 20%]  (Warmup)
+Chain 6: Iteration: 200 / 1000 [ 20%]  (Warmup)
+Chain 5: Iteration: 500 / 1000 [ 50%]  (Warmup)
+Chain 5: Iteration: 501 / 1000 [ 50%]  (Sampling)
+Chain 6: Iteration: 300 / 1000 [ 30%]  (Warmup)
+Chain 7: Iteration: 300 / 1000 [ 30%]  (Warmup)
+Chain 6: Iteration: 400 / 1000 [ 40%]  (Warmup)
+Chain 8: Iteration: 200 / 1000 [ 20%]  (Warmup)
+Chain 5: Iteration: 600 / 1000 [ 60%]  (Sampling)
+Chain 7: Iteration: 400 / 1000 [ 40%]  (Warmup)
+Chain 6: Iteration: 500 / 1000 [ 50%]  (Warmup)
+Chain 6: Iteration: 501 / 1000 [ 50%]  (Sampling)
+Chain 5: Iteration: 700 / 1000 [ 70%]  (Sampling)
+Chain 7: Iteration: 500 / 1000 [ 50%]  (Warmup)
+Chain 7: Iteration: 501 / 1000 [ 50%]  (Sampling)
+Chain 6: Iteration: 600 / 1000 [ 60%]  (Sampling)
+Chain 5: Iteration: 800 / 1000 [ 80%]  (Sampling)
+Chain 7: Iteration: 600 / 1000 [ 60%]  (Sampling)
+Chain 6: Iteration: 700 / 1000 [ 70%]  (Sampling)
+Chain 8: Iteration: 300 / 1000 [ 30%]  (Warmup)
+Chain 5: Iteration: 900 / 1000 [ 90%]  (Sampling)
+Chain 7: Iteration: 700 / 1000 [ 70%]  (Sampling)
+Chain 6: Iteration: 800 / 1000 [ 80%]  (Sampling)
+Chain 7: Iteration: 800 / 1000 [ 80%]  (Sampling)
+Chain 5: Iteration: 1000 / 1000 [100%]  (Sampling)
+Chain 5: 
+Chain 5:  Elapsed Time: 2.81645 seconds (Warm-up)
+Chain 5:                3.71999 seconds (Sampling)
+Chain 5:                6.53644 seconds (Total)
+Chain 5: 
+Chain 8: Iteration: 400 / 1000 [ 40%]  (Warmup)
+Chain 6: Iteration: 900 / 1000 [ 90%]  (Sampling)
+Chain 7: Iteration: 900 / 1000 [ 90%]  (Sampling)
+Chain 6: Iteration: 1000 / 1000 [100%]  (Sampling)
+Chain 6: 
+Chain 6:  Elapsed Time: 2.88699 seconds (Warm-up)
+Chain 6:                3.1515 seconds (Sampling)
+Chain 6:                6.03848 seconds (Total)
+Chain 6: 
+Chain 8: Iteration: 500 / 1000 [ 50%]  (Warmup)
+Chain 8: Iteration: 501 / 1000 [ 50%]  (Sampling)
+Chain 7: Iteration: 1000 / 1000 [100%]  (Sampling)
+Chain 7: 
+Chain 7:  Elapsed Time: 3.16855 seconds (Warm-up)
+Chain 7:                3.57385 seconds (Sampling)
+Chain 7:                6.7424 seconds (Total)
+Chain 7: 
+Chain 8: Iteration: 600 / 1000 [ 60%]  (Sampling)
+Chain 8: Iteration: 700 / 1000 [ 70%]  (Sampling)
+Chain 8: Iteration: 800 / 1000 [ 80%]  (Sampling)
+Chain 8: Iteration: 900 / 1000 [ 90%]  (Sampling)
+Chain 8: Iteration: 1000 / 1000 [100%]  (Sampling)
+Chain 8: 
+Chain 8:  Elapsed Time: 6.55755 seconds (Warm-up)
+Chain 8:                2.51534 seconds (Sampling)
+Chain 8:                9.07289 seconds (Total)
+Chain 8: 
+> 
+> print(fit)
+Inference for Stan model: skewednormal.
+8 chains, each with iter=1000; warmup=500; thin=1; 
+post-warmup draws per chain=500, total post-warmup draws=4000.
+
+         mean se_mean   sd    2.5%     25%     50%     75%   97.5% n_eff Rhat
+sigma    0.24    0.00 0.01    0.23    0.24    0.24    0.25    0.26  1262    1
+gamma    1.89    0.01 0.19    1.53    1.76    1.89    2.02    2.27  1298    1
+lp__  2518.26    0.08 3.39 2510.48 2516.24 2518.57 2520.70 2523.81  1836    1
+
+Samples were drawn using NUTS(diag_e) at Sun May  9 21:48:10 2021.
+For each parameter, n_eff is a crude measure of effective sample size,
+and Rhat is the potential scale reduction factor on split chains (at 
+convergence, Rhat=1).
+> theta_stan = extract(fit, pars = c("sigma", "gamma"))
+> 
+> save.image()
+> save(theta_stan, file = "theta_stan.RData")
+> 
+> stan_df <- data.frame(
++   sigma = theta_stan$sigma,
++   gamma = theta_stan$gamma,
++   weight = 1/length(theta_stan$sigma),
++   seed = seed,
++   type = "stan"
++ )
+> 
+> save(stan_df, file = "stan_df.RData")
+> 
+> saveRDS(stan_df, file = paste0("theta_stan_", seed,".RData"))
+> 
+> #library(shinystan)
+> #launch_shinystan(fit)
+> 
+> proc.time()
+   user  system elapsed 
+114.947   6.676  77.819 
