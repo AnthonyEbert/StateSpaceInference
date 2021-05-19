@@ -27,7 +27,7 @@ dHawkes <- function(theta){
 #' loss_hawkes(states[2], theta, 10, 20, inp)
 #' @export
 loss_hawkes <- function(x, theta, time1, time2, inp){
-  if(length(x) == 1){
+  if(length(x) %in% c(0,1)){
 
     if(gtools::invalid(x)){
       x <- min(rgamma(1, 100, 100), inp$upper)
